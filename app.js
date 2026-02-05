@@ -1,32 +1,28 @@
 const SAVE_KEY = "teeboxbets_save";
 
-let gameType = null;
-let playStyle = "ffa";
+let gameType=null;
+let playStyle="ffa";
 
-let players = [];
-let teams = { A: [], B: [] };
+let players=[];
+let teams={A:[],B:[]};
+let ledger={};
 
-let ledger = {};
-let hole = 1;
-let holeLimit = 9;
-let baseWager = 0;
-let carryCount = 1;
+let hole=1;
+let holeLimit=9;
+let baseWager=0;
+let carryCount=1;
 
-let history = [];
+let history=[];
 
-let nassau = { front:{}, back:{}, overall:{} };
-
-/* ---------- VISIBILITY SYSTEM ---------- */
+/* ---------- VISIBILITY ---------- */
 
 function hideAllScreens(){
   document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 }
-
 function showScreen(id){
   hideAllScreens();
   document.getElementById(id).classList.remove("hidden");
 }
-
 function closeModals(){
   document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
 }
@@ -34,29 +30,47 @@ function closeModals(){
 /* ---------- GAME SELECT ---------- */
 
 function selectGame(type){
-  gameType = type;
+  gameType=type;
   showScreen("setup-screen");
 }
 
 /* ---------- SETUP ---------- */
 
-document.getElementById("addPlayerBtn").onclick = ()=>{
-  if(document.getElementById("players").children.length>=8) return;
-  document.getElementById("players").innerHTML += `<input placeholder="Player Name">`;
+const playersDiv=document.getElementById("players");
+
+document.getElementById("addPlayerBtn").onclick=()=>{
+  if(playersDiv.children.length>=8) return;
+
+  const input=document.createElement("input");
+  input.placeholder="Player Name";
+  input.oninput=buildTeamAssign;
+
+  playersDiv.appendChild(input);
+  buildTeamAssign();
 };
 
 function toggleTeams(){
-  playStyle = document.getElementById("playStyle").value;
-  document.getElementById("teamAssign").classList.toggle("hidden", playStyle!=="teams");
+  playStyle=document.getElementById("playStyle").value;
+  document.getElementById("teamAssign")
+    .classList.toggle("hidden",playStyle!=="teams");
   buildTeamAssign();
 }
 
 function buildTeamAssign(){
+  if(playStyle!=="teams") return;
+
   const list=document.getElementById("teamList");
   list.innerHTML="";
-  [...document.getElementById("players").children].forEach(i=>{
-    list.innerHTML+=`${i.value||"Player"} 
-      <select><option value="A">Team A</option><option value="B">Team B</option></select><br>`;
+
+  [...playersDiv.children].forEach(input=>{
+    const row=document.createElement("div");
+    row.innerHTML=`
+      ${input.value||"Player"}
+      <select>
+        <option value="A">Team A</option>
+        <option value="B">Team B</option>
+      </select>`;
+    list.appendChild(row);
   });
 }
 
@@ -68,28 +82,27 @@ document.getElementById("startGameBtn").onclick=()=>{
   hole=1;
   carryCount=1;
 
-  [...document.getElementById("players").children].forEach(i=>{
+  [...playersDiv.children].forEach(i=>{
     if(i.value.trim()){
       players.push(i.value.trim());
       ledger[i.value.trim()]=0;
-      nassau.front[i.value.trim()]=0;
-      nassau.back[i.value.trim()]=0;
-      nassau.overall[i.value.trim()]=0;
     }
   });
+
+  if(players.length<2) return alert("Add players");
 
   baseWager=parseFloat(document.getElementById("baseWager").value);
   holeLimit=parseInt(document.getElementById("holeLimit").value);
 
-  if(players.length<2||!baseWager) return alert("Add players & wager");
+  if(!baseWager) return alert("Enter wager");
 
   if(playStyle==="teams"){
-    [...document.querySelectorAll("#teamList select")]
-      .forEach((s,i)=>teams[s.value].push(players[i]));
+    const selects=document.querySelectorAll("#teamList select");
+    selects.forEach((s,i)=>teams[s.value].push(players[i]));
   }
 
   document.getElementById("gameTitle").textContent=
-    document.getElementById("gameName").value || "Tee Box Bets";
+    document.getElementById("gameName").value||"Tee Box Bets";
 
   buildWinnerButtons();
   updateUI();
@@ -115,7 +128,9 @@ function buildWinnerButtons(){
 
 /* ---------- GAME LOGIC ---------- */
 
-function log(text){ history.push(`Hole ${hole}: ${text}`); }
+function log(text){
+  history.push(`Hole ${hole}: ${text}`);
+}
 
 function playerWin(p){
   const total=baseWager*(players.length-1)*carryCount;
@@ -159,17 +174,50 @@ function nextHole(reset=true){
 /* ---------- UI ---------- */
 
 function updateUI(){
-  document.getElementById("holeDisplay").textContent=`Hole ${hole} of ${holeLimit}`;
-  document.getElementById("potDisplay").textContent=`$${baseWager*carryCount}/player`;
+  document.getElementById("holeDisplay").textContent=
+    `Hole ${hole} of ${holeLimit}`;
+
+  document.getElementById("potDisplay").textContent=
+    `$${baseWager*carryCount}/player`;
 
   const l=document.getElementById("ledger");
   l.innerHTML="";
   players.forEach(p=>{
-    l.innerHTML+=`<div class="ledger-row"><span>${p}</span><span>$${ledger[p]}</span></div>`;
+    l.innerHTML+=`
+      <div class="ledger-row">
+        <span>${p}</span>
+        <span>$${ledger[p]}</span>
+      </div>`;
   });
 }
 
-/* ---------- MODALS ---------- */
+/* ---------- SIDE BET ---------- */
+
+function openSideBet(){
+  closeModals();
+  const wrap=document.getElementById("sideWinners");
+  wrap.innerHTML="";
+  players.forEach(p=>{
+    wrap.innerHTML+=`<button onclick="sideWin('${p}')">${p}</button>`;
+  });
+  document.getElementById("sideBetModal").classList.remove("hidden");
+}
+
+function sideWin(p){
+  const amt=parseFloat(document.getElementById("sideAmount").value);
+  if(!amt) return alert("Enter wager");
+
+  players.forEach(x=>{
+    if(x===p) ledger[x]+=amt*(players.length-1);
+    else ledger[x]-=amt;
+  });
+
+  log(`${p} side bet`);
+  closeModals();
+  updateUI();
+}
+
+/* ---------- HISTORY ---------- */
 
 function openHistory(){
   closeModals();
@@ -180,26 +228,6 @@ function openHistory(){
 
 function closeHistory(){ closeModals(); }
 
-function openSideBet(){
-  closeModals();
-  const wrap=document.getElementById("sideWinners");
-  wrap.innerHTML="";
-  players.forEach(p=>wrap.innerHTML+=`<button onclick="sideWin('${p}')">${p}</button>`);
-  document.getElementById("sideBetModal").classList.remove("hidden");
-}
-
-function sideWin(p){
-  const amt=parseFloat(document.getElementById("sideAmount").value);
-  if(!amt) return alert("Enter wager");
-  players.forEach(x=>{
-    if(x===p) ledger[x]+=amt*(players.length-1);
-    else ledger[x]-=amt;
-  });
-  log(`${p} side bet`);
-  closeModals();
-  updateUI();
-}
-
 /* ---------- LEADERBOARD ---------- */
 
 function showLeaderboard(text){
@@ -207,12 +235,12 @@ function showLeaderboard(text){
   const b=document.getElementById("leaderboard");
   b.innerHTML=[...players]
     .sort((a,b)=>ledger[b]-ledger[a])
-    .map(p=>`<div class="leader-row"><span>${p}</span><span>$${ledger[p]}</span></div>`)
-    .join("");
+    .map(p=>`
+      <div class="leader-row">
+        <span>${p}</span>
+        <span>$${ledger[p]}</span>
+      </div>`).join("");
 
-  const btn=document.getElementById("continueBtn");
-  btn.textContent=text;
-  btn.onclick=()=>location.reload();
-
+  document.getElementById("continueBtn").textContent=text;
   document.getElementById("leaderboardModal").classList.remove("hidden");
 }
