@@ -1,20 +1,26 @@
-*{
+* {
 box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+html,body{
+height:100%;
+overflow:hidden;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
 }
 
 body{
-margin:0;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
-background:linear-gradient(180deg,#06281d,#0b3d2e);
-color:#f4fff9;
-height:100vh;
-overflow:hidden;
+background:linear-gradient(180deg,#041a13,#0b3d2e);
+color:#eafff4;
 }
 
 header{
-background:#041a13;
-padding:14px;
-text-align:center;
+height:60px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#03120d;
 font-size:22px;
 font-weight:600;
 letter-spacing:.5px;
@@ -30,7 +36,17 @@ align-items:center;
 section{
 width:100%;
 max-width:420px;
-padding:18px;
+padding:20px;
+display:none;
+}
+
+section:not(.hidden){
+display:block;
+}
+
+h2{
+text-align:center;
+margin-bottom:12px;
 }
 
 input,select,button{
@@ -43,23 +59,18 @@ font-size:16px;
 }
 
 input,select{
-background:#e9f6ef;
+background:#e6f5ee;
 }
 
 button{
 background:#1faa59;
-color:#fff;
+color:white;
 font-weight:600;
+box-shadow:0 6px 14px rgba(0,0,0,.4);
 }
 
 button:active{
-transform:scale(.98);
-}
-
-.hidden{display:none;}
-
-.player-row input{
-margin-bottom:6px;
+transform:scale(.97);
 }
 
 #winnerButtons button{
@@ -69,20 +80,18 @@ margin:6px 0;
 .ledger-row,.leader-row{
 display:flex;
 justify-content:space-between;
-padding:10px;
+padding:12px;
 margin:6px 0;
-background:rgba(255,255,255,.08);
-border-radius:12px;
+background:rgba(255,255,255,.12);
+border-radius:14px;
 }
 
-/* Floating Side Bet */
 #sideBetBtn{
 position:fixed;
 bottom:18px;
 right:18px;
 padding:16px 22px;
-border-radius:30px;
-box-shadow:0 8px 20px rgba(0,0,0,.4);
+border-radius:40px;
 }
 
 /* MODALS */
@@ -92,36 +101,32 @@ position:fixed;
 inset:0;
 background:rgba(0,0,0,.75);
 display:flex;
-justify-content:center;
 align-items:center;
+justify-content:center;
 z-index:100;
 }
 
 .modal-box{
 background:#06281d;
-border-radius:18px;
-padding:20px;
+padding:22px;
+border-radius:20px;
 width:90%;
 max-width:380px;
-box-shadow:0 10px 30px rgba(0,0,0,.6);
+box-shadow:0 12px 30px rgba(0,0,0,.7);
 }
 
 .modal-box h3{
-margin-top:0;
 text-align:center;
+margin-bottom:10px;
 }
 
 .modal-box p{
 font-size:14px;
 opacity:.85;
+margin-bottom:10px;
 text-align:center;
 }
 
-/* Make everything fit screen */
-
-#game-screen{
-display:flex;
-flex-direction:column;
-justify-content:space-between;
-height:100%;
+.hidden{
+display:none !important;
 }
