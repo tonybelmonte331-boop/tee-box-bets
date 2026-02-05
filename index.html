@@ -2,15 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- iPhone viewport fix -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Tee Box Bets</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#06281d">
+<meta name="theme-color" content="#041a13">
 <link rel="apple-touch-icon" href="icons/icon-512.png">
 
 <link rel="stylesheet" href="style.css">
+
+<style>
+/* iOS HARD LOCK SCROLL */
+html, body {
+position: fixed;
+overflow: hidden;
+width: 100%;
+height: 100%;
+}
+</style>
 </head>
 
 <body>
@@ -66,7 +79,7 @@ Tee Box Bets
 
 </section>
 
-<!-- GAME SCREEN -->
+<!-- GAME -->
 <section id="game-screen" class="hidden">
 
 <h2 id="gameTitle"></h2>
@@ -74,11 +87,10 @@ Tee Box Bets
 <h3 id="potDisplay"></h3>
 
 <div id="winnerButtons"></div>
+
 <button onclick="tieHole()">Tie Hole</button>
+<button onclick="openHistory()">Hole History</button>
 
-<button onclick="openHistory()">View Hole History</button>
-
-<h3>Ledger</h3>
 <div id="ledger"></div>
 
 <button id="sideBetBtn" onclick="openSideBet()">Side Bet</button>
@@ -90,10 +102,9 @@ Tee Box Bets
 <div class="modal-box">
 
 <h3>Add Side Wager</h3>
-<p>Add a side wager for this hole (CTP, Long Drive, or just spice it up)</p>
+<p>CTP, long drive, or spice it up</p>
 
 <input id="sideAmount" type="number" placeholder="Wager per player">
-
 <div id="sideWinners"></div>
 
 <button onclick="confirmSideBet()">Confirm</button>
@@ -108,7 +119,6 @@ Tee Box Bets
 
 <h3>Leaderboard</h3>
 <div id="leaderboard"></div>
-
 <button id="continueBtn"></button>
 
 </div>
@@ -120,12 +130,14 @@ Tee Box Bets
 
 <h3>Hole History</h3>
 <div id="historyList"></div>
-
 <button onclick="closeHistory()">Close</button>
 
 </div>
 </div>
 
+</main>
+
 <script src="app.js"></script>
 </body>
 </html>
+
