@@ -1,35 +1,66 @@
+*{
+box-sizing:border-box;
+}
+
 body{
 margin:0;
-font-family:Arial;
-background:#0b3d2e;
-color:white;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
+background:linear-gradient(180deg,#06281d,#0b3d2e);
+color:#f4fff9;
+height:100vh;
+overflow:hidden;
 }
 
 header{
-background:#06281d;
-padding:15px;
+background:#041a13;
+padding:14px;
 text-align:center;
+font-size:22px;
+font-weight:600;
+letter-spacing:.5px;
 }
 
-main{padding:15px;}
+main{
+height:calc(100vh - 60px);
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+section{
+width:100%;
+max-width:420px;
+padding:18px;
+}
 
 input,select,button{
 width:100%;
-padding:12px;
-margin:6px 0;
-border-radius:6px;
+padding:14px;
+margin:8px 0;
+border-radius:14px;
 border:none;
+font-size:16px;
+}
+
+input,select{
+background:#e9f6ef;
 }
 
 button{
 background:#1faa59;
-color:white;
-font-size:16px;
+color:#fff;
+font-weight:600;
+}
+
+button:active{
+transform:scale(.98);
 }
 
 .hidden{display:none;}
 
-.player-row{display:flex;}
+.player-row input{
+margin-bottom:6px;
+}
 
 #winnerButtons button{
 margin:6px 0;
@@ -38,39 +69,59 @@ margin:6px 0;
 .ledger-row,.leader-row{
 display:flex;
 justify-content:space-between;
-padding:6px 0;
-border-bottom:1px solid #1faa59;
-font-weight:bold;
+padding:10px;
+margin:6px 0;
+background:rgba(255,255,255,.08);
+border-radius:12px;
 }
 
 /* Floating Side Bet */
 #sideBetBtn{
 position:fixed;
-bottom:20px;
-right:20px;
-width:auto;
-padding:14px 20px;
+bottom:18px;
+right:18px;
+padding:16px 22px;
 border-radius:30px;
+box-shadow:0 8px 20px rgba(0,0,0,.4);
 }
 
-/* Modal */
+/* MODALS */
+
 .modal{
 position:fixed;
-top:0;
-left:0;
-right:0;
-bottom:0;
-background:rgba(0,0,0,.7);
+inset:0;
+background:rgba(0,0,0,.75);
 display:flex;
-align-items:center;
 justify-content:center;
-z-index:10;
+align-items:center;
+z-index:100;
 }
 
 .modal-box{
 background:#06281d;
+border-radius:18px;
 padding:20px;
-border-radius:10px;
 width:90%;
-max-width:400px;
+max-width:380px;
+box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+
+.modal-box h3{
+margin-top:0;
+text-align:center;
+}
+
+.modal-box p{
+font-size:14px;
+opacity:.85;
+text-align:center;
+}
+
+/* Make everything fit screen */
+
+#game-screen{
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+height:100%;
 }

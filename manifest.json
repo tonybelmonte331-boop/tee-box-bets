@@ -3,8 +3,8 @@
   "short_name": "TeeBoxBets",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b3d2e",
-  "theme_color": "#0b3d2e",
+  "background_color": "#06281d",
+  "theme_color": "#06281d",
   "icons": [
     {
       "src": "icons/icon-192.png",
