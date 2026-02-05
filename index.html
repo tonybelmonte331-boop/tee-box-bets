@@ -2,142 +2,130 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- iPhone viewport fix -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Tee Box Bets</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#041a13">
+<meta name="theme-color" content="#06281d">
 <link rel="apple-touch-icon" href="icons/icon-512.png">
 
-<link rel="stylesheet" href="style.css">
-
 <style>
-/* iOS HARD LOCK SCROLL */
+/* ===== HARD RESET + COLOR (INLINE, NO CACHE) ===== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html, body {
-position: fixed;
-overflow: hidden;
-width: 100%;
-height: 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
+  background: #0b3d2e;
+  color: #ffffff;
+}
+
+header {
+  height: 60px;
+  background: #06281d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+main {
+  height: calc(100vh - 60px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+section {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  display: none;
+}
+
+section.active {
+  display: block;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+}
+
+input, select {
+  background: #e6f5ee;
+  color: #000;
+}
+
+button {
+  background: #1faa59;
+  color: white;
+  font-weight: 600;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: #06281d;
+  padding: 20px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 360px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-Tee Box Bets
-</header>
+<header>Tee Box Bets</header>
 
 <main>
 
-<!-- GAME SELECT -->
-<section id="select-screen">
-<h2>Select Game</h2>
-
-<button onclick="selectGame('skins')">Skins</button>
-<button onclick="selectGame('nassau')">Nassau</button>
-<button onclick="selectGame('custom')">Custom Game</button>
-<button onclick="resumeGame()">Resume Last Game</button>
+<section id="select-screen" class="active">
+  <h2>Select Game</h2>
+  <button>Skins</button>
+  <button>Nassau</button>
+  <button>Custom Game</button>
 </section>
-
-<!-- SETUP -->
-<section id="setup-screen" class="hidden">
-
-<h2>Game Setup</h2>
-
-<input id="gameName" placeholder="Game Name">
-
-<h3>Play Style</h3>
-<select id="playStyle" onchange="toggleTeams()">
-<option value="ffa">Free For All</option>
-<option value="teams">Teams</option>
-</select>
-
-<h3>Players</h3>
-<div id="players"></div>
-<button id="addPlayerBtn">Add Player</button>
-
-<div id="teamAssign" class="hidden">
-<h3>Assign Teams</h3>
-<div id="teamList"></div>
-</div>
-
-<h3>Wager Per Player ($)</h3>
-<input id="baseWager" type="number">
-
-<h3>Holes</h3>
-<select id="holeLimit">
-<option value="9">9 Holes</option>
-<option value="18">18 Holes</option>
-</select>
-
-<button id="startGameBtn">Start Game</button>
-
-</section>
-
-<!-- GAME -->
-<section id="game-screen" class="hidden">
-
-<h2 id="gameTitle"></h2>
-<h3 id="holeDisplay"></h3>
-<h3 id="potDisplay"></h3>
-
-<div id="winnerButtons"></div>
-
-<button onclick="tieHole()">Tie Hole</button>
-<button onclick="openHistory()">Hole History</button>
-
-<div id="ledger"></div>
-
-<button id="sideBetBtn" onclick="openSideBet()">Side Bet</button>
-
-</section>
-
-<!-- SIDE BET MODAL -->
-<div id="sideBetModal" class="modal hidden">
-<div class="modal-box">
-
-<h3>Add Side Wager</h3>
-<p>CTP, long drive, or spice it up</p>
-
-<input id="sideAmount" type="number" placeholder="Wager per player">
-<div id="sideWinners"></div>
-
-<button onclick="confirmSideBet()">Confirm</button>
-<button onclick="closeSideBet()">Cancel</button>
-
-</div>
-</div>
-
-<!-- LEADERBOARD MODAL -->
-<div id="leaderboardModal" class="modal hidden">
-<div class="modal-box">
-
-<h3>Leaderboard</h3>
-<div id="leaderboard"></div>
-<button id="continueBtn"></button>
-
-</div>
-</div>
-
-<!-- HISTORY MODAL -->
-<div id="historyModal" class="modal hidden">
-<div class="modal-box">
-
-<h3>Hole History</h3>
-<div id="historyList"></div>
-<button onclick="closeHistory()">Close</button>
-
-</div>
-</div>
 
 </main>
 
-<script src="app.js"></script>
 </body>
 </html>
+
 
