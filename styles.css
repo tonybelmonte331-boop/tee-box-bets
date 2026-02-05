@@ -1,0 +1,76 @@
+body{
+margin:0;
+font-family:Arial;
+background:#0b3d2e;
+color:white;
+}
+
+header{
+background:#06281d;
+padding:15px;
+text-align:center;
+}
+
+main{padding:15px;}
+
+input,select,button{
+width:100%;
+padding:12px;
+margin:6px 0;
+border-radius:6px;
+border:none;
+}
+
+button{
+background:#1faa59;
+color:white;
+font-size:16px;
+}
+
+.hidden{display:none;}
+
+.player-row{display:flex;}
+
+#winnerButtons button{
+margin:6px 0;
+}
+
+.ledger-row,.leader-row{
+display:flex;
+justify-content:space-between;
+padding:6px 0;
+border-bottom:1px solid #1faa59;
+font-weight:bold;
+}
+
+/* Floating Side Bet */
+#sideBetBtn{
+position:fixed;
+bottom:20px;
+right:20px;
+width:auto;
+padding:14px 20px;
+border-radius:30px;
+}
+
+/* Modal */
+.modal{
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,.7);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:10;
+}
+
+.modal-box{
+background:#06281d;
+padding:20px;
+border-radius:10px;
+width:90%;
+max-width:400px;
+}

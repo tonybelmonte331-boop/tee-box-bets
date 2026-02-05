@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b3d2e">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tee Box Bets</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>Tee Box Bets</h1>
+</header>
+
+<main>
+
+<section id="select-screen">
+<h2>Select Game</h2>
+<button onclick="selectGame('skins')">Skins</button>
+<button onclick="selectGame('nassau')">Nassau</button>
+<button onclick="selectGame('custom')">Custom Game</button>
+<button onclick="resumeGame()">Resume Last Game</button>
+</section>
+
+<section id="setup-screen" class="hidden">
+
+<h2>Game Setup</h2>
+
+<input id="gameName" placeholder="Game Name">
+
+<h3>Play Style</h3>
+<select id="playStyle" onchange="toggleTeams()">
+<option value="ffa">Free For All</option>
+<option value="teams">Teams</option>
+</select>
+
+<h3>Players</h3>
+<div id="players"></div>
+<button id="addPlayerBtn">Add Player</button>
+
+<div id="teamAssign" class="hidden">
+<h3>Assign Teams</h3>
+<div id="teamList"></div>
+</div>
+
+<h3>Wager Per Player ($)</h3>
+<input id="baseWager" type="number">
+
+<h3>Holes</h3>
+<select id="holeLimit">
+<option value="9">9 Holes</option>
+<option value="18">18 Holes</option>
+</select>
+
+<button id="startGameBtn">Start Game</button>
+</section>
+
+<section id="game-screen" class="hidden">
+
+<h2 id="gameTitle"></h2>
+<h3 id="holeDisplay"></h3>
+<h3 id="potDisplay"></h3>
+
+<div id="winnerButtons"></div>
+<button onclick="tieHole()">Tie Hole</button>
+
+<button onclick="openHistory()">View Hole History</button>
+
+<h3>Ledger</h3>
+<div id="ledger"></div>
+
+<button id="sideBetBtn" onclick="openSideBet()">Side Bet</button>
+
+</section>
+
+<!-- SIDE BET MODAL -->
+<div id="sideBetModal" class="modal hidden">
+<div class="modal-box">
+<h3>Side Bet</h3>
+<input id="sideAmount" type="number" placeholder="Wager per player">
+<div id="sideWinners"></div>
+<button onclick="confirmSideBet()">Confirm</button>
+<button onclick="closeSideBet()">Cancel</button>
+</div>
+</div>
+
+<!-- LEADERBOARD MODAL -->
+<div id="leaderboardModal" class="modal hidden">
+<div class="modal-box">
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
+<button id="continueBtn"></button>
+</div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div id="historyModal" class="modal hidden">
+<div class="modal-box">
+<h3>Hole History</h3>
+<div id="historyList"></div>
+<button onclick="closeHistory()">Close</button>
+</div>
+</div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
