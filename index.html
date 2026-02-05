@@ -6,71 +6,84 @@
 
 <title>Tee Box Bets</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#06281d">
 <link rel="apple-touch-icon" href="icons/icon-512.png">
 
-<!-- MAIN STYLES -->
 <link rel="stylesheet" href="style.css">
-
 </head>
+
 <body>
 
-<header>
-Tee Box Bets
-</header>
+<header>Tee Box Bets</header>
 
 <main>
 
-<!-- GAME SELECT -->
-<section id="select-screen">
+<!-- STEP 1 -->
+<section id="step-game">
 
 <h2>Select Game</h2>
 
 <button onclick="selectGame('skins')">Skins</button>
 <button onclick="selectGame('nassau')">Nassau</button>
-<button onclick="selectGame('custom')">Custom Game</button>
-<button onclick="resumeGame()">Resume Last Game</button>
+<button onclick="selectGame('custom')">Custom</button>
 
 </section>
 
-<!-- SETUP -->
-<section id="setup-screen" class="hidden">
+<!-- STEP 2 -->
+<section id="step-style" class="hidden">
 
-<h2>Game Setup</h2>
+<h2>Play Style</h2>
 
-<input id="gameName" placeholder="Game Name">
-
-<h3>Play Style</h3>
-<select id="playStyle" onchange="toggleTeams()">
+<select id="playStyle">
 <option value="ffa">Free For All</option>
 <option value="teams">Teams</option>
 </select>
 
-<h3>Players</h3>
-<div id="players"></div>
-<button id="addPlayerBtn">Add Player</button>
+<h2>Players</h2>
 
-<div id="teamAssign" class="hidden">
-<h3>Assign Teams</h3>
-<div id="teamList"></div>
-</div>
+<select id="playerCount">
+<option>2</option><option>3</option><option>4</option>
+<option>5</option><option>6</option><option>7</option><option>8</option>
+</select>
 
-<h3>Wager Per Player ($)</h3>
-<input id="baseWager" type="number">
+<button onclick="prevStep()">Back</button>
+<button onclick="nextToPlayers()">Next</button>
 
-<h3>Holes</h3>
+</section>
+
+<!-- STEP 3 -->
+<section id="step-players" class="hidden">
+
+<h2>Player Names</h2>
+
+<div id="playerInputs"></div>
+
+<div id="teamAssign" class="hidden"></div>
+
+<button onclick="prevStep()">Back</button>
+<button onclick="nextToSettings()">Next</button>
+
+</section>
+
+<!-- STEP 4 -->
+<section id="step-settings" class="hidden">
+
+<h2>Game Settings</h2>
+
+<input id="baseWager" type="number" placeholder="Wager per player">
+
 <select id="holeLimit">
 <option value="9">9 Holes</option>
 <option value="18">18 Holes</option>
 </select>
 
-<button id="startGameBtn">Start Game</button>
+<button onclick="prevStep()">Back</button>
+<button onclick="startGame()">Start Round</button>
 
 </section>
 
-<!-- GAME SCREEN -->
+<!-- GAME -->
 <section id="game-screen" class="hidden">
 
 <h2 id="gameTitle"></h2>
@@ -80,64 +93,39 @@ Tee Box Bets
 <div id="winnerButtons"></div>
 
 <button onclick="tieHole()">Tie Hole</button>
-<button onclick="openHistory()">View Hole History</button>
+<button onclick="openHistory()">Hole History</button>
 
-<h3>Ledger</h3>
 <div id="ledger"></div>
 
 <button id="sideBetBtn" onclick="openSideBet()">Side Bet</button>
 
 </section>
 
-<!-- SIDE BET MODAL -->
+<!-- MODALS -->
 <div id="sideBetModal" class="modal hidden">
 <div class="modal-box">
-
-<h3>Add Side Wager</h3>
-<p>Add a side wager for this hole (CTP, Long Drive, or just spice it up)</p>
-
 <input id="sideAmount" type="number" placeholder="Wager per player">
-
 <div id="sideWinners"></div>
-
 <button onclick="confirmSideBet()">Confirm</button>
-<button onclick="closeSideBet()">Cancel</button>
-
+<button onclick="closeModals()">Cancel</button>
 </div>
 </div>
 
-<!-- LEADERBOARD MODAL -->
-<div id="leaderboardModal" class="modal hidden">
-<div class="modal-box">
-
-<h3>Leaderboard</h3>
-<div id="leaderboard"></div>
-
-<button id="continueBtn"></button>
-
-</div>
-</div>
-
-<!-- HISTORY MODAL -->
 <div id="historyModal" class="modal hidden">
 <div class="modal-box">
-
-<h3>Hole History</h3>
 <div id="historyList"></div>
+<button onclick="closeModals()">Close</button>
+</div>
+</div>
 
-<button onclick="closeHistory()">Close</button>
-
+<div id="leaderboardModal" class="modal hidden">
+<div class="modal-box">
+<div id="leaderboard"></div>
+<button onclick="finishGame()">Finish</button>
 </div>
 </div>
 
 </main>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister());
-  });
-}
-</script>
 
 <script src="app.js"></script>
 </body>

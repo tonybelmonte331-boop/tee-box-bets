@@ -1,7 +1,6 @@
-const SAVE_KEY = "teeboxbets_save";
-
-let gameType=null;
-let playStyle="ffa";
+let gameType;
+let playStyle;
+let playerCount;
 
 let players=[];
 let teams={A:[],B:[]};
@@ -11,105 +10,90 @@ let hole=1;
 let holeLimit=9;
 let baseWager=0;
 let carryCount=1;
-
 let history=[];
 
-/* ---------- VISIBILITY ---------- */
+/* --------- STEP FLOW --------- */
 
-function hideAllScreens(){
+function hideSteps(){
   document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 }
-function showScreen(id){
-  hideAllScreens();
-  document.getElementById(id).classList.remove("hidden");
-}
-function closeModals(){
-  document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
-}
-
-/* ---------- GAME SELECT ---------- */
 
 function selectGame(type){
   gameType=type;
-  showScreen("setup-screen");
+  hideSteps();
+  document.getElementById("step-style").classList.remove("hidden");
 }
 
-/* ---------- SETUP ---------- */
+function prevStep(){
+  location.reload();
+}
 
-const playersDiv=document.getElementById("players");
-
-document.getElementById("addPlayerBtn").onclick=()=>{
-  if(playersDiv.children.length>=8) return;
-
-  const input=document.createElement("input");
-  input.placeholder="Player Name";
-  input.oninput=buildTeamAssign;
-
-  playersDiv.appendChild(input);
-  buildTeamAssign();
-};
-
-function toggleTeams(){
+function nextToPlayers(){
   playStyle=document.getElementById("playStyle").value;
-  document.getElementById("teamAssign")
-    .classList.toggle("hidden",playStyle!=="teams");
-  buildTeamAssign();
+  playerCount=parseInt(document.getElementById("playerCount").value);
+
+  hideSteps();
+  document.getElementById("step-players").classList.remove("hidden");
+
+  buildPlayerInputs();
 }
 
-function buildTeamAssign(){
-  if(playStyle!=="teams") return;
+function buildPlayerInputs(){
+  const wrap=document.getElementById("playerInputs");
+  const teamWrap=document.getElementById("teamAssign");
 
-  const list=document.getElementById("teamList");
-  list.innerHTML="";
+  wrap.innerHTML="";
+  teamWrap.innerHTML="";
 
-  [...playersDiv.children].forEach(input=>{
-    const row=document.createElement("div");
-    row.innerHTML=`
-      ${input.value||"Player"}
-      <select>
-        <option value="A">Team A</option>
-        <option value="B">Team B</option>
-      </select>`;
-    list.appendChild(row);
-  });
+  for(let i=0;i<playerCount;i++){
+    wrap.innerHTML+=`<input placeholder="Player ${i+1}">`;
+
+    if(playStyle==="teams"){
+      teamWrap.innerHTML+=`
+        Player ${i+1}
+        <select>
+          <option value="A">Team A</option>
+          <option value="B">Team B</option>
+        </select><br>`;
+      teamWrap.classList.remove("hidden");
+    }
+  }
 }
 
-document.getElementById("startGameBtn").onclick=()=>{
+function nextToSettings(){
+  hideSteps();
+  document.getElementById("step-settings").classList.remove("hidden");
+}
+
+/* --------- START GAME --------- */
+
+function startGame(){
   players=[];
   ledger={};
   teams={A:[],B:[]};
-  history=[];
-  hole=1;
-  carryCount=1;
 
-  [...playersDiv.children].forEach(i=>{
-    if(i.value.trim()){
-      players.push(i.value.trim());
-      ledger[i.value.trim()]=0;
-    }
+  const inputs=document.querySelectorAll("#playerInputs input");
+  inputs.forEach(i=>{
+    players.push(i.value||"Player");
+    ledger[i.value||"Player"]=0;
   });
-
-  if(players.length<2) return alert("Add players");
 
   baseWager=parseFloat(document.getElementById("baseWager").value);
   holeLimit=parseInt(document.getElementById("holeLimit").value);
 
-  if(!baseWager) return alert("Enter wager");
-
   if(playStyle==="teams"){
-    const selects=document.querySelectorAll("#teamList select");
-    selects.forEach((s,i)=>teams[s.value].push(players[i]));
+    document.querySelectorAll("#teamAssign select")
+      .forEach((s,i)=>teams[s.value].push(players[i]));
   }
 
-  document.getElementById("gameTitle").textContent=
-    document.getElementById("gameName").value||"Tee Box Bets";
+  hideSteps();
+  document.getElementById("game-screen").classList.remove("hidden");
 
   buildWinnerButtons();
   updateUI();
-  showScreen("game-screen");
-};
+}
 
-/* ---------- BUTTONS ---------- */
+/* --------- BUTTONS --------- */
 
 function buildWinnerButtons(){
   const wrap=document.getElementById("winnerButtons");
@@ -126,11 +110,9 @@ function buildWinnerButtons(){
   }
 }
 
-/* ---------- GAME LOGIC ---------- */
+/* --------- GAME LOGIC --------- */
 
-function log(text){
-  history.push(`Hole ${hole}: ${text}`);
-}
+function log(text){ history.push(`Hole ${hole}: ${text}`); }
 
 function playerWin(p){
   const total=baseWager*(players.length-1)*carryCount;
@@ -138,8 +120,8 @@ function playerWin(p){
     if(x===p) ledger[x]+=total;
     else ledger[x]-=baseWager*carryCount;
   });
-  log(`${p} won`);
   carryCount=1;
+  log(p+" won");
   nextHole();
 }
 
@@ -150,8 +132,8 @@ function teamWin(t){
   losers.forEach(p=>ledger[p]-=baseWager*carryCount);
   winners.forEach(p=>ledger[p]+=baseWager*carryCount*losers.length/winners.length);
 
-  log(`Team ${t} won`);
   carryCount=1;
+  log("Team "+t+" won");
   nextHole();
 }
 
@@ -163,7 +145,7 @@ function tieHole(){
 
 function nextHole(reset=true){
   if(hole>=holeLimit){
-    showLeaderboard("Finish Round");
+    showLeaderboard();
     return;
   }
   hole++;
@@ -171,30 +153,22 @@ function nextHole(reset=true){
   updateUI();
 }
 
-/* ---------- UI ---------- */
+/* --------- UI --------- */
 
 function updateUI(){
-  document.getElementById("holeDisplay").textContent=
-    `Hole ${hole} of ${holeLimit}`;
-
-  document.getElementById("potDisplay").textContent=
-    `$${baseWager*carryCount}/player`;
+  document.getElementById("holeDisplay").textContent=`Hole ${hole} of ${holeLimit}`;
+  document.getElementById("potDisplay").textContent=`$${baseWager*carryCount}/player`;
 
   const l=document.getElementById("ledger");
   l.innerHTML="";
   players.forEach(p=>{
-    l.innerHTML+=`
-      <div class="ledger-row">
-        <span>${p}</span>
-        <span>$${ledger[p]}</span>
-      </div>`;
+    l.innerHTML+=`<div class="ledger-row"><span>${p}</span><span>$${ledger[p]}</span></div>`;
   });
 }
 
-/* ---------- SIDE BET ---------- */
+/* --------- SIDE BET --------- */
 
 function openSideBet(){
-  closeModals();
   const wrap=document.getElementById("sideWinners");
   wrap.innerHTML="";
   players.forEach(p=>{
@@ -205,42 +179,38 @@ function openSideBet(){
 
 function sideWin(p){
   const amt=parseFloat(document.getElementById("sideAmount").value);
-  if(!amt) return alert("Enter wager");
-
   players.forEach(x=>{
     if(x===p) ledger[x]+=amt*(players.length-1);
     else ledger[x]-=amt;
   });
-
-  log(`${p} side bet`);
+  log(p+" side bet");
   closeModals();
   updateUI();
 }
 
-/* ---------- HISTORY ---------- */
+/* --------- MODALS --------- */
 
 function openHistory(){
-  closeModals();
-  const list=document.getElementById("historyList");
-  list.innerHTML=history.map(h=>`<div>${h}</div>`).join("")||"No holes yet";
+  document.getElementById("historyList").innerHTML=
+    history.map(h=>`<div>${h}</div>`).join("")||"No holes yet";
   document.getElementById("historyModal").classList.remove("hidden");
 }
 
-function closeHistory(){ closeModals(); }
+function closeModals(){
+  document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
+}
 
-/* ---------- LEADERBOARD ---------- */
+/* --------- LEADERBOARD --------- */
 
-function showLeaderboard(text){
-  closeModals();
-  const b=document.getElementById("leaderboard");
-  b.innerHTML=[...players]
+function showLeaderboard(){
+  document.getElementById("leaderboard").innerHTML=[...players]
     .sort((a,b)=>ledger[b]-ledger[a])
-    .map(p=>`
-      <div class="leader-row">
-        <span>${p}</span>
-        <span>$${ledger[p]}</span>
-      </div>`).join("");
+    .map(p=>`<div class="leader-row"><span>${p}</span><span>$${ledger[p]}</span></div>`)
+    .join("");
 
-  document.getElementById("continueBtn").textContent=text;
   document.getElementById("leaderboardModal").classList.remove("hidden");
+}
+
+function finishGame(){
+  location.reload();
 }
