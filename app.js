@@ -241,7 +241,7 @@ wrap.innerHTML+=`
 <button onclick="sideTeam('B')">${teamBName}</button>`;
 }else{
 players.forEach(p=>{
-wrap.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`);
+wrap.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
 });
 }
 
