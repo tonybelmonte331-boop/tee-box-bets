@@ -12,11 +12,12 @@ let ledger={};
 let hole=1;
 let holeLimit=9;
 let baseWager=0;
-let carryCount=1;
 
-let history=[];
+let carryValue=1;     // 🔥 replaces carryCount
 let multiplier=1;
 let pendingMulti=1;
+
+let history=[];
 
 /* ---------- NAV ---------- */
 
@@ -120,6 +121,9 @@ ledger[i.value||"Player"]=0;
 baseWager=parseFloat(document.getElementById("baseWager").value);
 holeLimit=parseInt(document.getElementById("holeLimit").value);
 
+carryValue=1;
+multiplier=1;
+
 hideAll();
 document.getElementById("game-screen").classList.remove("hidden");
 
@@ -148,42 +152,44 @@ wrap.innerHTML+=`
 
 function log(t){ history.push(`Hole ${hole}: ${t}`); }
 
-function resetMultiplier(){
-multiplier=1;
-pendingMulti=1;
+function applyCarryMultiplier(){
+carryValue *= multiplier;
+multiplier = 1;
 }
 
 function playerWin(p){
-const amt=baseWager*(players.length-1)*carryCount*multiplier;
+applyCarryMultiplier();
+
+const pot=baseWager * carryValue * (players.length-1);
 
 players.forEach(x=>{
-if(x===p) ledger[x]+=amt;
-else ledger[x]-=baseWager*carryCount*multiplier;
+if(x===p) ledger[x]+=pot;
+else ledger[x]-=baseWager * carryValue;
 });
 
 log(p+" won");
-resetMultiplier();
-carryCount=1;
+carryValue=1;
 nextHole();
 }
 
 function teamWin(t){
+applyCarryMultiplier();
+
 const winners=teams[t];
 const losers=teams[t==="A"?"B":"A"];
 
-losers.forEach(p=>ledger[p]-=baseWager*carryCount*multiplier);
-winners.forEach(p=>ledger[p]+=baseWager*carryCount*multiplier*losers.length/winners.length);
+losers.forEach(p=>ledger[p]-=baseWager * carryValue);
+winners.forEach(p=>ledger[p]+=baseWager * carryValue * losers.length / winners.length);
 
 log((t==="A"?teamAName:teamBName)+" won");
-resetMultiplier();
-carryCount=1;
+carryValue=1;
 nextHole();
 }
 
 function tieHole(){
-carryCount++;
+applyCarryMultiplier();   // 🔥 bake multiplier into carry
+carryValue++;             // normal carry
 log("Tie");
-resetMultiplier();   // 🔥 FIX — multiplier resets even on tie
 nextHole(false);
 }
 
@@ -202,7 +208,6 @@ return;
 }
 
 hole++;
-if(reset) carryCount=1;
 updateUI();
 }
 
@@ -211,7 +216,7 @@ updateUI();
 function updateUI(){
 document.getElementById("holeDisplay").textContent=`Hole ${hole} of ${holeLimit}`;
 document.getElementById("potDisplay").textContent=
-`$${baseWager*carryCount*multiplier}/player`;
+`$${baseWager * carryValue}/player`;
 
 const l=document.getElementById("ledger");
 l.innerHTML="";
@@ -236,7 +241,7 @@ wrap.innerHTML+=`
 <button onclick="sideTeam('B')">${teamBName}</button>`;
 }else{
 players.forEach(p=>{
-wrap.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
+wrap.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`);
 });
 }
 
@@ -260,7 +265,7 @@ const winners=teams[t];
 const losers=teams[t==="A"?"B":"A"];
 
 losers.forEach(p=>ledger[p]-=amt);
-winners.forEach(p=>ledger[p]+=amt*losers.length/winners.length);
+winners.forEach(p=>ledger[p]+=amt * losers.length / winners.length);
 
 log("Side bet won by "+(t==="A"?teamAName:teamBName));
 closeModals();
@@ -274,10 +279,8 @@ pendingMulti=m;
 document.getElementById("multiplierModal").classList.remove("hidden");
 }
 
-function applyMultiplier(mode){
-if(mode==="hole") multiplier=pendingMulti;
-else multiplier*=pendingMulti;
-
+function applyMultiplier(){
+multiplier=pendingMulti;
 closeModals();
 updateUI();
 }
@@ -297,26 +300,22 @@ document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
 
 /* ---------- LEADERBOARD ---------- */
 
-function showLeaderboard(buttonText){
+function showLeaderboard(btn){
 document.getElementById("leaderboard").innerHTML=[...players]
 .sort((a,b)=>ledger[b]-ledger[a])
 .map(p=>`<div class="leader-row"><span>${p}</span><span>$${ledger[p]}</span></div>`)
 .join("");
 
-const btn=document.querySelector("#leaderboardModal button");
-btn.textContent=buttonText;
+const b=document.querySelector("#leaderboardModal button");
+b.textContent=btn;
 
-btn.onclick=()=>{
-if(buttonText==="Continue to Back 9"){
+b.onclick=()=>{
+if(btn==="Continue to Back 9"){
 document.getElementById("leaderboardModal").classList.add("hidden");
 hole++;
 updateUI();
-}else{
-location.reload();
-}
+}else location.reload();
 };
 
 document.getElementById("leaderboardModal").classList.remove("hidden");
 }
-
-function finishRound(){ location.reload(); }
