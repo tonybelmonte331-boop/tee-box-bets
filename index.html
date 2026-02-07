@@ -11,16 +11,27 @@
 
 <main>
 
-<section id="step-game">
+<section id="step-home">
+<h2>Main Menu</h2>
+<button onclick="goGameSelect()">Play</button>
+<button onclick="showRules()">Rules</button>
+</section>
+
+<section id="rules-screen" class="hidden">
+<h2>Game Rules</h2>
+
+<p><b>Skins:</b> Each hole has a wager. Ties carry forward. Birdie doubles, Eagle triples.</p>
+
+<p><b>Vegas:</b> Combine team scores into two-digit numbers. The difference is paid per hole.</p>
+
+<button onclick="goHome()">Back</button>
+</section>
+
+<section id="step-game" class="hidden">
 <h2>Select Game</h2>
-
-<button onclick="selectGame('skins')">
-Skins <span class="info" onclick="showInfo('skins')">ℹ️</span>
-</button>
-
-<button onclick="selectGame('vegas')">
-Vegas <span class="info" onclick="showInfo('vegas')">ℹ️</span>
-</button>
+<button onclick="selectGame('skins')">Skins</button>
+<button onclick="selectGame('vegas')">Vegas</button>
+<button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-style" class="hidden">
@@ -37,12 +48,14 @@ Vegas <span class="info" onclick="showInfo('vegas')">ℹ️</span>
 </select>
 
 <button onclick="nextTeams()">Next</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-teams" class="hidden">
 <input id="teamAName" placeholder="Team 1 Name">
 <input id="teamBName" placeholder="Team 2 Name">
 <button onclick="nextPlayers()">Next</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-players" class="hidden">
@@ -53,6 +66,7 @@ Vegas <span class="info" onclick="showInfo('vegas')">ℹ️</span>
 <div id="teamBInputs"></div>
 
 <button onclick="nextSettings()">Next</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-settings" class="hidden">
@@ -62,34 +76,36 @@ Vegas <span class="info" onclick="showInfo('vegas')">ℹ️</span>
 <option value="18">18 Holes</option>
 </select>
 <button onclick="startRound()">Start</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="game-screen" class="hidden">
 
-<h2 id="gameTitle"></h2>
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
 
-<div id="vegasInputs" class="hidden"></div>
+<div id="vegasInputs"></div>
 
 <div id="winnerButtons"></div>
 <button onclick="tieHole()">Tie</button>
 
-<div id="multipliers">
+<div>
 <button onclick="openMultiplier(2)">Birdie</button>
 <button onclick="openMultiplier(3)">Eagle</button>
 </div>
 
 <button onclick="openSideBet()">Side Bet</button>
-<button onclick="openHistory()">History</button>
 
 <div id="ledger"></div>
+
+<button onclick="goHome()">Exit Round</button>
 
 </section>
 
 <div id="multiplierModal" class="modal hidden">
 <button onclick="applyMultiplier('hole')">This Hole</button>
 <button onclick="applyMultiplier('pot')">Entire Pot</button>
+<button onclick="closeModals()">Back</button>
 </div>
 
 <div id="sideBetModal" class="modal hidden">
@@ -99,22 +115,7 @@ Vegas <span class="info" onclick="showInfo('vegas')">ℹ️</span>
 <option value="team">By Team</option>
 </select>
 <div id="sideWinners"></div>
-<button onclick="closeModals()">Close</button>
-</div>
-
-<div id="historyModal" class="modal hidden">
-<div id="historyList"></div>
-<button onclick="closeModals()">Close</button>
-</div>
-
-<div id="leaderboardModal" class="modal hidden">
-<div id="leaderboard"></div>
-<button>Continue</button>
-</div>
-
-<div id="infoModal" class="modal hidden">
-<div id="infoText"></div>
-<button onclick="closeModals()">Close</button>
+<button onclick="closeModals()">Back</button>
 </div>
 
 <script src="games/skins.js"></script>
