@@ -1,6 +1,7 @@
-window.skinsGame={
-carry:1,
-multiplier:1,
+window.skinsGame = {
+
+carry: 1,
+multiplier: 1,
 
 reset(){
 this.carry=1;

@@ -1,308 +1,201 @@
-let gameType;
 let currentGame;
+let playStyle,playerCount;
+let teamAName="",teamBName="";
+let players=[],teams={A:[],B:[]},ledger={};
+let hole=1,holeLimit=9,baseWager=0;
+let history=[];
+let pendingMulti=1;
 
-let playStyle;
-let playerCount;
-
-let teamAName = "";
-let teamBName = "";
-
-let players = [];
-let teams = { A: [], B: [] };
-let ledger = {};
-
-let hole = 1;
-let holeLimit = 9;
-let baseWager = 0;
-
-let history = [];
-
-/* ---------------- CORE NAV ---------------- */
-
-function hideAll() {
- document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+function hideAll(){
+document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 }
 
-function selectGame(g) {
- gameType = g;
- currentGame = g === "skins" ? skinsGame : vegasGame;
- hideAll();
- document.getElementById("step-style").classList.remove("hidden");
+function selectGame(g){
+currentGame=g==="skins"?skinsGame:vegasGame;
+hideAll();
+step-style.classList.remove("hidden");
 }
 
-/* ---------------- SETUP FLOW ---------------- */
+function nextTeams(){
+playStyle=playStyle.value;
+playerCount=parseInt(playerCount.value);
 
-function nextTeams() {
- playStyle = document.getElementById("playStyle").value;
- playerCount = parseInt(document.getElementById("playerCount").value);
-
- if (playStyle === "teams") {
- hideAll();
- document.getElementById("step-teams").classList.remove("hidden");
- } else {
- teamAName = "Players";
- nextPlayers();
- }
+if(playStyle==="teams"){
+hideAll(); step-teams.classList.remove("hidden");
+}else{
+teamAName="Players"; nextPlayers();
+}
 }
 
-function nextPlayers() {
- teamAName = document.getElementById("teamAName")?.value || "Players";
- teamBName = document.getElementById("teamBName")?.value || "Team 2";
+function nextPlayers(){
+teamAName=teamAName.value||"Players";
+teamBName=teamBName.value||"Team 2";
 
- hideAll();
- document.getElementById("step-players").classList.remove("hidden");
+hideAll(); step-players.classList.remove("hidden");
 
- document.getElementById("teamALabel").textContent = teamAName;
- document.getElementById("teamBLabel").textContent = playStyle === "teams" ? teamBName : "";
+teamALabel.textContent=teamAName;
+teamBLabel.textContent=playStyle==="teams"?teamBName:"";
 
- buildPlayerInputs();
+teamAInputs.innerHTML=""; teamBInputs.innerHTML="";
+
+if(playStyle==="teams"){
+let half=playerCount/2;
+for(let i=0;i<half;i++){
+teamAInputs.innerHTML+=`<input>`;
+teamBInputs.innerHTML+=`<input>`;
+}
+}else{
+for(let i=0;i<playerCount;i++){
+teamAInputs.innerHTML+=`<input>`;
+}
+}
 }
 
-function buildPlayerInputs() {
- const a = document.getElementById("teamAInputs");
- const b = document.getElementById("teamBInputs");
-
- a.innerHTML = "";
- b.innerHTML = "";
-
- if (playStyle === "teams") {
- const half = playerCount / 2;
-
- for (let i = 0; i < half; i++) {
- a.innerHTML += `<input placeholder="${teamAName} Player ${i + 1}">`;
- b.innerHTML += `<input placeholder="${teamBName} Player ${i + 1}">`;
- }
- } else {
- for (let i = 0; i < playerCount; i++) {
- a.innerHTML += `<input placeholder="Player ${i + 1}">`;
- }
- }
+function nextSettings(){
+hideAll(); step-settings.classList.remove("hidden");
 }
 
-function nextSettings() {
- hideAll();
- document.getElementById("step-settings").classList.remove("hidden");
+function startRound(){
+players=[]; teams={A:[],B:[]}; ledger={}; history=[]; hole=1;
+
+if(playStyle==="teams"){
+[...teamAInputs.children].forEach(i=>{
+players.push(i.value); teams.A.push(i.value); ledger[i.value]=0;
+});
+[...teamBInputs.children].forEach(i=>{
+players.push(i.value); teams.B.push(i.value); ledger[i.value]=0;
+});
+}else{
+[...teamAInputs.children].forEach(i=>{
+players.push(i.value); ledger[i.value]=0;
+});
 }
 
-/* ---------------- START ROUND ---------------- */
+baseWager=parseFloat(baseWager.value);
+holeLimit=parseInt(holeLimit.value);
 
-function startRound() {
- players = [];
- teams = { A: [], B: [] };
- ledger = {};
- history = [];
- hole = 1;
+currentGame.reset();
 
- if (playStyle === "teams") {
- document.querySelectorAll("#teamAInputs input").forEach(i => {
- const name = i.value || "Player";
- players.push(name);
- teams.A.push(name);
- ledger[name] = 0;
- });
+hideAll(); game-screen.classList.remove("hidden");
 
- document.querySelectorAll("#teamBInputs input").forEach(i => {
- const name = i.value || "Player";
- players.push(name);
- teams.B.push(name);
- ledger[name] = 0;
- });
- } else {
- document.querySelectorAll("#teamAInputs input").forEach(i => {
- const name = i.value || "Player";
- players.push(name);
- ledger[name] = 0;
- });
- }
-
- baseWager = parseFloat(document.getElementById("baseWager").value);
- holeLimit = parseInt(document.getElementById("holeLimit").value);
-
- currentGame.reset();
-
- hideAll();
- document.getElementById("game-screen").classList.remove("hidden");
-
- buildWinnerButtons();
- updateUI();
+buildWinnerButtons();
+buildVegasInputs();
+updateUI();
 }
 
-/* ---------------- GAME BUTTONS ---------------- */
-
-function buildWinnerButtons() {
- const wrap = document.getElementById("winnerButtons");
- wrap.innerHTML = "";
-
- if (playStyle === "ffa") {
- players.forEach(p => {
- wrap.innerHTML += `<button onclick="winPlayer('${p}')">${p}</button>`;
- });
- } else {
- wrap.innerHTML += `
- <button onclick="winTeam('A')">${teamAName}</button>
- <button onclick="winTeam('B')">${teamBName}</button>
- `;
- }
+function buildWinnerButtons(){
+winnerButtons.innerHTML="";
+if(playStyle==="ffa"){
+players.forEach(p=>winnerButtons.innerHTML+=`<button onclick="winPlayer('${p}')">${p}</button>`);
+}else{
+winnerButtons.innerHTML+=`<button onclick="winTeam('A')">${teamAName}</button>
+<button onclick="winTeam('B')">${teamBName}</button>`;
+}
 }
 
-/* ---------------- GAMEPLAY ---------------- */
+function buildVegasInputs(){
+vegasInputs.innerHTML="";
+if(currentGame!==vegasGame) return;
 
-function winPlayer(p) {
- currentGame.winPlayer(p, players, ledger, baseWager);
- history.push(`Hole ${hole}: ${p} won`);
- nextHole();
+vegasInputs.classList.remove("hidden");
+
+teams.A.forEach(()=> vegasInputs.innerHTML+=`<input type="number">`);
+teams.B.forEach(()=> vegasInputs.innerHTML+=`<input type="number">`);
 }
 
-function winTeam(t) {
- currentGame.winTeam(t, teams, ledger, baseWager);
- history.push(`Hole ${hole}: ${t === "A" ? teamAName : teamBName} won`);
- nextHole();
+function winPlayer(p){
+currentGame.winPlayer(p,players,ledger,baseWager);
+nextHole();
 }
 
-function tieHole() {
- if (currentGame.tie) currentGame.tie();
- history.push(`Hole ${hole}: Tie`);
- nextHole();
+function winTeam(t){
+currentGame.winTeam(t,teams,ledger,baseWager);
+nextHole();
 }
 
-function nextHole() {
-
- if (hole === 9 && holeLimit === 18) {
- showLeaderboard("Continue to Back 9");
- return;
- }
-
- if (hole >= holeLimit) {
- showLeaderboard("Finish Round");
- return;
- }
-
- hole++;
- updateUI();
+function tieHole(){
+if(currentGame.tie) currentGame.tie();
+nextHole();
 }
 
-/* ---------------- UI ---------------- */
-
-function updateUI() {
- document.getElementById("holeDisplay").textContent = `Hole ${hole} of ${holeLimit}`;
- document.getElementById("potDisplay").textContent =
- `$${currentGame.currentPot(baseWager)}/player`;
-
- const l = document.getElementById("ledger");
- l.innerHTML = "";
-
- players.forEach(p => {
- l.innerHTML += `<div>${p}: $${ledger[p]}</div>`;
- });
+function nextHole(){
+if(hole===9 && holeLimit===18){showLeaderboard("Continue");return;}
+if(hole>=holeLimit){showLeaderboard("Finish");return;}
+hole++; updateUI();
 }
 
-/* ---------------- MULTIPLIERS ---------------- */
+function updateUI(){
+holeDisplay.textContent=`Hole ${hole}`;
+potDisplay.textContent=currentGame.currentPot(baseWager);
 
-let pendingMulti = 1;
-
-function openMultiplier(m) {
- pendingMulti = m;
- document.getElementById("multiplierModal").classList.remove("hidden");
+ledgerDiv.innerHTML="";
+players.forEach(p=>ledgerDiv.innerHTML+=`${p}: $${ledger[p]}<br>`);
 }
 
-function applyMultiplier(mode) {
- currentGame.applyMultiplier(pendingMulti, mode);
- closeModals();
+/* ---- SIDE BET FIXED ---- */
+
+function buildSideWinners(){
+sideWinners.innerHTML="";
+if(sideMode.value==="team" && playStyle==="teams"){
+sideWinners.innerHTML+=`<button onclick="sideTeam('A')">${teamAName}</button>
+<button onclick="sideTeam('B')">${teamBName}</button>`;
+}else{
+players.forEach(p=>sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`);
+}
 }
 
-/* ---------------- SIDE BETS ---------------- */
-
-function openSideBet() {
- const wrap = document.getElementById("sideWinners");
- wrap.innerHTML = "";
-
- if (document.getElementById("sideMode").value === "team" && playStyle === "teams") {
- wrap.innerHTML += `
- <button onclick="sideTeam('A')">${teamAName}</button>
- <button onclick="sideTeam('B')">${teamBName}</button>
- `;
- } else {
- players.forEach(p => {
- wrap.innerHTML += `<button onclick="sidePlayer('${p}')">${p}</button>`;
- });
- }
-
- document.getElementById("sideBetModal").classList.remove("hidden");
+function openSideBet(){
+buildSideWinners();
+sideBetModal.classList.remove("hidden");
 }
 
-function sidePlayer(p) {
- const amt = parseFloat(document.getElementById("sideAmount").value);
-
- players.forEach(x => {
- if (x === p) ledger[x] += amt * (players.length - 1);
- else ledger[x] -= amt;
- });
-
- closeModals();
- updateUI();
+function sidePlayer(p){
+let amt=parseFloat(sideAmount.value);
+players.forEach(x=>x===p?ledger[x]+=amt*(players.length-1):ledger[x]-=amt);
+closeModals(); updateUI();
 }
 
-function sideTeam(t) {
- const amt = parseFloat(document.getElementById("sideAmount").value);
-
- const winners = teams[t];
- const losers = teams[t === "A" ? "B" : "A"];
-
- losers.forEach(p => ledger[p] -= amt);
- winners.forEach(p => ledger[p] += amt * losers.length / winners.length);
-
- closeModals();
- updateUI();
+function sideTeam(t){
+let amt=parseFloat(sideAmount.value);
+teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
+teams[t].forEach(p=>ledger[p]+=amt);
+closeModals(); updateUI();
 }
 
-/* ---------------- MODALS ---------------- */
+/* ---- MULTIPLIERS ---- */
 
-function openHistory() {
- document.getElementById("historyList").innerHTML =
- history.join("<br>") || "No holes yet";
- document.getElementById("historyModal").classList.remove("hidden");
+function openMultiplier(m){
+pendingMulti=m;
+multiplierModal.classList.remove("hidden");
 }
 
-function closeModals() {
- document.querySelectorAll(".modal").forEach(m => m.classList.add("hidden"));
+function applyMultiplier(mode){
+currentGame.applyMultiplier(pendingMulti,mode);
+closeModals();
 }
 
-/* ---------------- LEADERBOARD ---------------- */
+/* ---- MODALS ---- */
 
-function showLeaderboard(text) {
- const board = document.getElementById("leaderboard");
-
- board.innerHTML = [...players]
- .sort((a, b) => ledger[b] - ledger[a])
- .map(p => `${p}: $${ledger[p]}`)
- .join("<br>");
-
- const btn = document.querySelector("#leaderboardModal button");
- btn.textContent = text;
-
- btn.onclick = () => {
- if (text === "Continue to Back 9") {
- document.getElementById("leaderboardModal").classList.add("hidden");
- hole++;
- updateUI();
- } else {
- location.reload();
- }
- };
-
- document.getElementById("leaderboardModal").classList.remove("hidden");
+function openHistory(){
+historyList.innerHTML=history.join("<br>");
+historyModal.classList.remove("hidden");
 }
 
-/* ---------------- INFO BUTTON ---------------- */
+function showLeaderboard(text){
+leaderboard.innerHTML=players.map(p=>`${p}: $${ledger[p]}`).join("<br>");
+const btn=leaderboardModal.querySelector("button");
+btn.textContent=text;
+btn.onclick=()=>text==="Continue"?(leaderboardModal.classList.add("hidden"),hole++,updateUI()):location.reload();
+leaderboardModal.classList.remove("hidden");
+}
 
-function showInfo(game) {
- const text = {
- skins:
- "Skins: Each hole has a wager. Ties carry forward. Birdie doubles and Eagle triples. Winner takes the pot.",
- vegas:
- "Vegas: Team scores combine into a two-digit number. Difference swings the wager. Optional birdie flips, eagle doubles, and carry ties."
- };
+function showInfo(g){
+infoText.textContent=g==="skins"
+?"Skins: Each hole has a pot. Ties carry. Birdie doubles, eagle triples."
+:"Vegas: Combine team scores into two-digit numbers. Difference swings money.";
+infoModal.classList.remove("hidden");
+}
 
- document.getElementById("infoText").textContent = text[game];
- document.getElementById("infoModal").classList.remove("hidden");
+function closeModals(){
+document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
 }
