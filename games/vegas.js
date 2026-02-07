@@ -1,42 +1,71 @@
-window.vegasGame={
-type:"vegas",
-carryPot:0,
+window.vegasGame = {
 
-play(scores,players,ledger,wager,rules){
+carryPot: 0,
+multiplier: 1,
 
-let a1=scores.a1;
-let a2=scores.a2;
-let b1=scores.b1;
-let b2=scores.b2;
+reset(){
+ this.carryPot = 0;
+ this.multiplier = 1;
+},
 
-let teamA=Number(`${a1}${a2}`);
-let teamB=Number(`${b1}${b2}`);
+applyMultiplier(){},
 
-if(rules.flip){
-if(a1<a2) teamA=Number(`${a2}${a1}`);
-if(b1<b2) teamB=Number(`${b2}${b1}`);
-}
+currentPot(wager){
+ return wager;
+},
 
-let multiplier=rules.double?2:1;
+tie(){
+ // tie only carries if enabled via rules in UI
+},
 
-if(teamA===teamB){
-if(rules.carry) this.carryPot+=wager*Math.abs(teamA-teamB);
-return;
-}
+/* ------------ MAIN HOLE CALC ------------ */
 
-let diff=Math.abs(teamA-teamB)*wager*multiplier + this.carryPot;
-this.carryPot=0;
+playHole(scores, teams, ledger, wager, rules){
 
-if(teamA<teamB){
-ledger[players[0]]+=diff;
-ledger[players[1]]+=diff;
-ledger[players[2]]-=diff;
-ledger[players[3]]-=diff;
-}else{
-ledger[players[2]]+=diff;
-ledger[players[3]]+=diff;
-ledger[players[0]]-=diff;
-ledger[players[1]]-=diff;
-}
-}
+ let aScores = scores.teamA;
+ let bScores = scores.teamB;
+
+ let aLow = Math.min(...aScores);
+ let aHigh = Math.max(...aScores);
+ let bLow = Math.min(...bScores);
+ let bHigh = Math.max(...bScores);
+
+ let teamA = Number(`${aLow}${aHigh}`);
+ let teamB = Number(`${bLow}${bHigh}`);
+
+ /* Birdie flip rule */
+ if (rules.flip) {
+ teamA = Number(`${aHigh}${aLow}`);
+ teamB = Number(`${bHigh}${bLow}`);
+ }
+
+ let diff = Math.abs(teamA - teamB);
+
+ /* Eagle double swing */
+ if (rules.double) diff *= 2;
+
+ let swing = diff * wager + this.carryPot;
+
+ if (teamA === teamB) {
+ if (rules.carry) this.carryPot += diff * wager;
+ return;
+ }
+
+ this.carryPot = 0;
+
+ const winTeam = teamA < teamB ? "A" : "B";
+ const loseTeam = winTeam === "A" ? "B" : "A";
+
+ const winners = teams[winTeam];
+ const losers = teams[loseTeam];
+
+ losers.forEach(p => ledger[p] -= swing);
+ winners.forEach(p => ledger[p] += swing * losers.length / winners.length);
+},
+
+/* ------------ UI HOOKS ------------ */
+
+winTeam(){},
+winPlayer(){}
+
 };

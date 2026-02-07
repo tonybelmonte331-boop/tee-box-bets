@@ -1,15 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tee Box Bets</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#06281d">
+<title>Tee Box Bets</title>
 </head>
-
 <body>
 
 <header>Tee Box Bets</header>
@@ -18,15 +13,52 @@
 
 <section id="step-game">
 <h2>Select Game</h2>
+<button onclick="selectGame('skins')">Skins</button>
+<button onclick="selectGame('vegas')">Vegas</button>
+</section>
 
-<button onclick="startGame('skins')">
-Skins <span onclick="showInfo('skins')" class="info">ℹ️</span>
-</button>
+<section id="step-style" class="hidden">
+<h2>Play Style</h2>
+<select id="playStyle">
+<option value="ffa">Free For All</option>
+<option value="teams">Teams</option>
+</select>
 
-<button onclick="startGame('vegas')">
-Vegas <span onclick="showInfo('vegas')" class="info">ℹ️</span>
-</button>
+<select id="playerCount">
+<option value="2">2</option>
+<option value="4">4</option>
+<option value="6">6</option>
+<option value="8">8</option>
+</select>
 
+<button onclick="nextTeams()">Next</button>
+</section>
+
+<section id="step-teams" class="hidden">
+<h2>Team Names</h2>
+<input id="teamAName" placeholder="Team 1 Name">
+<input id="teamBName" placeholder="Team 2 Name">
+<button onclick="nextPlayers()">Next</button>
+</section>
+
+<section id="step-players" class="hidden">
+<h2 id="teamALabel"></h2>
+<div id="teamAInputs"></div>
+
+<h2 id="teamBLabel"></h2>
+<div id="teamBInputs"></div>
+
+<button onclick="nextSettings()">Next</button>
+</section>
+
+<section id="step-settings" class="hidden">
+<h2>Round Settings</h2>
+<input id="baseWager" type="number" placeholder="Wager per player">
+<select id="holeLimit">
+<option value="9">9 Holes</option>
+<option value="18">18 Holes</option>
+</select>
+<button onclick="startRound()">Start Round</button>
 </section>
 
 <section id="game-screen" class="hidden">
@@ -35,36 +67,47 @@ Vegas <span onclick="showInfo('vegas')" class="info">ℹ️</span>
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
 
-<div id="vegasRules" class="hidden">
-<label><input type="checkbox" id="flipBirdie"> Flip on Birdie</label>
-<label><input type="checkbox" id="doubleEagle"> Eagle Doubles</label>
-<label><input type="checkbox" id="carryTies"> Carry Ties</label>
+<div id="winnerButtons"></div>
+<button onclick="tieHole()">Tie Hole</button>
+
+<div class="multipliers">
+<button onclick="openMultiplier(2)">Birdie x2</button>
+<button onclick="openMultiplier(3)">Eagle x3</button>
 </div>
 
-<div id="gameInputs"></div>
+<button onclick="openSideBet()">Side Bet</button>
+<button onclick="openHistory()">History</button>
 
-<div id="skinsMultipliers" class="hidden">
-<button onclick="openMultiplier(2)">🐦 Birdie</button>
-<button onclick="openMultiplier(3)">🦅 Eagle</button>
-</div>
-
-<button id="actionBtn">Submit Hole</button>
-
-<h3>Ledger</h3>
 <div id="ledger"></div>
 
 </section>
 
-<div id="infoModal" class="modal hidden">
-<div id="infoText"></div>
-<button onclick="closeModal()">Close</button>
-</div>
-
 <div id="multiplierModal" class="modal hidden">
-<p>Apply multiplier to:</p>
 <button onclick="applyMultiplier('hole')">This Hole</button>
 <button onclick="applyMultiplier('pot')">Entire Pot</button>
 </div>
+
+<div id="sideBetModal" class="modal hidden">
+<input id="sideAmount" type="number" placeholder="Side wager">
+<select id="sideMode">
+<option value="player">Per Player</option>
+<option value="team">By Team</option>
+</select>
+<div id="sideWinners"></div>
+<button onclick="closeModals()">Close</button>
+</div>
+
+<div id="historyModal" class="modal hidden">
+<div id="historyList"></div>
+<button onclick="closeModals()">Close</button>
+</div>
+
+<div id="leaderboardModal" class="modal hidden">
+<div id="leaderboard"></div>
+<button>Continue</button>
+</div>
+
+</main>
 
 <script src="games/skins.js"></script>
 <script src="games/vegas.js"></script>
