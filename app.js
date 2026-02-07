@@ -1,15 +1,8 @@
-import * as skins from "./games/skins.js";
-import * as vegas from "./games/vegas.js";
-
 let currentGame=null;
-
-let players=["Player 1","Player 2","Player 3","Player 4"];
+let players=["P1","P2","P3","P4"];
 let ledger={};
-
 let hole=1;
 let wager=10;
-
-/* ---------- CORE ---------- */
 
 players.forEach(p=>ledger[p]=0);
 
@@ -17,31 +10,30 @@ function hideAll(){
 document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 }
 
-window.startGame = function(type){
+function startGame(type){
 
 hideAll();
 document.getElementById("game-screen").classList.remove("hidden");
 
-hole=1;
 players.forEach(p=>ledger[p]=0);
+hole=1;
 
 if(type==="skins"){
-currentGame=skins;
+currentGame=window.skinsGame;
+document.getElementById("skinsMultipliers").classList.remove("hidden");
 document.getElementById("vegasRules").classList.add("hidden");
 }
 
 if(type==="vegas"){
-currentGame=vegas;
+currentGame=window.vegasGame;
+document.getElementById("skinsMultipliers").classList.add("hidden");
 document.getElementById("vegasRules").classList.remove("hidden");
 }
 
 document.getElementById("gameTitle").textContent=type.toUpperCase();
-
 buildUI();
 updateUI();
-};
-
-/* ---------- UI ---------- */
+}
 
 function buildUI(){
 const wrap=document.getElementById("gameInputs");
@@ -67,26 +59,26 @@ wrap.innerHTML=`
 }
 }
 
-window.play=function(result){
-currentGame.play(result, players, ledger, wager);
+function play(result){
+currentGame.play(result,players,ledger,wager);
 hole++;
 updateUI();
-};
+}
 
 document.getElementById("actionBtn").onclick=()=>{
 if(currentGame.type==="vegas"){
 
 const rules={
-flip:document.getElementById("flipBirdie").checked,
-double:document.getElementById("doubleEagle").checked,
-carry:document.getElementById("carryTies").checked
+flip:flipBirdie.checked,
+double:doubleEagle.checked,
+carry:carryTies.checked
 };
 
 const scores={
-a1:+document.getElementById("a1").value,
-a2:+document.getElementById("a2").value,
-b1:+document.getElementById("b1").value,
-b2:+document.getElementById("b2").value
+a1:+a1.value,
+a2:+a2.value,
+b1:+b1.value,
+b2:+b2.value
 };
 
 currentGame.play(scores,players,ledger,wager,rules);
@@ -96,12 +88,39 @@ updateUI();
 };
 
 function updateUI(){
-document.getElementById("holeDisplay").textContent=`Hole ${hole}`;
-document.getElementById("potDisplay").textContent=`$${wager} per point`;
+holeDisplay.textContent=`Hole ${hole}`;
+potDisplay.textContent=`$${wager}`;
 
-const l=document.getElementById("ledger");
-l.innerHTML="";
+ledgerDiv=document.getElementById("ledger");
+ledgerDiv.innerHTML="";
 players.forEach(p=>{
-l.innerHTML+=`<div>${p}: $${ledger[p]}</div>`;
+ledgerDiv.innerHTML+=`<div>${p}: $${ledger[p]}</div>`;
 });
+}
+
+/* ---------- MODALS ---------- */
+
+function showInfo(game){
+const text={
+skins:"Skins: Each hole has a wager. Ties carry. Birdie doubles and Eagle triples. Winner takes the pot.",
+vegas:"Vegas: Team scores combine into a two-digit number. Difference swings the wager. Optional flips, doubles, and carries."
+};
+infoText.textContent=text[game];
+infoModal.classList.remove("hidden");
+}
+
+function closeModal(){
+document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
+}
+
+let pendingMulti=1;
+
+function openMultiplier(m){
+pendingMulti=m;
+multiplierModal.classList.remove("hidden");
+}
+
+function applyMultiplier(mode){
+currentGame.applyMultiplier(pendingMulti,mode);
+closeModal();
 }

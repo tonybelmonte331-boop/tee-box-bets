@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Tee Box Bets</title>
 
-<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#06281d">
-<link rel="apple-touch-icon" href="icons/icon-512.png">
 </head>
 
 <body>
@@ -18,29 +16,37 @@
 
 <main>
 
-<!-- GAME SELECT -->
 <section id="step-game">
 <h2>Select Game</h2>
-<button onclick="startGame('skins')">Skins</button>
-<button onclick="startGame('vegas')">Vegas</button>
+
+<button onclick="startGame('skins')">
+Skins <span onclick="showInfo('skins')" class="info">ℹ️</span>
+</button>
+
+<button onclick="startGame('vegas')">
+Vegas <span onclick="showInfo('vegas')" class="info">ℹ️</span>
+</button>
+
 </section>
 
-<!-- GAME SCREEN -->
 <section id="game-screen" class="hidden">
 
 <h2 id="gameTitle"></h2>
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
 
-<!-- VEGAS RULE TOGGLES -->
 <div id="vegasRules" class="hidden">
 <label><input type="checkbox" id="flipBirdie"> Flip on Birdie</label>
-<label><input type="checkbox" id="doubleEagle"> Double on Eagle</label>
-<label><input type="checkbox" id="carryTies"> Carry on Tie</label>
+<label><input type="checkbox" id="doubleEagle"> Eagle Doubles</label>
+<label><input type="checkbox" id="carryTies"> Carry Ties</label>
 </div>
 
-<!-- GAME INPUTS -->
 <div id="gameInputs"></div>
+
+<div id="skinsMultipliers" class="hidden">
+<button onclick="openMultiplier(2)">🐦 Birdie</button>
+<button onclick="openMultiplier(3)">🦅 Eagle</button>
+</div>
 
 <button id="actionBtn">Submit Hole</button>
 
@@ -49,8 +55,20 @@
 
 </section>
 
-</main>
+<div id="infoModal" class="modal hidden">
+<div id="infoText"></div>
+<button onclick="closeModal()">Close</button>
+</div>
 
-<script type="module" src="app.js"></script>
+<div id="multiplierModal" class="modal hidden">
+<p>Apply multiplier to:</p>
+<button onclick="applyMultiplier('hole')">This Hole</button>
+<button onclick="applyMultiplier('pot')">Entire Pot</button>
+</div>
+
+<script src="games/skins.js"></script>
+<script src="games/vegas.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
