@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Tee Box Bets</title>
 
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
 <meta name="theme-color" content="#06281d">
 <link rel="apple-touch-icon" href="icons/icon-512.png">
-
-<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -19,134 +18,39 @@
 
 <main>
 
-<!-- STEP 1 -->
+<!-- GAME SELECT -->
 <section id="step-game">
 <h2>Select Game</h2>
-<button onclick="selectGame('skins')">Skins</button>
-<button onclick="selectGame('nassau')">Nassau</button>
-<button onclick="selectGame('custom')">Custom</button>
+<button onclick="startGame('skins')">Skins</button>
+<button onclick="startGame('vegas')">Vegas</button>
 </section>
 
-<!-- STEP 2 -->
-<section id="step-style" class="hidden">
-<h2>Play Style</h2>
-<select id="playStyle">
-<option value="ffa">Free For All</option>
-<option value="teams">Teams</option>
-</select>
-
-<h2>Players</h2>
-<select id="playerCount">
-<option>2</option><option>4</option><option>6</option><option>8</option>
-</select>
-
-<button onclick="goBack()">Back</button>
-<button onclick="nextTeams()">Next</button>
-</section>
-
-<!-- STEP 3 -->
-<section id="step-teams" class="hidden">
-<h2>Team Names</h2>
-<input id="teamAName" placeholder="Team 1 Name">
-<input id="teamBName" placeholder="Team 2 Name">
-
-<button onclick="goBack()">Back</button>
-<button onclick="nextPlayers()">Next</button>
-</section>
-
-<!-- STEP 4 -->
-<section id="step-players" class="hidden">
-<h2 id="teamALabel"></h2>
-<div id="teamAInputs"></div>
-
-<h2 id="teamBLabel"></h2>
-<div id="teamBInputs"></div>
-
-<button onclick="goBack()">Back</button>
-<button onclick="nextSettings()">Next</button>
-</section>
-
-<!-- STEP 5 -->
-<section id="step-settings" class="hidden">
-<h2>Game Settings</h2>
-<input id="baseWager" type="number" placeholder="Wager per player">
-<select id="holeLimit">
-<option value="9">9 Holes</option>
-<option value="18">18 Holes</option>
-</select>
-
-<button onclick="goBack()">Back</button>
-<button onclick="startGame()">Start Round</button>
-</section>
-
-<!-- GAME -->
+<!-- GAME SCREEN -->
 <section id="game-screen" class="hidden">
 
 <h2 id="gameTitle"></h2>
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
 
-<div id="multiplierButtons">
-<button onclick="openMultiplier(2)">Birdie x2</button>
-<button onclick="openMultiplier(3)">Eagle x3</button>
+<!-- VEGAS RULE TOGGLES -->
+<div id="vegasRules" class="hidden">
+<label><input type="checkbox" id="flipBirdie"> Flip on Birdie</label>
+<label><input type="checkbox" id="doubleEagle"> Double on Eagle</label>
+<label><input type="checkbox" id="carryTies"> Carry on Tie</label>
 </div>
 
-<div id="winnerButtons"></div>
+<!-- GAME INPUTS -->
+<div id="gameInputs"></div>
 
-<button onclick="tieHole()">Tie Hole</button>
-<button onclick="openHistory()">Hole History</button>
+<button id="actionBtn">Submit Hole</button>
 
+<h3>Ledger</h3>
 <div id="ledger"></div>
-
-<button id="sideBetBtn" onclick="openSideBet()">Side Bet</button>
 
 </section>
 
-<!-- SIDE BET MODAL -->
-<div id="sideBetModal" class="modal hidden">
-<div class="modal-box">
-
-<select id="sideMode">
-<option value="ffa">Per Player</option>
-<option value="team">By Team</option>
-</select>
-
-<input id="sideAmount" type="number" placeholder="Wager per player">
-<div id="sideWinners"></div>
-
-<button onclick="confirmSideBet()">Confirm</button>
-<button onclick="closeModals()">Cancel</button>
-</div>
-</div>
-
-<!-- MULTIPLIER MODAL -->
-<div id="multiplierModal" class="modal hidden">
-<div class="modal-box">
-<p>Apply multiplier to:</p>
-<button onclick="applyMultiplier('hole')">This Hole Only</button>
-<button onclick="applyMultiplier('total')">Entire Pot</button>
-<button onclick="closeModals()">Cancel</button>
-</div>
-</div>
-
-<!-- HISTORY MODAL -->
-<div id="historyModal" class="modal hidden">
-<div class="modal-box">
-<div id="historyList"></div>
-<button onclick="closeModals()">Close</button>
-</div>
-</div>
-
-<!-- LEADERBOARD -->
-<div id="leaderboardModal" class="modal hidden">
-<div class="modal-box">
-<div id="leaderboard"></div>
-<button onclick="finishRound()">Finish</button>
-</div>
-</div>
-
 </main>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
