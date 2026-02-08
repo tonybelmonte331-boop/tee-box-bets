@@ -117,19 +117,49 @@ window.openMultiplier=m=>skinsGame.applyMultiplier(m);
 /* ---------- SIDE BET (RESTORED) ---------- */
 
 window.openSideBet = ()=>{
- const amt = parseFloat(prompt("Side bet amount per player:"));
- if(isNaN(amt)) return;
+ buildSideWinners();
+ sideBetModal.classList.remove("hidden");
+};
 
- const winner = prompt("Who won the side bet? (enter exact player name)");
- if(!ledger.hasOwnProperty(winner)) return alert("Invalid player");
+function buildSideWinners(){
+ sideWinners.innerHTML="";
 
+ if(sideMode.value==="player"){
  players.forEach(p=>{
- if(p===winner) ledger[p]+=amt*(players.length-1);
- else ledger[p]-=amt;
+ sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
+ });
+ } else {
+ sideWinners.innerHTML+=`
+ <button onclick="sideTeam('A')">${teamAName}</button>
+ <button onclick="sideTeam('B')">${teamBName}</button>
+ `;
+ }
+}
+
+window.sidePlayer = p=>{
+ const amt = +sideAmount.value;
+
+ players.forEach(x=>{
+ if(x===p) ledger[x]+=amt*(players.length-1);
+ else ledger[x]-=amt;
  });
 
- updateUI();
+ closeSideBet();
 };
+
+window.sideTeam = t=>{
+ const amt = +sideAmount.value;
+
+ teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
+ teams[t].forEach(p=>ledger[p]+=amt);
+
+ closeSideBet();
+};
+
+function closeSideBet(){
+ sideBetModal.classList.add("hidden");
+ updateUI();
+}
 
 /* VEGAS */
 

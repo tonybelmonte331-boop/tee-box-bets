@@ -22,26 +22,26 @@ this.multiplier = 1;
 },
 
 winPlayer(player, players, ledger, wager){
+
 const pot = wager * this.carry * this.multiplier;
 
 players.forEach(p=>{
 if(p === player) ledger[p] += pot;
-else ledger[p] -= wager * this.carry;
+else ledger[p] -= wager;
 });
 
 this.reset();
 },
 
 winTeam(team, teams, ledger, wager){
+
+const losers = teams[team==="A"?"B":"A"];
+const winners = teams[team];
+
 const pot = wager * this.carry * this.multiplier;
 
-teams[team === "A" ? "B" : "A"].forEach(p=>{
-ledger[p] -= wager * this.carry;
-});
-
-teams[team].forEach(p=>{
-ledger[p] += pot / teams[team].length;
-});
+losers.forEach(p => ledger[p] -= wager);
+winners.forEach(p => ledger[p] += wager);
 
 this.reset();
 }
