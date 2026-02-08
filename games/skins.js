@@ -1,4 +1,5 @@
 window.skinsGame = {
+
 carry: 1,
 multiplier: 1,
 
@@ -44,4 +45,5 @@ ledger[p] += pot / teams[team].length;
 
 this.reset();
 }
+
 };
