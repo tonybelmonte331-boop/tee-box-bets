@@ -114,13 +114,34 @@ window.tieHole=()=>{ skinsGame.tie(); nextHole(); };
 
 window.openMultiplier=m=>skinsGame.applyMultiplier(m);
 
+/* ---------- SIDE BET (RESTORED) ---------- */
+
+window.openSideBet = ()=>{
+ const amt = parseFloat(prompt("Side bet amount per player:"));
+ if(isNaN(amt)) return;
+
+ const winner = prompt("Who won the side bet? (enter exact player name)");
+ if(!ledger.hasOwnProperty(winner)) return alert("Invalid player");
+
+ players.forEach(p=>{
+ if(p===winner) ledger[p]+=amt*(players.length-1);
+ else ledger[p]-=amt;
+ });
+
+ updateUI();
+};
+
 /* VEGAS */
 
 window.finishVegasHole=()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
  let b=[+b1.value,+b2.value].sort((x,y)=>x-y);
 
- const swing=vegasGame.calculate(a[0],a[1],b[0],b[1],baseWager,false);
+ const swing = vegasGame.calculate(
+ a[0],a[1],b[0],b[1],
+ baseWager,
+ birdieFlip.checked // FIXED
+ );
 
  if(swing){
  const win=vegasGame.winner(a[0],a[1],b[0],b[1]);
@@ -179,3 +200,9 @@ function showEndModal(text){
 
  leaderboardModal.classList.remove("hidden");
 }
+
+/* ---------- FINISH ROUND BUTTON ---------- */
+
+window.finishRound = ()=>{
+ show("step-home");
+};
