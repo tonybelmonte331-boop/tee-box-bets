@@ -19,28 +19,31 @@
 
 <section id="rules-screen" class="hidden">
 <h3>Skins</h3>
-<p>Each hole has a wager. Ties carry. Birdie doubles, eagle triples.</p>
+<p>Each hole has a wager per player. Ties carry forward. Birdie doubles the current hole only.</p>
+
 <h3>Vegas</h3>
-<p>Each team enters two scores. Lower two-digit number wins. Difference × wager pays.</p>
+<p>Each team enters two scores. Lower combined number wins. Difference × wager per point swings.</p>
+
 <button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-game" class="hidden">
-<button onclick="selectGame('skins')">Skins</button>
-<button onclick="selectGame('vegas')">Vegas</button>
+<button onclick="selectGame('skins'); setWagerLabel('player')">Skins</button>
+<button onclick="selectGame('vegas'); setWagerLabel('point')">Vegas</button>
 <button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-style" class="hidden">
 <select id="playStyle">
 <option value="teams">Teams</option>
-<option value="ffa">Free For All (Skins only)</option>
 </select>
+
 <select id="playerCount">
 <option>4</option>
 <option>6</option>
 <option>8</option>
 </select>
+
 <button onclick="nextTeams()">Next</button>
 <button onclick="goGameSelect()">Back</button>
 </section>
@@ -48,25 +51,33 @@
 <section id="step-teams" class="hidden">
 <input id="teamAName" placeholder="Team 1 Name">
 <input id="teamBName" placeholder="Team 2 Name">
+
 <button onclick="nextPlayers()">Next</button>
 <button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-players" class="hidden">
+
 <h4 id="teamALabel"></h4>
 <div id="teamAInputs"></div>
+
 <h4 id="teamBLabel"></h4>
 <div id="teamBInputs"></div>
+
 <button onclick="nextSettings()">Next</button>
 <button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-settings" class="hidden">
-<input id="baseWager" type="number" placeholder="Wager per point">
+
+<input id="baseWager" type="number">
+<p id="wagerLabel">Wager per player</p>
+
 <select id="holeLimit">
 <option value="9">9 Holes</option>
 <option value="18">18 Holes</option>
 </select>
+
 <button onclick="startRound()">Start Round</button>
 <button onclick="goGameSelect()">Back</button>
 </section>
@@ -74,20 +85,21 @@
 <section id="game-screen" class="hidden">
 
 <h3 id="holeDisplay"></h3>
-<h3 id="potDisplay"><</h3>
+<h3 id="potDisplay"></h3>
 
 <div id="vegasBox" class="hidden">
+
 <h4 id="teamABox"></h4>
-<input id="a1" type="number" placeholder="Score 1">
-<input id="a2" type="number" placeholder="Score 2">
+<input id="a1" type="number" placeholder="Score">
+<input id="a2" type="number" placeholder="Score">
 
 <h4 id="teamBBox"></h4>
-<input id="b1" type="number" placeholder="Score 1">
-<input id="b2" type="number" placeholder="Score 2">
+<input id="b1" type="number" placeholder="Score">
+<input id="b2" type="number" placeholder="Score">
 
 <label>
 <input type="checkbox" id="birdieFlip">
-Birdie Flip Losing Team
+Birdie flip losing team
 </label>
 
 <button onclick="finishVegasHole()">Finish Hole</button>
@@ -102,38 +114,53 @@ Birdie Flip Losing Team
 
 <button onclick="openSideBet()">Side Bet</button>
 
-<div id="ledger"></div>
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
 
 <button onclick="goHome()">Exit Round</button>
 
 </section>
 
+<!-- END ROUND MODAL -->
+
+<div id="leaderboardModal" class="modal hidden">
+<h3>Round Results</h3>
+<div id="leaderboardModalList"></div>
+<button id="leaderboardFinishBtn">Finish</button>
+</div>
+
+<!-- MULTIPLIER MODAL -->
+
 <div id="multiplierModal" class="modal hidden">
 <button onclick="applyMultiplier('hole')">This Hole</button>
-<button onclick="applyMultiplier('pot')">Entire Pot</button>
 <button onclick="closeModals()">Back</button>
 </div>
 
+<!-- SIDE BET MODAL -->
+
 <div id="sideBetModal" class="modal hidden">
 <input id="sideAmount" type="number" placeholder="Side wager">
+
 <select id="sideMode" onchange="buildSideWinners()">
 <option value="player">Per Player</option>
 <option value="team">By Team</option>
 </select>
-<div id="sideWinners"></div>
-<button onclick="closeModals()">Back</button>
-</div>
 
-<div id="leaderboardModal" class="modal hidden">
-    <h3>Leaderboard</h3>
-    <div id="leaderboard"></div>
-    <button>Continue</button>
+<div id="sideWinners"></div>
+
+<button onclick="closeModals()">Back</button>
 </div>
 
 <script src="games/skins.js"></script>
 <script src="games/vegas.js"></script>
 <script src="app.js"></script>
 
+<script>
+function setWagerLabel(type){
+ document.getElementById("wagerLabel").textContent =
+ type === "point" ? "Wager per point" : "Wager per player";
+}
+</script>
 
 </body>
 </html>

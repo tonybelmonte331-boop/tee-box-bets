@@ -1,49 +1,38 @@
 window.skinsGame = {
 
-carry:1,
-multiplier:1,
+carryPlayers: 0,
+multiplier: 1,
 
 reset(){
-this.carry=1;
-this.multiplier=1;
+this.carryPlayers = 0;
+this.multiplier = 1;
 },
 
-applyMultiplier(m,mode){
-if(mode==="hole") this.multiplier=m;
-if(mode==="pot") this.carry*=m;
+currentPot(wager){
+return wager * (this.carryPlayers + this.multiplier);
 },
 
-currentPot(w){
-return w*this.carry*this.multiplier;
+applyMultiplier(m, mode){
+if(mode === "hole") this.multiplier = m;
 },
 
 tie(){
-this.carry*=this.multiplier;
-this.multiplier=1;
-this.carry++;
+// add one hole worth of losing players (2 players in team game)
+this.carryPlayers += 2;
+this.multiplier = 1;
 },
 
-winPlayer(p,players,ledger,w){
-this.carry*=this.multiplier;
-this.multiplier=1;
+winTeam(t, teams, ledger, wager){
 
-const pot=w*this.carry*(players.length-1);
+const losers = teams[t === "A" ? "B" : "A"];
 
-players.forEach(x=>{
-if(x===p) ledger[x]+=pot;
-else ledger[x]-=w*this.carry;
-});
+const pot = wager * (this.carryPlayers + this.multiplier);
 
-this.carry=1;
-},
+losers.forEach(p => ledger[p] -= wager);
+teams[t].forEach(p => ledger[p] += pot / teams[t].length);
 
-winTeam(t,teams,ledger,w){
-this.carry*=this.multiplier;
-this.multiplier=1;
-
-teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=w*this.carry);
-teams[t].forEach(p=>ledger[p]+=w*this.carry);
-
-this.carry=1;
+this.carryPlayers = 0;
+this.multiplier = 1;
 }
-};
+
+};  
