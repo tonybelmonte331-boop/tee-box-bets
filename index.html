@@ -19,10 +19,10 @@
 
 <section id="rules-screen" class="hidden">
 <h3>Skins</h3>
-<p>Each hole has a wager per player. Ties carry forward. Birdie doubles the current hole only.</p>
+<p>Wager per player each hole. Ties carry forward. Birdie doubles, eagle triples current hole.</p>
 
 <h3>Vegas</h3>
-<p>Each team enters two scores. Lower combined number wins. Difference × wager per point swings.</p>
+<p>Two scores per team combine into a number. Difference × wager per point swings.</p>
 
 <button onclick="goHome()">Back</button>
 </section>
@@ -35,13 +35,14 @@
 
 <section id="step-style" class="hidden">
 <select id="playStyle">
+<option value="ffa">Free For All</option>
 <option value="teams">Teams</option>
 </select>
 
 <select id="playerCount">
+<option>2</option>
+<option>3</option>
 <option>4</option>
-<option>6</option>
-<option>8</option>
 </select>
 
 <button onclick="nextTeams()">Next</button>
@@ -51,7 +52,6 @@
 <section id="step-teams" class="hidden">
 <input id="teamAName" placeholder="Team 1 Name">
 <input id="teamBName" placeholder="Team 2 Name">
-
 <button onclick="nextPlayers()">Next</button>
 <button onclick="goGameSelect()">Back</button>
 </section>
@@ -90,12 +90,12 @@
 <div id="vegasBox" class="hidden">
 
 <h4 id="teamABox"></h4>
-<input id="a1" type="number" placeholder="Score">
-<input id="a2" type="number" placeholder="Score">
+<input id="a1" type="number">
+<input id="a2" type="number">
 
 <h4 id="teamBBox"></h4>
-<input id="b1" type="number" placeholder="Score">
-<input id="b2" type="number" placeholder="Score">
+<input id="b1" type="number">
+<input id="b2" type="number">
 
 <label>
 <input type="checkbox" id="birdieFlip">
@@ -121,33 +121,25 @@ Birdie flip losing team
 
 </section>
 
-<!-- END ROUND MODAL -->
-
 <div id="leaderboardModal" class="modal hidden">
 <h3>Round Results</h3>
 <div id="leaderboardModalList"></div>
-<button id="leaderboardFinishBtn">Finish</button>
+<button id="leaderboardFinishBtn">Finish Round</button>
 </div>
 
-<!-- MULTIPLIER MODAL -->
-
 <div id="multiplierModal" class="modal hidden">
-<button onclick="applyMultiplier('hole')">This Hole</button>
+<button onclick="applyMultiplier(2)">Double This Hole</button>
+<button onclick="applyMultiplier(3)">Triple This Hole</button>
 <button onclick="closeModals()">Back</button>
 </div>
 
-<!-- SIDE BET MODAL -->
-
 <div id="sideBetModal" class="modal hidden">
-<input id="sideAmount" type="number" placeholder="Side wager">
-
+<input id="sideAmount" type="number">
 <select id="sideMode" onchange="buildSideWinners()">
 <option value="player">Per Player</option>
 <option value="team">By Team</option>
 </select>
-
 <div id="sideWinners"></div>
-
 <button onclick="closeModals()">Back</button>
 </div>
 
@@ -157,8 +149,8 @@ Birdie flip losing team
 
 <script>
 function setWagerLabel(type){
- document.getElementById("wagerLabel").textContent =
- type === "point" ? "Wager per point" : "Wager per player";
+document.getElementById("wagerLabel").textContent =
+type === "point" ? "Wager per point" : "Wager per player";
 }
 </script>
 
