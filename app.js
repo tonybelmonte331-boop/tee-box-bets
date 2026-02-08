@@ -1,6 +1,5 @@
 let currentGame;
-let playStyle = "teams";
-let playerCount = 4;
+let playStyle="teams";
 
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
@@ -27,15 +26,11 @@ window.showRules=()=>show("rules-screen");
 
 window.selectGame=(g)=>{ currentGame=g; show("step-style"); };
 
-window.nextTeams=()=>{
- playStyle=document.getElementById("playStyle").value;
- playerCount=parseInt(document.getElementById("playerCount").value);
- show("step-teams");
-};
+window.nextTeams=()=> show("step-teams");
 
 window.nextPlayers=()=>{
- teamAName=teamAName.value||"Team A";
- teamBName=teamBName.value||"Team B";
+ teamAName=document.getElementById("teamAName").value||"Team A";
+ teamBName=document.getElementById("teamBName").value||"Team B";
 
  teamALabel.textContent=teamAName;
  teamBLabel.textContent=teamBName;
@@ -60,12 +55,13 @@ window.startRound=()=>{
  document.querySelectorAll("#teamAInputs input").forEach(i=>{
  players.push(i.value); teams.A.push(i.value); ledger[i.value]=0;
  });
+
  document.querySelectorAll("#teamBInputs input").forEach(i=>{
  players.push(i.value); teams.B.push(i.value); ledger[i.value]=0;
  });
 
- baseWager=parseFloat(baseWager.value);
- holeLimit=parseInt(holeLimit.value);
+ baseWager = parseFloat(document.getElementById("baseWager").value);
+ holeLimit = parseInt(document.getElementById("holeLimit").value);
 
  skinsGame.reset?.();
 
@@ -84,8 +80,7 @@ window.startRound=()=>{
 /* ---------- SKINS ---------- */
 
 function buildWinnerButtons(){
- winnerButtons.innerHTML="";
- winnerButtons.innerHTML+=`
+ winnerButtons.innerHTML=`
  <button onclick="winTeam('A')">${teamAName}</button>
  <button onclick="winTeam('B')">${teamBName}</button>
  `;
@@ -146,7 +141,7 @@ function finishHole(){
 function updateUI(){
  holeDisplay.textContent=`Hole ${hole}`;
 
- potDisplay.textContent=
+ potDisplay.textContent =
  currentGame==="skins"
  ? `$${skinsGame.currentPot(baseWager)}/player`
  : "";
@@ -159,19 +154,22 @@ function updateUI(){
 
 /* ---------- LEADERBOARD ---------- */
 
-function showLeaderboard(btnText){
+function showLeaderboard(text){
 
- leaderboard.innerHTML=[...players]
+ const modal=document.getElementById("leaderboardModal");
+ const board=document.getElementById("leaderboard");
+ const btn=modal.querySelector("button");
+
+ board.innerHTML=[...players]
  .sort((a,b)=>ledger[b]-ledger[a])
  .map(p=>`${p}: $${ledger[p]}`)
  .join("<br>");
 
- const btn=leaderboardModal.querySelector("button");
- btn.textContent=btnText;
+ btn.textContent=text;
 
  btn.onclick=()=>{
- if(btnText==="Continue to Back 9"){
- leaderboardModal.classList.add("hidden");
+ if(text==="Continue to Back 9"){
+ modal.classList.add("hidden");
  hole++;
  updateUI();
  } else {
@@ -179,7 +177,7 @@ function showLeaderboard(btnText){
  }
  };
 
- leaderboardModal.classList.remove("hidden");
+ modal.classList.remove("hidden");
 }
 
 /* ---------- SIDE BET ---------- */
@@ -190,26 +188,11 @@ window.openSideBet=()=>{
 };
 
 function buildSideWinners(){
- sideWinners.innerHTML="";
- if(sideMode.value==="player"){
- players.forEach(p=>{
- sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
- });
- } else {
- sideWinners.innerHTML+=`
+ sideWinners.innerHTML=`
  <button onclick="sideTeam('A')">${teamAName}</button>
  <button onclick="sideTeam('B')">${teamBName}</button>
  `;
- }
 }
-
-window.sidePlayer=(p)=>{
- const amt=+sideAmount.value;
- players.forEach(x=>{
- x===p ? ledger[x]+=amt*(players.length-1) : ledger[x]-=amt;
- });
- closeModals(); updateUI();
-};
 
 window.sideTeam=(t)=>{
  const amt=+sideAmount.value;
