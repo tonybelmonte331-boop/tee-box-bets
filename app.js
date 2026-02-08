@@ -108,33 +108,48 @@ function buildWinnerButtons(){
  }
 }
 
-window.winPlayer=p=>{ skinsGame.winPlayer(p,players,ledger,baseWager); nextHole(); };
-window.winTeam=t=>{ skinsGame.winTeam(t,teams,ledger,baseWager); nextHole(); };
-window.tieHole=()=>{ skinsGame.tie(); nextHole(); };
-
-window.openMultiplier=m=>skinsGame.applyMultiplier(m);
-
-/* ---------- SIDE BET (RESTORED) ---------- */
-
-window.openSideBet = ()=>{
- buildSideWinners();
- sideBetModal.classList.remove("hidden");
+window.winPlayer=p=>{
+ skinsGame.winPlayer(p,players,ledger,baseWager);
+ nextHole();
 };
 
-function buildSideWinners(){
+window.winTeam=t=>{
+ skinsGame.winTeam(t,teams,ledger,baseWager);
+ nextHole();
+};
+
+window.tieHole=()=>{
+ skinsGame.tie();
+ nextHole();
+};
+
+/* multipliers now persist until hole is won */
+
+window.openMultiplier = m=>{
+ skinsGame.applyMultiplier(m);
+};
+
+/* ---------- SIDE BET (FULLY WORKING) ---------- */
+
+window.openSideBet = ()=>{
+ sideBetModal.classList.remove("hidden");
+ buildSideWinners();
+};
+
+window.buildSideWinners = ()=>{
  sideWinners.innerHTML="";
 
  if(sideMode.value==="player"){
  players.forEach(p=>{
- sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
+ sideWinners.innerHTML += `<button onclick="sidePlayer('${p}')">${p}</button>`;
  });
  } else {
- sideWinners.innerHTML+=`
+ sideWinners.innerHTML += `
  <button onclick="sideTeam('A')">${teamAName}</button>
  <button onclick="sideTeam('B')">${teamBName}</button>
  `;
  }
-}
+};
 
 window.sidePlayer = p=>{
  const amt = +sideAmount.value;
@@ -144,7 +159,8 @@ window.sidePlayer = p=>{
  else ledger[x]-=amt;
  });
 
- closeSideBet();
+ sideBetModal.classList.add("hidden");
+ updateUI();
 };
 
 window.sideTeam = t=>{
@@ -153,15 +169,11 @@ window.sideTeam = t=>{
  teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
  teams[t].forEach(p=>ledger[p]+=amt);
 
- closeSideBet();
-};
-
-function closeSideBet(){
  sideBetModal.classList.add("hidden");
  updateUI();
-}
+};
 
-/* VEGAS */
+/* VEGAS (UNCHANGED — WORKING) */
 
 window.finishVegasHole=()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
@@ -170,7 +182,7 @@ window.finishVegasHole=()=>{
  const swing = vegasGame.calculate(
  a[0],a[1],b[0],b[1],
  baseWager,
- birdieFlip.checked // FIXED
+ birdieFlip.checked
  );
 
  if(swing){
@@ -204,7 +216,9 @@ function nextHole(){
 
 function updateUI(){
  holeDisplay.textContent=`Hole ${hole}`;
- potDisplay.textContent=currentGame==="skins" ? `$${skinsGame.currentPot(baseWager)}/player` : "";
+ potDisplay.textContent=currentGame==="skins"
+ ? `$${skinsGame.currentPot(baseWager)}/player`
+ : "";
 
  leaderboard.innerHTML="";
  players.forEach(p=>{

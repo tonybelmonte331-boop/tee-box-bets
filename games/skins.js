@@ -17,8 +17,7 @@ this.multiplier = m;
 },
 
 tie(){
-this.carry += 1;
-this.multiplier = 1;
+this.carry += 1; // keep stacking
 },
 
 winPlayer(player, players, ledger, wager){
@@ -30,7 +29,7 @@ if(p === player) ledger[p] += pot;
 else ledger[p] -= wager;
 });
 
-this.reset();
+this.reset(); // reset ONLY after win
 },
 
 winTeam(team, teams, ledger, wager){
@@ -43,7 +42,7 @@ const pot = wager * this.carry * this.multiplier;
 losers.forEach(p => ledger[p] -= wager);
 winners.forEach(p => ledger[p] += wager);
 
-this.reset();
+this.reset(); // reset ONLY after win
 }
 
 };
