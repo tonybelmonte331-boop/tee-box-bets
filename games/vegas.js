@@ -2,34 +2,27 @@ window.vegasGame = {
 
 reset(){},
 
-applyMultiplier(){},
+calculate(a1,a2,b1,b2,wager,flip){
 
-currentPot(){ return ""; },
+let teamA = Number(`${a1}${a2}`);
+let teamB = Number(`${b1}${b2}`);
 
-tie(){},
+if(teamA === teamB) return 0;
 
-winPlayer(){},
-
-winTeam(){},
-
-playHole(a,b,teams,ledger,w){
-
-const aLow=Math.min(...a);
-const aHigh=Math.max(...a);
-const bLow=Math.min(...b);
-const bHigh=Math.max(...b);
-
-const teamA=Number(`${aLow}${aHigh}`);
-const teamB=Number(`${bLow}${bHigh}`);
-
-if(teamA===teamB) return;
-
-const diff=Math.abs(teamA-teamB)*w;
-
-const win=teamA<teamB?"A":"B";
-const lose=win==="A"?"B":"A";
-
-teams[lose].forEach(p=>ledger[p]-=diff);
-teams[win].forEach(p=>ledger[p]+=diff);
+if(flip){
+if(teamA > teamB) teamA = Number(`${a2}${a1}`);
+else teamB = Number(`${b2}${b1}`);
 }
+
+return Math.abs(teamA - teamB) * wager;
+},
+
+winner(a1,a2,b1,b2){
+
+let teamA = Number(`${a1}${a2}`);
+let teamB = Number(`${b1}${b2}`);
+
+return teamA < teamB ? "A" : "B";
+}
+
 };
