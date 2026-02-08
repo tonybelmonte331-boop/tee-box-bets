@@ -1,4 +1,3 @@
-
 let currentGame;
 let playStyle = "teams";
 let playerCount = 4;
@@ -9,198 +8,230 @@ let players=[], teams={A:[],B:[]}, ledger={};
 let hole=1, holeLimit=9, baseWager=0;
 let pendingMulti=1;
 
-/* NAV */
+/* ---------- NAV ---------- */
 
 function hideAll(){
-document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+ document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 }
+
 function show(id){
-hideAll();
-document.getElementById(id).classList.remove("hidden");
+ hideAll();
+ document.getElementById(id).classList.remove("hidden");
 }
+
 window.goHome=()=>show("step-home");
 window.goGameSelect=()=>show("step-game");
 window.showRules=()=>show("rules-screen");
 
-/* SETUP */
+/* ---------- SETUP ---------- */
 
-window.selectGame=(g)=>{currentGame=g;show("step-style");};
+window.selectGame=(g)=>{ currentGame=g; show("step-style"); };
 
 window.nextTeams=()=>{
-playStyle=document.getElementById("playStyle").value;
-playerCount=parseInt(document.getElementById("playerCount").value);
-show("step-teams");
+ playStyle=document.getElementById("playStyle").value;
+ playerCount=parseInt(document.getElementById("playerCount").value);
+ show("step-teams");
 };
 
 window.nextPlayers=()=>{
-teamAName=teamAName.value||"Team A";
-teamBName=teamBName.value||"Team B";
+ teamAName=teamAName.value||"Team A";
+ teamBName=teamBName.value||"Team B";
 
-teamALabel.textContent=teamAName;
-teamBLabel.textContent=teamBName;
+ teamALabel.textContent=teamAName;
+ teamBLabel.textContent=teamBName;
 
-teamAInputs.innerHTML="";
-teamBInputs.innerHTML="";
+ teamAInputs.innerHTML="";
+ teamBInputs.innerHTML="";
 
-for(let i=0;i<2;i++){
-teamAInputs.innerHTML+=`<input>`;
-teamBInputs.innerHTML+=`<input>`;
-}
-show("step-players");
+ for(let i=0;i<2;i++){
+ teamAInputs.innerHTML+=`<input>`;
+ teamBInputs.innerHTML+=`<input>`;
+ }
+ show("step-players");
 };
 
 window.nextSettings=()=>show("step-settings");
 
-/* START */
+/* ---------- START ROUND ---------- */
 
 window.startRound=()=>{
-players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
+ players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 
-document.querySelectorAll("#teamAInputs input").forEach(i=>{
-players.push(i.value); teams.A.push(i.value); ledger[i.value]=0;
-});
-document.querySelectorAll("#teamBInputs input").forEach(i=>{
-players.push(i.value); teams.B.push(i.value); ledger[i.value]=0;
-});
+ document.querySelectorAll("#teamAInputs input").forEach(i=>{
+ players.push(i.value); teams.A.push(i.value); ledger[i.value]=0;
+ });
+ document.querySelectorAll("#teamBInputs input").forEach(i=>{
+ players.push(i.value); teams.B.push(i.value); ledger[i.value]=0;
+ });
 
-baseWager=parseFloat(baseWager.value);
-holeLimit=parseInt(holeLimit.value);
+ baseWager=parseFloat(baseWager.value);
+ holeLimit=parseInt(holeLimit.value);
 
-show("game-screen");
+ skinsGame.reset?.();
 
-skinsBox.classList.toggle("hidden", currentGame==="vegas");
-vegasBox.classList.toggle("hidden", currentGame!=="vegas");
+ show("game-screen");
 
-teamABox.textContent=teamAName;
-teamBBox.textContent=teamBName;
+ skinsBox.classList.toggle("hidden", currentGame==="vegas");
+ vegasBox.classList.toggle("hidden", currentGame!=="vegas");
 
-buildWinnerButtons();
-updateUI();
+ teamABox.textContent=teamAName;
+ teamBBox.textContent=teamBName;
+
+ buildWinnerButtons();
+ updateUI();
 };
 
-/* SKINS */
+/* ---------- SKINS ---------- */
 
 function buildWinnerButtons(){
-winnerButtons.innerHTML="";
-if(playStyle==="teams"){
-winnerButtons.innerHTML+=`
-<button onclick="winTeam('A')">${teamAName}</button>
-<button onclick="winTeam('B')">${teamBName}</button>
-`;
-} else {
-players.forEach(p=>{
-winnerButtons.innerHTML+=`<button onclick="winPlayer('${p}')">${p}</button>`;
-});
+ winnerButtons.innerHTML="";
+ winnerButtons.innerHTML+=`
+ <button onclick="winTeam('A')">${teamAName}</button>
+ <button onclick="winTeam('B')">${teamBName}</button>
+ `;
 }
-}
-
-window.winPlayer=(p)=>{
-skinsGame.winPlayer(p,players,ledger,baseWager);
-nextHole();
-};
 
 window.winTeam=(t)=>{
-skinsGame.winTeam(t,teams,ledger,baseWager);
-nextHole();
+ skinsGame.winTeam(t,teams,ledger,baseWager);
+ finishHole();
 };
 
 window.tieHole=()=>{
-skinsGame.tie();
-nextHole();
+ skinsGame.tie();
+ finishHole();
 };
 
-/* VEGAS */
+/* ---------- VEGAS ---------- */
 
 window.finishVegasHole=()=>{
 
-let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
-let b=[+b1.value,+b2.value].sort((x,y)=>x-y);
+ let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
+ let b=[+b1.value,+b2.value].sort((x,y)=>x-y);
 
-const swing = vegasGame.calculate(
-a[0],a[1],b[0],b[1],
-baseWager,
-birdieFlip.checked
-);
+ const swing = vegasGame.calculate(
+ a[0],a[1],b[0],b[1],
+ baseWager,
+ birdieFlip.checked
+ );
 
-if(swing===0){ nextHole(); return; }
+ if(swing!==0){
+ const win = vegasGame.winner(a[0],a[1],b[0],b[1]);
+ const lose = win==="A"?"B":"A";
 
-const win = vegasGame.winner(a[0],a[1],b[0],b[1]);
-const lose = win==="A"?"B":"A";
+ teams[lose].forEach(p=>ledger[p]-=swing);
+ teams[win].forEach(p=>ledger[p]+=swing);
+ }
 
-teams[lose].forEach(p=>ledger[p]-=swing);
-teams[win].forEach(p=>ledger[p]+=swing);
-
-nextHole();
+ finishHole();
 };
 
-/* COMMON */
+/* ---------- ROUND FLOW ---------- */
 
-function nextHole(){
-if(hole>=holeLimit){show("step-home");return;}
-hole++; updateUI();
+function finishHole(){
+
+ if(hole===9 && holeLimit===18){
+ showLeaderboard("Continue to Back 9");
+ return;
+ }
+
+ if(hole>=holeLimit){
+ showLeaderboard("Finish Round");
+ return;
+ }
+
+ hole++;
+ updateUI();
 }
 
 function updateUI(){
-holeDisplay.textContent=`Hole ${hole}`;
-potDisplay.textContent=
-currentGame==="skins"
-? `$${skinsGame.currentPot(baseWager)}/player`
-: "";
+ holeDisplay.textContent=`Hole ${hole}`;
 
-ledger.innerHTML="";
-players.forEach(p=>ledger.innerHTML+=`${p}: $${ledger[p]}<br>`);
+ potDisplay.textContent=
+ currentGame==="skins"
+ ? `$${skinsGame.currentPot(baseWager)}/player`
+ : "";
+
+ ledger.innerHTML="";
+ players.forEach(p=>{
+ ledger.innerHTML+=`${p}: $${ledger[p]}<br>`;
+ });
 }
 
-/* SIDE BET */
+/* ---------- LEADERBOARD ---------- */
+
+function showLeaderboard(btnText){
+
+ leaderboard.innerHTML=[...players]
+ .sort((a,b)=>ledger[b]-ledger[a])
+ .map(p=>`${p}: $${ledger[p]}`)
+ .join("<br>");
+
+ const btn=leaderboardModal.querySelector("button");
+ btn.textContent=btnText;
+
+ btn.onclick=()=>{
+ if(btnText==="Continue to Back 9"){
+ leaderboardModal.classList.add("hidden");
+ hole++;
+ updateUI();
+ } else {
+ show("step-home");
+ }
+ };
+
+ leaderboardModal.classList.remove("hidden");
+}
+
+/* ---------- SIDE BET ---------- */
 
 window.openSideBet=()=>{
-buildSideWinners();
-sideBetModal.classList.remove("hidden");
+ buildSideWinners();
+ sideBetModal.classList.remove("hidden");
 };
 
 function buildSideWinners(){
-sideWinners.innerHTML="";
-if(sideMode.value==="player"){
-players.forEach(p=>{
-sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
-});
-} else {
-sideWinners.innerHTML+=`
-<button onclick="sideTeam('A')">${teamAName}</button>
-<button onclick="sideTeam('B')">${teamBName}</button>
-`;
-}
+ sideWinners.innerHTML="";
+ if(sideMode.value==="player"){
+ players.forEach(p=>{
+ sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
+ });
+ } else {
+ sideWinners.innerHTML+=`
+ <button onclick="sideTeam('A')">${teamAName}</button>
+ <button onclick="sideTeam('B')">${teamBName}</button>
+ `;
+ }
 }
 
 window.sidePlayer=(p)=>{
-const amt=+sideAmount.value;
-players.forEach(x=>{
-x===p ? ledger[x]+=amt*(players.length-1) : ledger[x]-=amt;
-});
-closeModals(); updateUI();
+ const amt=+sideAmount.value;
+ players.forEach(x=>{
+ x===p ? ledger[x]+=amt*(players.length-1) : ledger[x]-=amt;
+ });
+ closeModals(); updateUI();
 };
 
 window.sideTeam=(t)=>{
-const amt=+sideAmount.value;
-teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
-teams[t].forEach(p=>ledger[p]+=amt);
-closeModals(); updateUI();
+ const amt=+sideAmount.value;
+ teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
+ teams[t].forEach(p=>ledger[p]+=amt);
+ closeModals(); updateUI();
 };
 
-/* MULTI */
+/* ---------- MULTIPLIERS ---------- */
 
 window.openMultiplier=(m)=>{
-pendingMulti=m;
-multiplierModal.classList.remove("hidden");
+ pendingMulti=m;
+ multiplierModal.classList.remove("hidden");
 };
 
 window.applyMultiplier=(mode)=>{
-skinsGame.applyMultiplier(pendingMulti,mode);
-closeModals();
+ skinsGame.applyMultiplier(pendingMulti,mode);
+ closeModals();
 };
 
-/* MODAL */
+/* ---------- MODALS ---------- */
 
 window.closeModals=()=>{
-document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
+ document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));
 };
