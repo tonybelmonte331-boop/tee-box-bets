@@ -115,63 +115,80 @@ window.startRound = ()=>{
  updateUI();
 };
 
-/* ---------- SKINS ---------- */
+/* ---------- SKINS (EVENT LISTENER VERSION — STABLE) ---------- */
 
 function buildWinnerButtons(){
-winnerButtons.innerHTML="";
-if(playStyle==="teams"){
-winnerButtons.innerHTML+=`
-<button onclick="winTeam('A')">${teamAName}</button>
-<button onclick="winTeam('B')">${teamBName}</button>`;
+winnerButtons.innerHTML = "";
+
+if(playStyle === "teams"){
+
+const btnA = document.createElement("button");
+btnA.textContent = teamAName;
+btnA.addEventListener("click", () => handleTeamWin("A"));
+
+const btnB = document.createElement("button");
+btnB.textContent = teamBName;
+btnB.addEventListener("click", () => handleTeamWin("B"));
+
+winnerButtons.appendChild(btnA);
+winnerButtons.appendChild(btnB);
+
 } else {
-players.forEach(p=>{
-winnerButtons.innerHTML+=`<button onclick="winPlayer('${p}')">${p}</button>`;
+
+players.forEach(player=>{
+const btn = document.createElement("button");
+btn.textContent = player;
+btn.addEventListener("click", () => handlePlayerWin(player));
+winnerButtons.appendChild(btn);
 });
+
 }
 }
 
-window.winPlayer = p=>{
-skinsGame.winPlayer(p, players, ledger);
+function handlePlayerWin(player){
+skinsGame.winPlayer(player, players, ledger);
 resetHoleBonuses();
 nextHole();
-};
+}
 
-window.winTeam = t=>{
-skinsGame.winTeam(t, teams, ledger);
+function handleTeamWin(team){
+skinsGame.winTeam(team, teams, ledger);
 resetHoleBonuses();
 nextHole();
-};
+}
 
-window.tieHole = ()=>{
+/* Tie button */
+
+document.getElementById("tieBtn").addEventListener("click", ()=>{
 skinsGame.tie();
 resetHoleBonuses();
 nextHole();
-};
+});
 
-/* BIRDIE / EAGLE TOGGLES */
+/* Birdie / Eagle toggles */
 
 window.toggleBirdie = ()=>{
- if(birdieToggle.checked){
- eagleToggle.checked = false;
- skinsGame.applyMultiplier(2);
- } else {
- skinsGame.applyMultiplier(1);
- }
+if(birdieToggle.checked){
+eagleToggle.checked = false;
+skinsGame.applyBonus("birdie", baseWager);
+} else {
+skinsGame.clearBonus();
+}
 };
 
 window.toggleEagle = ()=>{
- if(eagleToggle.checked){
- birdieToggle.checked = false;
- skinsGame.applyMultiplier(3);
- } else {
- skinsGame.applyMultiplier(1);
- }
+if(eagleToggle.checked){
+birdieToggle.checked = false;
+skinsGame.applyBonus("eagle", baseWager);
+} else {
+skinsGame.clearBonus();
+}
 };
 
-function resetHoleBonuses(absorb=false){
- birdieToggle.checked = false;
- eagleToggle.checked = false;
- skinsGame.applyMultiplier(1);
+function resetHoleBonuses(){
+birdieToggle.checked = false;
+eagleToggle.checked = false;
+skinsGame.clearBonus();
 }
 
 /* VEGAS (UNCHANGED) */
