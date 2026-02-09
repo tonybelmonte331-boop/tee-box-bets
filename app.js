@@ -85,38 +85,58 @@ window.nextSettings = ()=> show("step-settings");
 /* ---------- START ROUND ---------- */
 
 window.startRound = ()=>{
- players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
+players = [];
+teams = {A:[],B:[]};
+ledger = {};
+hole = 1;
 
- document.querySelectorAll("#teamAInputs input").forEach(i=>{
- players.push(i.value);
- ledger[i.value]=0;
- if(playStyle==="teams") teams.A.push(i.value);
- });
+// Collect players + ledger
+document.querySelectorAll("#teamAInputs input").forEach(i=>{
+const name = i.value;
+players.push(name);
+ledger[name] = 0;
+if(playStyle==="teams") teams.A.push(name);
+});
 
- if(playStyle==="teams"){
- document.querySelectorAll("#teamBInputs input").forEach(i=>{
- players.push(i.value);
- ledger[i.value]=0;
- teams.B.push(i.value);
- });
- }
+if(playStyle==="teams"){
+document.querySelectorAll("#teamBInputs input").forEach(i=>{
+const name = i.value;
+players.push(name);
+ledger[name] = 0;
+teams.B.push(name);
+});
+}
 
- baseWager = parseFloat(document.getElementById("baseWager").value);
- holeLimit = parseInt(document.getElementById("holeLimit").value);
+baseWager = parseFloat(document.getElementById("baseWager").value);
+holeLimit = parseInt(document.getElementById("holeLimit").value);
 
- skinsGame.reset(baseWager);
+// Reset skins engine properly
+if(currentGame === "skins"){
+skinsGame.reset(baseWager);
+}
 
- show("game-screen");
+show("game-screen");
 
- skinsBox.classList.toggle("hidden", currentGame==="vegas");
- vegasBox.classList.toggle("hidden", currentGame!=="vegas");
+skinsBox.classList.toggle("hidden", currentGame==="vegas");
+vegasBox.classList.toggle("hidden", currentGame!=="vegas");
 
- teamABox.textContent = teamAName;
- teamBBox.textContent = teamBName;
+teamABox.textContent = teamAName;
+teamBBox.textContent = teamBName;
 
- buildWinnerButtons();
- wireTieButton();
- updateUI();
+buildWinnerButtons();
+
+// IMPORTANT: wire tie button AFTER screen is visible
+if(currentGame === "skins"){
+const tieBtn = document.getElementById("tieBtn");
+tieBtn.onclick = ()=>{
+applySkinsBonus();
+skinsGame.tie();
+clearToggles();
+nextHole();
+};
+}
+
+updateUI();
 };
 
 /* ---------- SKINS ---------- */
@@ -155,14 +175,14 @@ function applySkinsBonus(){
 
 function handlePlayerWin(player){
  applySkinsBonus();
- skinsGame.winPlayer(player, players, ledger);
+ skinsGame.winPlayer(player, players, ledger, baseWager);
  clearToggles();
  nextHole();
 }
 
 function handleTeamWin(team){
  applySkinsBonus();
- skinsGame.winTeam(team, teams, ledger);
+ skinsGame.winTeam(team, teams, ledger, baseWager);
  clearToggles();
  nextHole();
 }
