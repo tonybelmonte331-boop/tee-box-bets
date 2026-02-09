@@ -1,4 +1,4 @@
-/* ---------- DOM BINDINGS (CRITICAL) ---------- */
+/* ---------- DOM BINDINGS ---------- */
 
 const winnerButtons = document.getElementById("winnerButtons");
 const skinsBox = document.getElementById("skinsBox");
@@ -17,17 +17,20 @@ const leaderboard = document.getElementById("leaderboard");
 const leaderboardModal = document.getElementById("leaderboardModal");
 const leaderboardModalList = document.getElementById("leaderboardModalList");
 const leaderboardFinishBtn = document.getElementById("leaderboardFinishBtn");
+
+/* ---------- STATE ---------- */
+
 let currentGame;
 let wagerMode;
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
 
-let hole=1;
-let holeLimit=9;
-let baseWager=0;
+let hole = 1;
+let holeLimit = 9;
+let baseWager = 0;
 
-/* NAV */
+/* ---------- NAV ---------- */
 
 function show(id){
  document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
@@ -38,7 +41,7 @@ window.goHome = ()=> show("step-home");
 window.goGameSelect = ()=> show("step-game");
 window.showRules = ()=> show("rules-screen");
 
-/* SETUP */
+/* ---------- SETUP ---------- */
 
 window.selectGame = (game,mode)=>{
  currentGame = game;
@@ -79,7 +82,7 @@ function buildPlayers(){
 
 window.nextSettings = ()=> show("step-settings");
 
-/* START ROUND */
+/* ---------- START ROUND ---------- */
 
 window.startRound = ()=>{
  players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
@@ -112,86 +115,75 @@ window.startRound = ()=>{
  teamBBox.textContent = teamBName;
 
  buildWinnerButtons();
+ wireTieButton();
  updateUI();
 };
 
-/* ---------- SKINS (EVENT LISTENER VERSION — STABLE) ---------- */
+/* ---------- SKINS ---------- */
 
 function buildWinnerButtons(){
-winnerButtons.innerHTML = "";
+ winnerButtons.innerHTML = "";
 
-if(playStyle === "teams"){
+ if(playStyle==="teams"){
+ const btnA = document.createElement("button");
+ btnA.textContent = teamAName;
+ btnA.onclick = ()=> handleTeamWin("A");
 
-const btnA = document.createElement("button");
-btnA.textContent = teamAName;
-btnA.addEventListener("click", () => handleTeamWin("A"));
+ const btnB = document.createElement("button");
+ btnB.textContent = teamBName;
+ btnB.onclick = ()=> handleTeamWin("B");
 
-const btnB = document.createElement("button");
-btnB.textContent = teamBName;
-btnB.addEventListener("click", () => handleTeamWin("B"));
-
-winnerButtons.appendChild(btnA);
-winnerButtons.appendChild(btnB);
-
-} else {
-
-players.forEach(player=>{
-const btn = document.createElement("button");
-btn.textContent = player;
-btn.addEventListener("click", () => handlePlayerWin(player));
-winnerButtons.appendChild(btn);
-});
-
+ winnerButtons.appendChild(btnA);
+ winnerButtons.appendChild(btnB);
+ } else {
+ players.forEach(p=>{
+ const btn = document.createElement("button");
+ btn.textContent = p;
+ btn.onclick = ()=> handlePlayerWin(p);
+ winnerButtons.appendChild(btn);
+ });
+ }
 }
+
+function applySkinsBonus(){
+ if(birdieToggle.checked){
+ skinsGame.applyBonus("birdie", baseWager);
+ } else if(eagleToggle.checked){
+ skinsGame.applyBonus("eagle", baseWager);
+ }
 }
 
 function handlePlayerWin(player){
-skinsGame.winPlayer(player, players, ledger);
-resetHoleBonuses();
-nextHole();
+ applySkinsBonus();
+ skinsGame.winPlayer(player, players, ledger);
+ clearToggles();
+ nextHole();
 }
 
 function handleTeamWin(team){
-skinsGame.winTeam(team, teams, ledger);
-resetHoleBonuses();
-nextHole();
+ applySkinsBonus();
+ skinsGame.winTeam(team, teams, ledger);
+ clearToggles();
+ nextHole();
 }
 
-/* Tie button */
-
-document.getElementById("tieBtn").addEventListener("click", ()=>{
-skinsGame.tie();
-resetHoleBonuses();
-nextHole();
-});
-
-/* Birdie / Eagle toggles */
-
-window.toggleBirdie = ()=>{
-if(birdieToggle.checked){
-eagleToggle.checked = false;
-skinsGame.applyBonus("birdie", baseWager);
-} else {
-skinsGame.clearBonus();
-}
-};
-
-window.toggleEagle = ()=>{
-if(eagleToggle.checked){
-birdieToggle.checked = false;
-skinsGame.applyBonus("eagle", baseWager);
-} else {
-skinsGame.clearBonus();
-}
-};
-
-function resetHoleBonuses(){
-birdieToggle.checked = false;
-eagleToggle.checked = false;
-skinsGame.clearBonus();
+function wireTieButton(){
+ const tieBtn = document.getElementById("tieBtn");
+ tieBtn.onclick = ()=>{
+ applySkinsBonus();
+ skinsGame.tie();
+ clearToggles();
+ nextHole();
+ };
 }
 
-/* VEGAS (UNCHANGED) */
+function clearToggles(){
+ birdieToggle.checked = false;
+ eagleToggle.checked = false;
+ skinsGame.clearBonus();
+}
+
+/* ---------- VEGAS (UNCHANGED) ---------- */
 
 window.finishVegasHole = ()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
@@ -213,7 +205,7 @@ window.finishVegasHole = ()=>{
  nextHole();
 };
 
-/* ROUND FLOW */
+/* ---------- ROUND FLOW ---------- */
 
 function nextHole(){
  updateUI();
@@ -236,7 +228,7 @@ function updateUI(){
  holeDisplay.textContent = `Hole ${hole}`;
  potDisplay.textContent =
  currentGame==="skins"
- ? `$${skinsGame.currentPot(baseWager)}/player`
+ ? `$${skinsGame.currentPot()}/player`
  : "";
 
  leaderboard.innerHTML="";
@@ -245,7 +237,7 @@ function updateUI(){
  });
 }
 
-/* END ROUND MODAL */
+/* ---------- END ROUND MODAL ---------- */
 
 function showEndModal(text){
  leaderboardModalList.innerHTML = leaderboard.innerHTML;
@@ -254,13 +246,12 @@ function showEndModal(text){
  leaderboardFinishBtn.onclick = ()=>{
  leaderboardModal.classList.add("hidden");
 
- if(text === "Continue to Back 9"){
+ if(text==="Continue to Back 9"){
  hole++;
  updateUI();
  return;
  }
 
- // Finish Round
  hole = 1;
  show("step-home");
  };
