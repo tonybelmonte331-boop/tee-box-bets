@@ -1,22 +1,22 @@
 const skinsGame = (()=>{
 
 let base = 0;
-let carryCount = 0;
+let carry = 0;
 let bonus = 0;
 
 function reset(wager){
 base = wager;
-carryCount = 0;
+carry = 0;
 bonus = 0;
 }
 
 function currentPot(){
-return (carryCount + 1) * base + bonus;
+return (carry + 1) * base + bonus;
 }
 
-function applyBonus(type, wager){
-if(type === "birdie") bonus = wager;
-if(type === "eagle") bonus = wager * 2;
+function applyBonus(type){
+if(type === "birdie") bonus = base;
+if(type === "eagle") bonus = base * 2;
 }
 
 function clearBonus(){
@@ -24,19 +24,22 @@ bonus = 0;
 }
 
 function tie(){
-carryCount++;
-bonus = 0;
+carry++;
+// bonus STAYS for next hole
 }
 
 function winPlayer(player, players, ledger){
 const pot = currentPot();
 
 players.forEach(p=>{
-if(p === player) ledger[p] += pot;
-else ledger[p] -= base;
+if(p === player){
+ledger[p] += pot * (players.length - 1);
+} else {
+ledger[p] -= pot;
+}
 });
 
-carryCount = 0;
+carry = 0;
 bonus = 0;
 }
 
@@ -46,10 +49,10 @@ const pot = currentPot();
 const winners = teams[team];
 const losers = team === "A" ? teams.B : teams.A;
 
-winners.forEach(p=> ledger[p] += pot);
-losers.forEach(p=> ledger[p] -= base);
+winners.forEach(p => ledger[p] += pot);
+losers.forEach(p => ledger[p] -= pot);
 
-carryCount = 0;
+carry = 0;
 bonus = 0;
 }
 
@@ -64,4 +67,3 @@ winTeam
 };
 
 })();
-
