@@ -82,7 +82,7 @@ window.startRound = ()=>{
  baseWager = parseFloat(document.getElementById("baseWager").value);
  holeLimit = parseInt(document.getElementById("holeLimit").value);
 
- skinsGame.reset();
+ skinsGame.reset(baseWager);
 
  show("game-screen");
 
@@ -217,6 +217,14 @@ function showEndModal(text){
 
  leaderboardFinishBtn.onclick = ()=>{
  leaderboardModal.classList.add("hidden");
+
+ if(text === "Continue to Back 9"){
+ hole++;
+ updateUI();
+ return;
+ }
+
+ // Finish Round
  hole = 1;
  show("step-home");
  };

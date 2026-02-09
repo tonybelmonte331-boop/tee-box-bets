@@ -1,48 +1,54 @@
 window.skinsGame = {
 
-carryCount: 1,
-multiplier: 1,
+carryAmount: 0,
+bonus: 0,
 
-reset(){
-this.carryCount = 1;
-this.multiplier = 1;
+reset(baseWager){
+this.carryAmount = baseWager;
+this.bonus = 0;
 },
 
-currentPot(wager){
-return wager * this.carryCount * this.multiplier;
+currentPot(){
+return this.carryAmount + this.bonus;
 },
 
-applyMultiplier(m){
-this.multiplier = m;
+applyBonus(type, baseWager){
+if(type === "birdie") this.bonus = baseWager;
+if(type === "eagle") this.bonus = baseWager * 2;
+},
+
+clearBonus(){
+this.bonus = 0;
 },
 
 tie(){
-this.carryCount += 1; // only add one wager each tie
+this.carryAmount = this.currentPot();
+this.clearBonus();
 },
 
-winPlayer(player, players, ledger, wager){
+winPlayer(player, players, ledger){
 
-const potPerPlayer = wager * this.carryCount * this.multiplier;
+const holeValue = this.currentPot();
 
 players.forEach(p=>{
-if(p === player) ledger[p] += potPerPlayer;
-else ledger[p] -= wager * this.carryCount;
+if(p === player) ledger[p] += holeValue;
+else ledger[p] -= holeValue;
 });
 
-this.reset();
+this.reset(holeValue ? holeValue : 0);
 },
 
-winTeam(team, teams, ledger, wager){
+winTeam(team, teams, ledger){
 
-const losers = teams[team === "A" ? "B" : "A"];
 const winners = teams[team];
+const losers = teams[team === "A" ? "B" : "A"];
 
-const potPerPlayer = wager * this.carryCount * this.multiplier;
+const holeValue = this.currentPot();
 
-losers.forEach(p => ledger[p] -= wager * this.carryCount);
-winners.forEach(p => ledger[p] += potPerPlayer);
+winners.forEach(p => ledger[p] += holeValue);
+losers.forEach(p => ledger[p] -= holeValue);
 
-this.reset();
+this.reset(holeValue ? holeValue : 0);
 }
 
 };
