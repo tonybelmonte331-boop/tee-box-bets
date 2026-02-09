@@ -1,3 +1,22 @@
+/* ---------- DOM BINDINGS (CRITICAL) ---------- */
+
+const winnerButtons = document.getElementById("winnerButtons");
+const skinsBox = document.getElementById("skinsBox");
+const vegasBox = document.getElementById("vegasBox");
+
+const teamAInputs = document.getElementById("teamAInputs");
+const teamBInputs = document.getElementById("teamBInputs");
+
+const birdieToggle = document.getElementById("birdieToggle");
+const eagleToggle = document.getElementById("eagleToggle");
+
+const holeDisplay = document.getElementById("holeDisplay");
+const potDisplay = document.getElementById("potDisplay");
+const leaderboard = document.getElementById("leaderboard");
+
+const leaderboardModal = document.getElementById("leaderboardModal");
+const leaderboardModalList = document.getElementById("leaderboardModalList");
+const leaderboardFinishBtn = document.getElementById("leaderboardFinishBtn");
 let currentGame;
 let wagerMode;
 let playStyle, playerCount;
