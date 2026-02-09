@@ -96,37 +96,37 @@ window.startRound = ()=>{
  updateUI();
 };
 
-/* SKINS */
+/* ---------- SKINS ---------- */
 
 function buildWinnerButtons(){
- winnerButtons.innerHTML="";
- if(playStyle==="teams"){
- winnerButtons.innerHTML+=`
- <button onclick="winTeam('A')">${teamAName}</button>
- <button onclick="winTeam('B')">${teamBName}</button>`;
- } else {
- players.forEach(p=>{
- winnerButtons.innerHTML+=`<button onclick="winPlayer('${p}')">${p}</button>`;
- });
- }
+winnerButtons.innerHTML="";
+if(playStyle==="teams"){
+winnerButtons.innerHTML+=`
+<button onclick="winTeam('A')">${teamAName}</button>
+<button onclick="winTeam('B')">${teamBName}</button>`;
+} else {
+players.forEach(p=>{
+winnerButtons.innerHTML+=`<button onclick="winPlayer('${p}')">${p}</button>`;
+});
+}
 }
 
 window.winPlayer = p=>{
- skinsGame.winPlayer(p,players,ledger,baseWager);
- resetHoleBonuses();
- nextHole();
+skinsGame.winPlayer(p, players, ledger);
+resetHoleBonuses();
+nextHole();
 };
 
 window.winTeam = t=>{
- skinsGame.winTeam(t,teams,ledger,baseWager);
- resetHoleBonuses();
- nextHole();
+skinsGame.winTeam(t, teams, ledger);
+resetHoleBonuses();
+nextHole();
 };
 
 window.tieHole = ()=>{
- skinsGame.tie();
- resetHoleBonuses(true); // absorb bonus into carry
- nextHole();
+skinsGame.tie();
+resetHoleBonuses();
+nextHole();
 };
 
 /* BIRDIE / EAGLE TOGGLES */
