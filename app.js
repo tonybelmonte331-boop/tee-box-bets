@@ -3,37 +3,41 @@ let wagerMode;
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
-let hole=1, holeLimit=9, baseWager=0;
 
-/* NAV */
+let hole=1;
+let holeLimit=9;
+let baseWager=0;
+
+/* ---------- NAV ---------- */
 
 function show(id){
  document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
  document.getElementById(id).classList.remove("hidden");
 }
 
-window.goHome=()=>show("step-home");
-window.goGameSelect=()=>show("step-game");
-window.showRules=()=>show("rules-screen");
+window.goHome = ()=> show("step-home");
+window.goGameSelect = ()=> show("step-game");
+window.showRules = ()=> show("rules-screen");
 
-/* SETUP */
+/* ---------- SETUP ---------- */
 
-window.selectGame=(game,mode)=>{
- currentGame=game;
- wagerMode=mode;
- wagerLabel.textContent = mode==="player"?"Wager per player":"Wager per point";
+window.selectGame = (game,mode)=>{
+ currentGame = game;
+ wagerMode = mode;
+ document.getElementById("wagerLabel").textContent =
+ mode==="player" ? "Wager per player" : "Wager per point";
  show("step-style");
 };
 
-window.nextTeams=()=>{
- playStyle=document.getElementById("playStyle").value;
- playerCount=parseInt(document.getElementById("playerCount").value);
- playStyle==="teams"?show("step-teams"):buildPlayers();
+window.nextTeams = ()=>{
+ playStyle = document.getElementById("playStyle").value;
+ playerCount = parseInt(document.getElementById("playerCount").value);
+ playStyle==="teams" ? show("step-teams") : buildPlayers();
 };
 
-window.nextPlayers=()=>{
- teamAName=teamAName.value||"Team 1";
- teamBName=teamBName.value||"Team 2";
+window.nextPlayers = ()=>{
+ teamAName = document.getElementById("teamAName").value || "Team 1";
+ teamBName = document.getElementById("teamBName").value || "Team 2";
  buildPlayers();
 };
 
@@ -54,42 +58,46 @@ function buildPlayers(){
  show("step-players");
 }
 
-window.nextSettings=()=>show("step-settings");
+window.nextSettings = ()=> show("step-settings");
 
-/* START */
+/* ---------- START ROUND ---------- */
 
-window.startRound=()=>{
+window.startRound = ()=>{
+
  players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 
  document.querySelectorAll("#teamAInputs input").forEach(i=>{
- players.push(i.value); ledger[i.value]=0;
+ players.push(i.value);
+ ledger[i.value]=0;
  if(playStyle==="teams") teams.A.push(i.value);
  });
 
  if(playStyle==="teams"){
  document.querySelectorAll("#teamBInputs input").forEach(i=>{
- players.push(i.value); ledger[i.value]=0; teams.B.push(i.value);
+ players.push(i.value);
+ ledger[i.value]=0;
+ teams.B.push(i.value);
  });
  }
 
- baseWager=parseFloat(baseWager.value);
- holeLimit=parseInt(holeLimit.value);
+ baseWager = parseFloat(document.getElementById("baseWager").value);
+ holeLimit = parseInt(document.getElementById("holeLimit").value);
 
  skinsGame.reset();
 
  show("game-screen");
 
- skinsBox.classList.toggle("hidden",currentGame==="vegas");
- vegasBox.classList.toggle("hidden",currentGame!=="vegas");
+ skinsBox.classList.toggle("hidden", currentGame==="vegas");
+ vegasBox.classList.toggle("hidden", currentGame!=="vegas");
 
- teamABox.textContent=teamAName;
- teamBBox.textContent=teamBName;
+ teamABox.textContent = teamAName;
+ teamBBox.textContent = teamBName;
 
  buildWinnerButtons();
  updateUI();
 };
 
-/* SKINS */
+/* ---------- SKINS ---------- */
 
 function buildWinnerButtons(){
  winnerButtons.innerHTML="";
@@ -104,17 +112,17 @@ function buildWinnerButtons(){
  }
 }
 
-window.winPlayer=p=>{
+window.winPlayer = p=>{
  skinsGame.winPlayer(p,players,ledger,baseWager);
  nextHole();
 };
 
-window.winTeam=t=>{
+window.winTeam = t=>{
  skinsGame.winTeam(t,teams,ledger,baseWager);
  nextHole();
 };
 
-window.tieHole=()=>{
+window.tieHole = ()=>{
  skinsGame.tie();
  nextHole();
 };
@@ -123,57 +131,9 @@ window.openMultiplier = m=>{
  skinsGame.applyMultiplier(m);
 };
 
-/* SIDE BET POPUP */
+/* ---------- VEGAS ---------- */
 
-window.openSideBet = ()=>{
- sideAmount.value="";
- sideMode.value="player";
- buildSideWinners();
- sideBetModal.classList.remove("hidden");
-};
-
-window.buildSideWinners = ()=>{
- sideWinners.innerHTML="";
-
- if(sideMode.value==="player"){
- players.forEach(p=>{
- sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
- });
- } else {
- sideWinners.innerHTML+=`
- <button onclick="sideTeam('A')">${teamAName}</button>
- <button onclick="sideTeam('B')">${teamBName}</button>`;
- }
-};
-
-window.sidePlayer = p=>{
- const amt = +sideAmount.value;
-
- players.forEach(x=>{
- if(x===p) ledger[x]+=amt*(players.length-1);
- else ledger[x]-=amt;
- });
-
- closeSideBet();
-};
-
-window.sideTeam = t=>{
- const amt = +sideAmount.value;
-
- teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
- teams[t].forEach(p=>ledger[p]+=amt);
-
- closeSideBet();
-};
-
-function closeSideBet(){
- sideBetModal.classList.add("hidden");
- updateUI();
-}
-
-/* VEGAS */
-
-window.finishVegasHole=()=>{
+window.finishVegasHole = ()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
  let b=[+b1.value,+b2.value].sort((x,y)=>x-y);
 
@@ -184,26 +144,28 @@ window.finishVegasHole=()=>{
  );
 
  if(swing){
- const win=vegasGame.winner(a[0],a[1],b[0],b[1]);
- const lose=win==="A"?"B":"A";
- teams[lose].forEach(p=>ledger[p]-=swing);
- teams[win].forEach(p=>ledger[p]+=swing);
+ const win = vegasGame.winner(a[0],a[1],b[0],b[1]);
+ const lose = win==="A"?"B":"A";
+
+ teams[lose].forEach(p=> ledger[p]-=swing);
+ teams[win].forEach(p=> ledger[p]+=swing);
  }
 
  nextHole();
 };
 
-/* ROUND FLOW */
+/* ---------- ROUND FLOW ---------- */
 
 function nextHole(){
+
  updateUI();
 
- if(hole===9 && holeLimit===18){
+ if(hole === 9 && holeLimit === 18){
  showEndModal("Continue to Back 9");
  return;
  }
 
- if(hole>=holeLimit){
+ if(hole >= holeLimit){
  showEndModal("Finish Round");
  return;
  }
@@ -213,24 +175,26 @@ function nextHole(){
 }
 
 function updateUI(){
- holeDisplay.textContent=`Hole ${hole}`;
- potDisplay.textContent=currentGame==="skins"
+ holeDisplay.textContent = `Hole ${hole}`;
+
+ potDisplay.textContent = currentGame==="skins"
  ? `$${skinsGame.currentPot(baseWager)}/player`
  : "";
 
  leaderboard.innerHTML="";
  players.forEach(p=>{
- leaderboard.innerHTML+=`${p}: $${ledger[p]}<br>`;
+ leaderboard.innerHTML += `${p}: $${ledger[p]}<br>`;
  });
 }
 
-/* END ROUND MODAL */
+/* ---------- END ROUND MODAL ---------- */
 
 function showEndModal(text){
+
  leaderboardModalList.innerHTML = leaderboard.innerHTML;
  leaderboardFinishBtn.textContent = text;
 
- leaderboardFinishBtn.onclick = () => {
+ leaderboardFinishBtn.onclick = ()=>{
  leaderboardModal.classList.add("hidden");
 
  if(text === "Continue to Back 9"){
@@ -244,8 +208,6 @@ function showEndModal(text){
 
  leaderboardModal.classList.remove("hidden");
 }
-
-/* FINISH ROUND BUTTON */
 
 window.finishRound = ()=>{
  leaderboardModal.classList.add("hidden");

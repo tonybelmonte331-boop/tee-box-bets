@@ -17,7 +17,7 @@ this.multiplier = m;
 },
 
 tie(){
-this.carry += 1; // keep stacking pot
+this.carry += 1;
 },
 
 winPlayer(player, players, ledger, wager){
@@ -34,7 +34,7 @@ this.reset();
 
 winTeam(team, teams, ledger, wager){
 
-const losers = teams[team === "A" ? "B" : "A"];
+const losers = teams[team==="A"?"B":"A"];
 const winners = teams[team];
 
 const pot = wager * this.carry * this.multiplier;
