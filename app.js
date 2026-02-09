@@ -8,7 +8,7 @@ let hole=1;
 let holeLimit=9;
 let baseWager=0;
 
-/* ---------- NAV ---------- */
+/* NAV */
 
 function show(id){
  document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
@@ -19,7 +19,7 @@ window.goHome = ()=> show("step-home");
 window.goGameSelect = ()=> show("step-game");
 window.showRules = ()=> show("rules-screen");
 
-/* ---------- SETUP ---------- */
+/* SETUP */
 
 window.selectGame = (game,mode)=>{
  currentGame = game;
@@ -60,10 +60,9 @@ function buildPlayers(){
 
 window.nextSettings = ()=> show("step-settings");
 
-/* ---------- START ROUND ---------- */
+/* START ROUND */
 
 window.startRound = ()=>{
-
  players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 
  document.querySelectorAll("#teamAInputs input").forEach(i=>{
@@ -97,7 +96,7 @@ window.startRound = ()=>{
  updateUI();
 };
 
-/* ---------- SKINS ---------- */
+/* SKINS */
 
 function buildWinnerButtons(){
  winnerButtons.innerHTML="";
@@ -114,24 +113,49 @@ function buildWinnerButtons(){
 
 window.winPlayer = p=>{
  skinsGame.winPlayer(p,players,ledger,baseWager);
+ resetHoleBonuses();
  nextHole();
 };
 
 window.winTeam = t=>{
  skinsGame.winTeam(t,teams,ledger,baseWager);
+ resetHoleBonuses();
  nextHole();
 };
 
 window.tieHole = ()=>{
  skinsGame.tie();
+ resetHoleBonuses(true); // absorb bonus into carry
  nextHole();
 };
 
-window.openMultiplier = m=>{
- skinsGame.applyMultiplier(m);
+/* BIRDIE / EAGLE TOGGLES */
+
+window.toggleBirdie = ()=>{
+ if(birdieToggle.checked){
+ eagleToggle.checked = false;
+ skinsGame.applyMultiplier(2);
+ } else {
+ skinsGame.applyMultiplier(1);
+ }
 };
 
-/* ---------- VEGAS ---------- */
+window.toggleEagle = ()=>{
+ if(eagleToggle.checked){
+ birdieToggle.checked = false;
+ skinsGame.applyMultiplier(3);
+ } else {
+ skinsGame.applyMultiplier(1);
+ }
+};
+
+function resetHoleBonuses(absorb=false){
+ birdieToggle.checked = false;
+ eagleToggle.checked = false;
+ skinsGame.applyMultiplier(1);
+}
+
+/* VEGAS (UNCHANGED) */
 
 window.finishVegasHole = ()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
@@ -146,7 +170,6 @@ window.finishVegasHole = ()=>{
  if(swing){
  const win = vegasGame.winner(a[0],a[1],b[0],b[1]);
  const lose = win==="A"?"B":"A";
-
  teams[lose].forEach(p=> ledger[p]-=swing);
  teams[win].forEach(p=> ledger[p]+=swing);
  }
@@ -154,18 +177,17 @@ window.finishVegasHole = ()=>{
  nextHole();
 };
 
-/* ---------- ROUND FLOW ---------- */
+/* ROUND FLOW */
 
 function nextHole(){
-
  updateUI();
 
- if(hole === 9 && holeLimit === 18){
+ if(hole===9 && holeLimit===18){
  showEndModal("Continue to Back 9");
  return;
  }
 
- if(hole >= holeLimit){
+ if(hole>=holeLimit){
  showEndModal("Finish Round");
  return;
  }
@@ -176,8 +198,8 @@ function nextHole(){
 
 function updateUI(){
  holeDisplay.textContent = `Hole ${hole}`;
-
- potDisplay.textContent = currentGame==="skins"
+ potDisplay.textContent =
+ currentGame==="skins"
  ? `$${skinsGame.currentPot(baseWager)}/player`
  : "";
 
@@ -187,76 +209,17 @@ function updateUI(){
  });
 }
 
-/* ---------- END ROUND MODAL ---------- */
+/* END ROUND MODAL */
 
 function showEndModal(text){
-
  leaderboardModalList.innerHTML = leaderboard.innerHTML;
  leaderboardFinishBtn.textContent = text;
 
  leaderboardFinishBtn.onclick = ()=>{
  leaderboardModal.classList.add("hidden");
-
- if(text === "Continue to Back 9"){
- hole++;
- updateUI();
- } else {
  hole = 1;
  show("step-home");
- }
  };
 
  leaderboardModal.classList.remove("hidden");
 }
-
-window.finishRound = ()=>{
- leaderboardModal.classList.add("hidden");
- hole = 1;
- show("step-home");
-};
-/* --------- FORCE BUTTON BINDINGS --------- */
-
-window.openMultiplier = m => skinsGame.applyMultiplier(m);
-
-window.openSideBet = ()=>{
- sideAmount.value="";
- sideMode.value="player";
- buildSideWinners();
- sideBetModal.classList.remove("hidden");
-};
-
-window.buildSideWinners = ()=>{
- sideWinners.innerHTML="";
-
- if(sideMode.value==="player"){
- players.forEach(p=>{
- sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
- });
- } else {
- sideWinners.innerHTML+=`
- <button onclick="sideTeam('A')">${teamAName}</button>
- <button onclick="sideTeam('B')">${teamBName}</button>`;
- }
-};
-
-window.sidePlayer = p=>{
- const amt = +sideAmount.value;
-
- players.forEach(x=>{
- if(x===p) ledger[x]+=amt*(players.length-1);
- else ledger[x]-=amt;
- });
-
- sideBetModal.classList.add("hidden");
- updateUI();
-};
-
-window.sideTeam = t=>{
- const amt = +sideAmount.value;
-
- teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
- teams[t].forEach(p=>ledger[p]+=amt);
-
- sideBetModal.classList.add("hidden");
- updateUI();
-};
