@@ -21,8 +21,7 @@ window.showRules=()=>show("rules-screen");
 window.selectGame=(game,mode)=>{
  currentGame=game;
  wagerMode=mode;
- document.getElementById("wagerLabel").textContent =
- mode==="player"?"Wager per player":"Wager per point";
+ wagerLabel.textContent = mode==="player"?"Wager per player":"Wager per point";
  show("step-style");
 };
 
@@ -33,17 +32,14 @@ window.nextTeams=()=>{
 };
 
 window.nextPlayers=()=>{
- teamAName=document.getElementById("teamAName").value||"Team 1";
- teamBName=document.getElementById("teamBName").value||"Team 2";
+ teamAName=teamAName.value||"Team 1";
+ teamBName=teamBName.value||"Team 2";
  buildPlayers();
 };
 
 function buildPlayers(){
  teamAInputs.innerHTML="";
  teamBInputs.innerHTML="";
-
- teamALabel.textContent=playStyle==="teams"?teamAName:"Players";
- teamBLabel.textContent=playStyle==="teams"?teamBName:"";
 
  if(playStyle==="teams"){
  for(let i=0;i<playerCount/2;i++){
@@ -55,7 +51,6 @@ function buildPlayers(){
  teamAInputs.innerHTML+=`<input>`;
  }
  }
-
  show("step-players");
 }
 
@@ -77,8 +72,8 @@ window.startRound=()=>{
  });
  }
 
- baseWager=parseFloat(document.getElementById("baseWager").value);
- holeLimit=parseInt(document.getElementById("holeLimit").value);
+ baseWager=parseFloat(baseWager.value);
+ holeLimit=parseInt(holeLimit.value);
 
  skinsGame.reset();
 
@@ -99,7 +94,8 @@ window.startRound=()=>{
 function buildWinnerButtons(){
  winnerButtons.innerHTML="";
  if(playStyle==="teams"){
- winnerButtons.innerHTML+=`<button onclick="winTeam('A')">${teamAName}</button>
+ winnerButtons.innerHTML+=`
+ <button onclick="winTeam('A')">${teamAName}</button>
  <button onclick="winTeam('B')">${teamBName}</button>`;
  } else {
  players.forEach(p=>{
@@ -123,17 +119,17 @@ window.tieHole=()=>{
  nextHole();
 };
 
-/* multipliers now persist until hole is won */
-
 window.openMultiplier = m=>{
  skinsGame.applyMultiplier(m);
 };
 
-/* ---------- SIDE BET (FULLY WORKING) ---------- */
+/* SIDE BET POPUP */
 
 window.openSideBet = ()=>{
- sideBetModal.classList.remove("hidden");
+ sideAmount.value="";
+ sideMode.value="player";
  buildSideWinners();
+ sideBetModal.classList.remove("hidden");
 };
 
 window.buildSideWinners = ()=>{
@@ -141,13 +137,12 @@ window.buildSideWinners = ()=>{
 
  if(sideMode.value==="player"){
  players.forEach(p=>{
- sideWinners.innerHTML += `<button onclick="sidePlayer('${p}')">${p}</button>`;
+ sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
  });
  } else {
- sideWinners.innerHTML += `
+ sideWinners.innerHTML+=`
  <button onclick="sideTeam('A')">${teamAName}</button>
- <button onclick="sideTeam('B')">${teamBName}</button>
- `;
+ <button onclick="sideTeam('B')">${teamBName}</button>`;
  }
 };
 
@@ -159,8 +154,7 @@ window.sidePlayer = p=>{
  else ledger[x]-=amt;
  });
 
- sideBetModal.classList.add("hidden");
- updateUI();
+ closeSideBet();
 };
 
 window.sideTeam = t=>{
@@ -169,11 +163,15 @@ window.sideTeam = t=>{
  teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
  teams[t].forEach(p=>ledger[p]+=amt);
 
- sideBetModal.classList.add("hidden");
- updateUI();
+ closeSideBet();
 };
 
-/* VEGAS (UNCHANGED — WORKING) */
+function closeSideBet(){
+ sideBetModal.classList.add("hidden");
+ updateUI();
+}
+
+/* VEGAS */
 
 window.finishVegasHole=()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
@@ -226,18 +224,20 @@ function updateUI(){
  });
 }
 
-/* END ROUND */
+/* END ROUND MODAL */
 
 function showEndModal(text){
- leaderboardModalList.innerHTML=leaderboard.innerHTML;
- leaderboardFinishBtn.textContent=text;
+ leaderboardModalList.innerHTML = leaderboard.innerHTML;
+ leaderboardFinishBtn.textContent = text;
 
- leaderboardFinishBtn.onclick=()=>{
- if(text==="Continue to Back 9"){
+ leaderboardFinishBtn.onclick = () => {
  leaderboardModal.classList.add("hidden");
+
+ if(text === "Continue to Back 9"){
  hole++;
  updateUI();
  } else {
+ hole = 1;
  show("step-home");
  }
  };
@@ -245,8 +245,10 @@ function showEndModal(text){
  leaderboardModal.classList.remove("hidden");
 }
 
-/* ---------- FINISH ROUND BUTTON ---------- */
+/* FINISH ROUND BUTTON */
 
 window.finishRound = ()=>{
+ leaderboardModal.classList.add("hidden");
+ hole = 1;
  show("step-home");
 };
