@@ -21,14 +21,10 @@ const leaderboardFinishBtn = document.getElementById("leaderboardFinishBtn");
 /* ---------- STATE ---------- */
 
 let currentGame;
-let wagerMode;
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
-
-let hole = 1;
-let holeLimit = 9;
-let baseWager = 0;
+let hole=1, holeLimit=9, baseWager=0;
 
 /* ---------- NAV ---------- */
 
@@ -37,17 +33,14 @@ function show(id){
  document.getElementById(id).classList.remove("hidden");
 }
 
-window.goHome = ()=> show("step-home");
-window.goGameSelect = ()=> show("step-game");
-window.showRules = ()=> show("rules-screen");
+window.goHome = ()=>show("step-home");
+window.goGameSelect = ()=>show("step-game");
+window.showRules = ()=>show("rules-screen");
 
 /* ---------- SETUP ---------- */
 
-window.selectGame = (game,mode)=>{
+window.selectGame = (game)=>{
  currentGame = game;
- wagerMode = mode;
- document.getElementById("wagerLabel").textContent =
- mode==="player" ? "Wager per player" : "Wager per point";
  show("step-style");
 };
 
@@ -66,7 +59,6 @@ window.nextPlayers = ()=>{
 function buildPlayers(){
  teamAInputs.innerHTML="";
  teamBInputs.innerHTML="";
-
  if(playStyle==="teams"){
  for(let i=0;i<playerCount/2;i++){
  teamAInputs.innerHTML+=`<input>`;
@@ -80,117 +72,85 @@ function buildPlayers(){
  show("step-players");
 }
 
-window.nextSettings = ()=> show("step-settings");
+window.nextSettings = ()=>show("step-settings");
 
 /* ---------- START ROUND ---------- */
 
 window.startRound = ()=>{
- players = [];
- teams = {A:[],B:[]};
- ledger = {};
- hole = 1;
+ players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 
  document.querySelectorAll("#teamAInputs input").forEach(i=>{
- const name = i.value;
- players.push(name);
- ledger[name] = 0;
- if(playStyle==="teams") teams.A.push(name);
+ players.push(i.value);
+ ledger[i.value]=0;
+ if(playStyle==="teams") teams.A.push(i.value);
  });
 
  if(playStyle==="teams"){
  document.querySelectorAll("#teamBInputs input").forEach(i=>{
- const name = i.value;
- players.push(name);
- ledger[name] = 0;
- teams.B.push(name);
+ players.push(i.value);
+ ledger[i.value]=0;
+ teams.B.push(i.value);
  });
  }
 
  baseWager = parseFloat(document.getElementById("baseWager").value);
  holeLimit = parseInt(document.getElementById("holeLimit").value);
 
- if(currentGame === "skins"){
  skinsGame.reset(baseWager);
- }
 
  show("game-screen");
 
  skinsBox.classList.toggle("hidden", currentGame==="vegas");
  vegasBox.classList.toggle("hidden", currentGame!=="vegas");
 
- teamABox.textContent = teamAName;
- teamBBox.textContent = teamBName;
-
  buildWinnerButtons();
-
- if(currentGame === "skins"){
- wireTieButton();
- }
-
  updateUI();
 };
 
 /* ---------- SKINS ---------- */
 
 function buildWinnerButtons(){
- winnerButtons.innerHTML = "";
-
+ winnerButtons.innerHTML="";
  if(playStyle==="teams"){
- const btnA = document.createElement("button");
- btnA.textContent = teamAName;
- btnA.onclick = ()=> handleTeamWin("A");
-
- const btnB = document.createElement("button");
- btnB.textContent = teamBName;
- btnB.onclick = ()=> handleTeamWin("B");
-
- winnerButtons.appendChild(btnA);
- winnerButtons.appendChild(btnB);
+ winnerButtons.innerHTML += `
+ <button onclick="handleTeamWin('A')">${teamAName}</button>
+ <button onclick="handleTeamWin('B')">${teamBName}</button>`;
  } else {
  players.forEach(p=>{
- const btn = document.createElement("button");
- btn.textContent = p;
- btn.onclick = ()=> handlePlayerWin(p);
- winnerButtons.appendChild(btn);
+ winnerButtons.innerHTML += `<button onclick="handlePlayerWin('${p}')">${p}</button>`;
  });
  }
 }
 
-function applySkinsBonus(){
- if(birdieToggle.checked){
- skinsGame.applyBonus("birdie", baseWager);
- } else if(eagleToggle.checked){
- skinsGame.applyBonus("eagle", baseWager);
- }
+function applyBonus(){
+ if(birdieToggle.checked) skinsGame.applyBonus("birdie", baseWager);
+ if(eagleToggle.checked) skinsGame.applyBonus("eagle", baseWager);
 }
 
-function handlePlayerWin(player){
- applySkinsBonus();
- skinsGame.winPlayer(player, players, ledger, baseWager);
- clearToggles();
+window.handlePlayerWin = p=>{
+ applyBonus();
+ skinsGame.winPlayer(p, players, ledger, baseWager);
+ resetBonuses();
  nextHole();
-}
+};
 
-function handleTeamWin(team){
- applySkinsBonus();
- skinsGame.winTeam(team, teams, ledger, baseWager);
- clearToggles();
+window.handleTeamWin = t=>{
+ applyBonus();
+ skinsGame.winTeam(t, teams, ledger, baseWager);
+ resetBonuses();
  nextHole();
-}
+};
 
-function wireTieButton(){
- const tieBtn = document.getElementById("tieBtn");
- if(!tieBtn) return;
-
- tieBtn.onclick = ()=>{
- applySkinsBonus();
+document.addEventListener("click", e=>{
+ if(e.target.id === "tieBtn"){
+ applyBonus();
  skinsGame.tie();
- clearToggles();
+ resetBonuses();
  nextHole();
- };
-}
+ }
+});
 
-function clearToggles(){
+function resetBonuses(){
  birdieToggle.checked = false;
  eagleToggle.checked = false;
  skinsGame.clearBonus();
@@ -201,73 +161,36 @@ function clearToggles(){
 window.finishVegasHole = ()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
  let b=[+b1.value,+b2.value].sort((x,y)=>x-y);
-
- const swing = vegasGame.calculate(
- a[0],a[1],b[0],b[1],
- baseWager,
- birdieFlip.checked
- );
-
+ const swing = vegasGame.calculate(a[0],a[1],b[0],b[1],baseWager,birdieFlip.checked);
  if(swing){
  const win = vegasGame.winner(a[0],a[1],b[0],b[1]);
  const lose = win==="A"?"B":"A";
- teams[lose].forEach(p=> ledger[p]-=swing);
- teams[win].forEach(p=> ledger[p]+=swing);
+ teams[lose].forEach(p=>ledger[p]-=swing);
+ teams[win].forEach(p=>ledger[p]+=swing);
  }
-
  nextHole();
 };
 
-/* ---------- ROUND FLOW ---------- */
+/* ---------- FLOW ---------- */
 
 function nextHole(){
  updateUI();
-
- if(hole===9 && holeLimit===18){
- showEndModal("Continue to Back 9");
- return;
- }
-
- if(hole>=holeLimit){
- showEndModal("Finish Round");
- return;
- }
-
+ if(hole>=holeLimit){ showEndModal(); return; }
  hole++;
  updateUI();
 }
 
 function updateUI(){
  holeDisplay.textContent = `Hole ${hole}`;
- potDisplay.textContent =
- currentGame==="skins"
- ? `$${skinsGame.currentPot()}/player`
- : "";
-
- leaderboard.innerHTML="";
- players.forEach(p=>{
- leaderboard.innerHTML += `${p}: $${ledger[p]}<br>`;
- });
+ potDisplay.textContent = `$${skinsGame.currentPot()}/player`;
+ leaderboard.innerHTML = players.map(p=>`${p}: $${ledger[p]}`).join("<br>");
 }
 
-/* ---------- END ROUND MODAL ---------- */
-
-function showEndModal(text){
+function showEndModal(){
  leaderboardModalList.innerHTML = leaderboard.innerHTML;
- leaderboardFinishBtn.textContent = text;
-
+ leaderboardModal.classList.remove("hidden");
  leaderboardFinishBtn.onclick = ()=>{
  leaderboardModal.classList.add("hidden");
-
- if(text==="Continue to Back 9"){
- hole++;
- updateUI();
- return;
- }
-
- hole = 1;
  show("step-home");
  };
-
- leaderboardModal.classList.remove("hidden");
 }
