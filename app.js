@@ -214,3 +214,49 @@ window.finishRound = ()=>{
  hole = 1;
  show("step-home");
 };
+/* --------- FORCE BUTTON BINDINGS --------- */
+
+window.openMultiplier = m => skinsGame.applyMultiplier(m);
+
+window.openSideBet = ()=>{
+ sideAmount.value="";
+ sideMode.value="player";
+ buildSideWinners();
+ sideBetModal.classList.remove("hidden");
+};
+
+window.buildSideWinners = ()=>{
+ sideWinners.innerHTML="";
+
+ if(sideMode.value==="player"){
+ players.forEach(p=>{
+ sideWinners.innerHTML+=`<button onclick="sidePlayer('${p}')">${p}</button>`;
+ });
+ } else {
+ sideWinners.innerHTML+=`
+ <button onclick="sideTeam('A')">${teamAName}</button>
+ <button onclick="sideTeam('B')">${teamBName}</button>`;
+ }
+};
+
+window.sidePlayer = p=>{
+ const amt = +sideAmount.value;
+
+ players.forEach(x=>{
+ if(x===p) ledger[x]+=amt*(players.length-1);
+ else ledger[x]-=amt;
+ });
+
+ sideBetModal.classList.add("hidden");
+ updateUI();
+};
+
+window.sideTeam = t=>{
+ const amt = +sideAmount.value;
+
+ teams[t==="A"?"B":"A"].forEach(p=>ledger[p]-=amt);
+ teams[t].forEach(p=>ledger[p]+=amt);
+
+ sideBetModal.classList.add("hidden");
+ updateUI();
+};
