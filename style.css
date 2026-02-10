@@ -98,16 +98,24 @@ button {
 
 #sideBetBtn {
   position: fixed;
-  bottom: 20px;
-  right: 18px;
-  width: auto;
-  padding: 14px 20px;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 14px 26px;
   border-radius: 40px;
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 600;
+
+  width: auto;
+  max-width: 240px;
+
   background: #1faa59;
+  color: white;
+
   box-shadow: 0 6px 16px rgba(0,0,0,.35);
   z-index: 50;
 }
 #leaderboard {
-    padding-bottom: 90px;
+    padding-bottom: 110px;
 }
