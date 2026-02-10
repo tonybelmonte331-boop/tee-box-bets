@@ -11,7 +11,8 @@ function reset(wager){
 }
 
 function currentPot(){
- return (carry + 1) * base;
+ // ALWAYS include bonus
+ return (carry + 1) * base + bonus;
 }
 
 function applyBonus(type){
@@ -24,8 +25,7 @@ function clearBonus(){
 }
 
 function tie(){
-
- // normal carry for tie
+ // base carry for tie
  carry++;
 
  // absorb birdie/eagle into carry

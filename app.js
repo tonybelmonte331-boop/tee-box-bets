@@ -7,6 +7,9 @@ const vegasBox = document.getElementById("vegasBox");
 const teamAInputs = document.getElementById("teamAInputs");
 const teamBInputs = document.getElementById("teamBInputs");
 
+const teamALabel = document.getElementById("teamALabel");
+const teamBLabel = document.getElementById("teamBLabel");
+
 const birdieToggle = document.getElementById("birdieToggle");
 const eagleToggle = document.getElementById("eagleToggle");
 
@@ -17,6 +20,10 @@ const leaderboard = document.getElementById("leaderboard");
 const leaderboardModal = document.getElementById("leaderboardModal");
 const leaderboardModalList = document.getElementById("leaderboardModalList");
 const leaderboardFinishBtn = document.getElementById("leaderboardFinishBtn");
+
+const teamAPlayers = document.getElementById("teamAPlayers");
+const teamBPlayers = document.getElementById("teamBPlayers");
+
 const tieBtn = document.getElementById("tieBtn");
 
 /* ---------- STATE ---------- */
@@ -25,7 +32,10 @@ let currentGame;
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
-let hole=1, holeLimit=9, baseWager=0;
+
+let hole=1;
+let holeLimit=9;
+let baseWager=0;
 
 /* ---------- NAV ---------- */
 
@@ -42,18 +52,20 @@ window.showRules=()=>show("rules-screen");
 
 window.selectGame = game =>{
  currentGame = game;
+ document.getElementById("wagerLabel").textContent =
+ game==="skins" ? "Wager per player" : "Wager per point";
  show("step-style");
 };
 
 window.nextTeams = ()=>{
- playStyle = document.getElementById("playStyle").value;
- playerCount = parseInt(document.getElementById("playerCount").value);
- playStyle==="teams" ? show("step-teams") : buildPlayers();
+ playStyle=document.getElementById("playStyle").value;
+ playerCount=parseInt(document.getElementById("playerCount").value);
+ playStyle==="teams"?show("step-teams"):buildPlayers();
 };
 
 window.nextPlayers = ()=>{
- teamAName = document.getElementById("teamAName").value || "Team 1";
- teamBName = document.getElementById("teamBName").value || "Team 2";
+ teamAName=document.getElementById("teamAName").value||"Team 1";
+ teamBName=document.getElementById("teamBName").value||"Team 2";
  buildPlayers();
 };
 
@@ -61,14 +73,17 @@ function buildPlayers(){
  teamAInputs.innerHTML="";
  teamBInputs.innerHTML="";
 
+ teamALabel.textContent = playStyle==="teams" ? teamAName : "Players";
+ teamBLabel.textContent = playStyle==="teams" ? teamBName : "";
+
  if(playStyle==="teams"){
  for(let i=0;i<playerCount/2;i++){
- teamAInputs.innerHTML+=`<input>`;
- teamBInputs.innerHTML+=`<input>`;
+ teamAInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
+ teamBInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
  }
  } else {
  for(let i=0;i<playerCount;i++){
- teamAInputs.innerHTML+=`<input>`;
+ teamAInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
  }
  }
  show("step-players");
@@ -110,6 +125,11 @@ window.startRound = ()=>{
  skinsBox.classList.toggle("hidden",currentGame==="vegas");
  vegasBox.classList.toggle("hidden",currentGame!=="vegas");
 
+ if(currentGame==="vegas"){
+ teamAPlayers.textContent = teams.A.join(" & ");
+ teamBPlayers.textContent = teams.B.join(" & ");
+ }
+
  buildWinnerButtons();
  updateUI();
 };
@@ -141,8 +161,8 @@ function buildWinnerButtons(){
 }
 
 function applyBonus(){
- if(birdieToggle.checked) skinsGame.applyBonus("birdie",baseWager);
- if(eagleToggle.checked) skinsGame.applyBonus("eagle",baseWager);
+ if(birdieToggle.checked) skinsGame.applyBonus("birdie");
+ if(eagleToggle.checked) skinsGame.applyBonus("eagle");
 }
 
 function clearBonus(){
@@ -168,11 +188,10 @@ function handleTeamWin(t){
 tieBtn.onclick=()=>{
  applyBonus();
  skinsGame.tie();
- clearBonus();
  nextHole();
 };
 
-/* ---------- VEGAS (UNCHANGED) ---------- */
+/* ---------- VEGAS ---------- */
 
 window.finishVegasHole = ()=>{
  let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
@@ -216,7 +235,7 @@ function updateUI(){
  ? `$${skinsGame.currentPot()}/player`
  : "";
 
- leaderboard.innerHTML=
+ leaderboard.innerHTML =
  players.map(p=>`${p}: $${ledger[p]}`).join("<br>");
 }
 
