@@ -95,6 +95,7 @@
  </label>
 
  <button id="tieBtn">Tie</button>
+ <button id="sideBetBtn">Side Bet</button>
  </div>
 
  <!-- VEGAS -->
@@ -127,8 +128,28 @@
  <button id="leaderboardFinishBtn">Finish Round</button>
 </div>
 
+<div id="sideBetModal" class="modal hidden">
+<div class="modal-box">
+
+<h3>Side Bet</h3>
+
+<input id="sideAmount" type="number" placeholder="Wager amount">
+
+<select id="sideMode">
+<option value="player">Per Player</option>
+<option value="team">Per Team</option>
+</select>
+
+<div id="sideWinners"></div>
+
+<button onclick="closeSideBet()">Cancel</button>
+
+</div>
+</div>
+
 <script src="games/skins.js"></script>
 <script src="games/vegas.js"></script>
+<script src="games/sidebets.js"></script>
 <script src="app.js"></script>
 
 </body>

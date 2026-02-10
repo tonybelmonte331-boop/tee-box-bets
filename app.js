@@ -26,6 +26,12 @@ const teamBPlayers = document.getElementById("teamBPlayers");
 
 const tieBtn = document.getElementById("tieBtn");
 
+const sideBetBtn = document.getElementById("sideBetBtn");
+const sideBetModal = document.getElementById("sideBetModal");
+const sideAmount = document.getElementById("sideAmount");
+const sideMode = document.getElementById("sideMode");
+const sideWinners = document.getElementById("sideWinners");
+
 /* ---------- STATE ---------- */
 
 let currentGame;
@@ -36,6 +42,56 @@ let players=[], teams={A:[],B:[]}, ledger={};
 let hole=1;
 let holeLimit=9;
 let baseWager=0;
+
+/* ---------SIDE BET-------- */
+sideBetBtn.onclick = ()=>{
+buildSideWinners();
+sideBetModal.classList.remove("hidden");
+};
+
+window.closeSideBet = ()=>{
+sideBetModal.classList.add("hidden");
+};
+
+sideMode.onchange = buildSideWinners;
+
+function buildSideWinners(){
+sideWinners.innerHTML = "";
+sideBets.setAmount(sideAmount.value);
+sideBets.setMode(sideMode.value);
+
+if(sideMode.value === "player"){
+players.forEach(p=>{
+const btn = document.createElement("button");
+btn.textContent = p;
+btn.onclick = ()=>{
+sideBets.applyPlayer(p, players, ledger);
+updateUI();
+closeSideBet();
+};
+sideWinners.appendChild(btn);
+});
+} else {
+const btnA = document.createElement("button");
+btnA.textContent = teamAName;
+btnA.onclick = ()=>{
+sideBets.applyTeam("A", teams, ledger);
+updateUI();
+closeSideBet();
+};
+
+const btnB = document.createElement("button");
+btnB.textContent = teamBName;
+btnB.onclick = ()=>{
+sideBets.applyTeam("B", teams, ledger);
+updateUI();
+closeSideBet();
+};
+
+sideWinners.appendChild(btnA);
+sideWinners.appendChild(btnB);
+}
+}
 
 /* ---------- NAV ---------- */
 
