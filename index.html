@@ -18,7 +18,7 @@
 
 <section id="rules-screen" class="hidden">
  <h3>Skins</h3>
- <p>Wager per player. Ties carry. Birdie doubles the current hole, Eagle triples it.</p>
+ <p>Wager per player. Ties carry. Birdie adds one extra wager, Eagle adds two.</p>
 
  <h3>Vegas</h3>
  <p>Two scores per team form a number. Difference × wager per point swings.</p>
@@ -27,8 +27,8 @@
 </section>
 
 <section id="step-game" class="hidden">
- <button onclick="selectGame('skins','player')">Skins</button>
- <button onclick="selectGame('vegas','point')">Vegas</button>
+ <button onclick="selectGame('skins')">Skins</button>
+ <button onclick="selectGame('vegas')">Vegas</button>
  <button onclick="goHome()">Back</button>
 </section>
 
@@ -54,13 +54,17 @@
 </section>
 
 <section id="step-players" class="hidden">
+ <h4 id="teamALabel">Players</h4>
  <div id="teamAInputs"></div>
+
+ <h4 id="teamBLabel"></h4>
  <div id="teamBInputs"></div>
+
  <button onclick="nextSettings()">Next</button>
 </section>
 
 <section id="step-settings" class="hidden">
- <input id="baseWager" type="number" placeholder="Base wager per player">
+ <input id="baseWager" type="number" placeholder="Base wager">
  <p id="wagerLabel"></p>
 
  <select id="holeLimit">
@@ -82,25 +86,26 @@
 
  <label>
  <input type="checkbox" id="birdieToggle">
- Birdie (Double hole)
+ Birdie (+1 wager)
  </label>
 
  <label>
  <input type="checkbox" id="eagleToggle">
- Eagle (Triple hole)
+ Eagle (+2 wagers)
  </label>
 
- <!-- FIXED -->
  <button id="tieBtn">Tie</button>
  </div>
 
  <!-- VEGAS -->
  <div id="vegasBox" class="hidden">
  <h4 id="teamABox"></h4>
+ <div id="teamAPlayers"></div>
  <input id="a1" type="number">
  <input id="a2" type="number">
 
  <h4 id="teamBBox"></h4>
+ <div id="teamBPlayers"></div>
  <input id="b1" type="number">
  <input id="b2" type="number">
 
