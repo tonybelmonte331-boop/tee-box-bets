@@ -4,97 +4,79 @@ let frontA = 0;
 let frontB = 0;
 let backA = 0;
 let backB = 0;
-
-let frontPaid = false;
-let backPaid = false;
-let overallPaid = false;
+let totalA = 0;
+let totalB = 0;
 
 function reset(){
- frontA = 0;
- frontB = 0;
- backA = 0;
- backB = 0;
-
- frontPaid = false;
- backPaid = false;
- overallPaid = false;
+frontA = frontB = backA = backB = totalA = totalB = 0;
 }
 
 function recordHole(team, hole){
- if(hole <= 9){
- if(team === "A") frontA++;
- if(team === "B") frontB++;
- } else {
- if(team === "A") backA++;
- if(team === "B") backB++;
- }
+
+// Front 9
+if(hole <= 9){
+if(team === "A") frontA++;
+if(team === "B") frontB++;
 }
 
-function getStatus(){
- return {
- frontA,
- frontB,
- backA,
- backB,
- totalA: frontA + backA,
- totalB: frontB + backB
- };
+// Back 9
+if(hole > 9){
+if(team === "A") backA++;
+if(team === "B") backB++;
 }
+
+// Overall
+if(team === "A") totalA++;
+if(team === "B") totalB++;
+}
+
+// Tie = do nothing (hole simply passes)
 
 function settleFront(wager, teams, ledger){
- if(frontPaid) return;
+if(frontA === frontB) return;
 
- if(frontA > frontB){
- payout("A", wager, teams, ledger);
- } else if(frontB > frontA){
- payout("B", wager, teams, ledger);
- }
+const win = frontA > frontB ? "A" : "B";
+const lose = win === "A" ? "B" : "A";
 
- frontPaid = true;
+teams[lose].forEach(p=>ledger[p]-=wager);
+teams[win].forEach(p=>ledger[p]+=wager);
 }
 
 function settleBack(wager, teams, ledger){
- if(backPaid) return;
+if(backA === backB) return;
 
- if(backA > backB){
- payout("A", wager, teams, ledger);
- } else if(backB > backA){
- payout("B", wager, teams, ledger);
- }
+const win = backA > backB ? "A" : "B";
+const lose = win === "A" ? "B" : "A";
 
- backPaid = true;
+teams[lose].forEach(p=>ledger[p]-=wager);
+teams[win].forEach(p=>ledger[p]+=wager);
 }
 
 function settleOverall(wager, teams, ledger){
- if(overallPaid) return;
+if(totalA === totalB) return;
 
- const totalA = frontA + backA;
- const totalB = frontB + backB;
+const win = totalA > totalB ? "A" : "B";
+const lose = win === "A" ? "B" : "A";
 
- if(totalA > totalB){
- payout("A", wager, teams, ledger);
- } else if(totalB > totalA){
- payout("B", wager, teams, ledger);
- }
-
- overallPaid = true;
+teams[lose].forEach(p=>ledger[p]-=wager);
+teams[win].forEach(p=>ledger[p]+=wager);
 }
 
-function payout(team, wager, teams, ledger){
- const winners = teams[team];
- const losers = team === "A" ? teams.B : teams.A;
-
- winners.forEach(p => ledger[p] += wager);
- losers.forEach(p => ledger[p] -= wager);
+function getStatus(){
+return {
+frontA, frontB,
+backA, backB,
+totalA, totalB
+};
 }
 
 return {
- reset,
- recordHole,
- getStatus,
- settleFront,
- settleBack,
- settleOverall
+reset,
+recordHole,
+settleFront,
+settleBack,
+settleOverall,
+getStatus
 };
 
 })();

@@ -12,130 +12,143 @@
 <main>
 
 <section id="step-home">
- <button onclick="goGameSelect()">Play</button>
- <button onclick="showRules()">Rules</button>
+<button onclick="goGameSelect()">Play</button>
+<button onclick="showRules()">Rules</button>
 </section>
 
 <section id="rules-screen" class="hidden">
- <h3>Skins</h3>
- <p>Wager per player. Ties carry. Birdie adds one extra wager, Eagle adds two.</p>
+<h3>Skins</h3>
+<p>Wager per player. Ties carry (the pot stacks). Birdie adds one extra wager to the hole, Eagle adds two extra wagers to the hole.</p>
 
- <h3>Vegas</h3>
- <p>Two scores per team form a number. Difference × wager per point swings.</p>
+<h3>Vegas</h3>
+<p>Vegas is a team game where each player scores their own ball. Scores combine into a number (5 and 4 becomes 45). The difference earns points. Birdie flips the losing score. Points × wager per point = payout.</p>
 
- <h3>Nassau</h3>
- <p>Nassau is a team match with three separate bets: front 9, back 9, and total round. Each bet has its own value and is won by the team that wins the most holes in that segment.</p>
+<h3>Nassau</h3>
+<p>Nassau is a team match with three separate bets: Front 9, Back 9, and Total Round. Each bet is won by the team winning the most holes in that segment.</p>
 
- <button onclick="goHome()">Back</button>
+<button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-game" class="hidden">
- <button onclick="selectGame('skins')">Skins</button>
- <button onclick="selectGame('vegas')">Vegas</button>
- <button onclick="selectGame('nassau')">Nassau</button>
- <button onclick="goHome()">Back</button>
+<button onclick="selectGame('skins')">Skins</button>
+<button onclick="selectGame('vegas')">Vegas</button>
+<button onclick="selectGame('nassau')">Nassau</button>
+<button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-style" class="hidden">
- <select id="playStyle">
- <option value="ffa">Free For All</option>
- <option value="teams">Teams</option>
- </select>
+<select id="playStyle">
+<option value="ffa">Free For All</option>
+<option value="teams">Teams</option>
+</select>
 
- <select id="playerCount">
- <option>2</option>
- <option>3</option>
- <option>4</option>
- </select>
+<select id="playerCount">
+<option>2</option>
+<option>3</option>
+<option>4</option>
+</select>
 
- <button onclick="nextTeams()">Next</button>
+<button onclick="nextTeams()">Next</button>
 </section>
 
 <section id="step-teams" class="hidden">
- <input id="teamAName" placeholder="Team 1 Name">
- <input id="teamBName" placeholder="Team 2 Name">
- <button onclick="nextPlayers()">Next</button>
+<input id="teamAName" placeholder="Team 1 Name">
+<input id="teamBName" placeholder="Team 2 Name">
+<button onclick="nextPlayers()">Next</button>
 </section>
 
 <section id="step-players" class="hidden">
- <h4 id="teamALabel">Players</h4>
- <div id="teamAInputs"></div>
+<h4 id="teamALabel">Players</h4>
+<div id="teamAInputs"></div>
 
- <h4 id="teamBLabel"></h4>
- <div id="teamBInputs"></div>
+<h4 id="teamBLabel"></h4>
+<div id="teamBInputs"></div>
 
- <button onclick="nextSettings()">Next</button>
+<button onclick="nextSettings()">Next</button>
 </section>
 
 <section id="step-settings" class="hidden">
- <input id="baseWager" type="number" placeholder="Base wager">
- <p id="wagerLabel"></p>
 
- <select id="holeLimit">
- <option value="9">9 Holes</option>
- <option value="18">18 Holes</option>
- </select>
+<!-- Skins + Vegas wager -->
+<input id="baseWager" type="number" placeholder="Base wager">
+<p id="wagerLabel"></p>
 
- <button onclick="startRound()">Start</button>
+<!-- Skins/Vegas hole select ONLY -->
+<select id="holeLimit">
+<option value="9">9 Holes</option>
+<option value="18">18 Holes</option>
+</select>
+
+<!-- Nassau wagers -->
+<div id="nassauWagers" class="hidden">
+<input id="frontWager" type="number" placeholder="Front 9 wager">
+<input id="backWager" type="number" placeholder="Back 9 wager">
+<input id="totalWager" type="number" placeholder="Total round wager">
+<p>Nassau always plays 18 holes</p>
+</div>
+
+<button onclick="startRound()">Start</button>
 </section>
 
 <section id="game-screen" class="hidden">
 
- <h3 id="holeDisplay"></h3>
- <h3 id="potDisplay"></h3>
+<h3 id="holeDisplay"></h3>
+<h3 id="potDisplay"></h3>
 
- <!-- SKINS -->
- <div id="skinsBox">
- <div id="winnerButtons"></div>
+<!-- SKINS -->
+<div id="skinsBox">
+<div id="winnerButtons"></div>
 
- <label>
- <input type="checkbox" id="birdieToggle">
- Birdie (+1 wager)
- </label>
+<label>
+<input type="checkbox" id="birdieToggle">
+Birdie (+1 wager)
+</label>
 
- <label>
- <input type="checkbox" id="eagleToggle">
- Eagle (+2 wagers)
- </label>
+<label>
+<input type="checkbox" id="eagleToggle">
+Eagle (+2 wagers)
+</label>
 
- <button id="tieBtn">Tie</button>
- </div>
-<!--NASSAU-->
-<div id="nassauBox" class="hidden">
-<div id="nassauWinners"></div>
+<button id="tieBtn">Tie</button>
 </div>
 
- <!-- SIDE BET-->
- <button id="sideBetBtn">Side Bet</button>
+<!-- NASSAU -->
+<div id="nassauBox" class="hidden">
+<div id="nassauWinners"></div>
+<button id="nassauTieBtn">Tie Hole</button>
+</div>
 
- <!-- VEGAS -->
- <div id="vegasBox" class="hidden">
- <h4 id="teamABox"></h4>
- <div id="teamAPlayers"></div>
- <input id="a1" type="number">
- <input id="a2" type="number">
+<!-- SIDE BET -->
+<button id="sideBetBtn">Side Bet</button>
 
- <h4 id="teamBBox"></h4>
- <div id="teamBPlayers"></div>
- <input id="b1" type="number">
- <input id="b2" type="number">
+<!-- VEGAS -->
+<div id="vegasBox" class="hidden">
+<h4 id="teamABox"></h4>
+<div id="teamAPlayers"></div>
+<input id="a1" type="number">
+<input id="a2" type="number">
 
- <label>
- <input type="checkbox" id="birdieFlip">
- Birdie (Flip losing score)
- </label>
+<h4 id="teamBBox"></h4>
+<div id="teamBPlayers"></div>
+<input id="b1" type="number">
+<input id="b2" type="number">
 
- <button onclick="finishVegasHole()">Finish Hole</button>
- </div>
+<label>
+<input type="checkbox" id="birdieFlip">
+Birdie (Flip losing score)
+</label>
 
- <h3>Leaderboard</h3>
- <div id="leaderboard"></div>
+<button onclick="finishVegasHole()">Finish Hole</button>
+</div>
+
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
 </section>
 
 <div id="leaderboardModal" class="modal hidden">
- <h3>Round Results</h3>
- <div id="leaderboardModalList"></div>
- <button id="leaderboardFinishBtn">Finish Round</button>
+<h3>Round Results</h3>
+<div id="leaderboardModalList"></div>
+<button id="leaderboardFinishBtn">Finish Round</button>
 </div>
 
 <div id="sideBetModal" class="modal hidden">
