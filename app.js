@@ -109,20 +109,28 @@ window.showRules=()=>show("rules-screen");
 /* ---------- GAME SELECT ---------- */
 
 window.selectGame = game =>{
- currentGame=game;
+currentGame = game;
 
- if(game==="nassau"){
- nassauWagers.classList.remove("hidden");
- holeLimitSelect.classList.add("hidden");
- } else {
- nassauWagers.classList.add("hidden");
- holeLimitSelect.classList.remove("hidden");
- }
+if(game === "vegas" || game === "nassau"){
+document.getElementById("playStyle").classList.add("hidden");
+} else {
+document.getElementById("playStyle").classList.remove("hidden");
+}
 
- document.getElementById("wagerLabel").textContent =
- game==="vegas" ? "Wager per point" : "Wager per player";
+if(game === "nassau"){
+nassauWagers.classList.remove("hidden");
+holeLimitSelect.classList.add("hidden");
+document.getElementById("baseWager").classList.add("hidden");
+} else {
+nassauWagers.classList.add("hidden");
+holeLimitSelect.classList.remove("hidden");
+document.getElementById("baseWager").classList.remove("hidden");
+}
 
- show("step-style");
+document.getElementById("wagerLabel").textContent =
+game==="vegas" ? "Wager per point" : "Wager per player";
+
+show("step-style");
 };
 
 /* ---------- SETUP ---------- */
