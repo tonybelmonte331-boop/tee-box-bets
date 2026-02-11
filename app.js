@@ -3,6 +3,8 @@
 const winnerButtons = document.getElementById("winnerButtons");
 const skinsBox = document.getElementById("skinsBox");
 const vegasBox = document.getElementById("vegasBox");
+const nassauBox = document.getElementById("nassauBox");
+const nassauWinners = document.getElementById("nassauWinners");
 
 const teamAInputs = document.getElementById("teamAInputs");
 const teamBInputs = document.getElementById("teamBInputs");
@@ -109,7 +111,7 @@ window.showRules=()=>show("rules-screen");
 window.selectGame = game =>{
  currentGame = game;
  document.getElementById("wagerLabel").textContent =
- game==="skins" ? "Wager per player" : "Wager per point";
+ game==="vegas" ? "Wager per point" : "Wager per player";
  show("step-style");
 };
 
@@ -178,8 +180,14 @@ window.startRound = ()=>{
 
  show("game-screen");
 
- skinsBox.classList.toggle("hidden",currentGame==="vegas");
- vegasBox.classList.toggle("hidden",currentGame!=="vegas");
+skinsBox.classList.toggle("hidden", currentGame!=="skins");
+vegasBox.classList.toggle("hidden", currentGame!=="vegas");
+nassauBox.classList.toggle("hidden", currentGame!=="nassau");
+
+if(currentGame === "nassau"){
+nassauGame.reset();
+buildNassauButtons();
+}
 
  if(currentGame==="vegas"){
  teamAPlayers.textContent = teams.A.join(" & ");
@@ -217,8 +225,14 @@ function buildWinnerButtons(){
 }
 
 function applyBonus(){
- if(birdieToggle.checked) skinsGame.applyBonus("birdie");
- if(eagleToggle.checked) skinsGame.applyBonus("eagle");
+ if(birdieToggle.checked){
+    eagleToggle.checked = false;
+    skinsGame.applyBonus("birdie");
+ }
+ else if(eagleToggle.checked){
+    birdieToggle.checked = false;
+    skinsGame.applyBonus("eagle");
+}
 }
 
 function clearBonus(){
@@ -269,6 +283,23 @@ window.finishVegasHole = ()=>{
  nextHole();
 };
 
+/*----------- NASSAU ---------*/
+
+function buildNassauButtons(){
+nassauWinners.innerHTML="";
+
+players.forEach(p=>{
+const btn = document.createElement("button");
+btn.textContent = p;
+btn.onclick = ()=> winNassauHole(p);
+nassauWinners.appendChild(btn);
+});
+}
+function winNassauHole(player){
+nassauGame.scoreHole(player, players, ledger, baseWager, hole);
+nextHole();
+}
+
 /* ---------- FLOW ---------- */
 
 function nextHole(){
@@ -290,6 +321,11 @@ function updateUI(){
  currentGame==="skins"
  ? `$${skinsGame.currentPot()}/player`
  : "";
+
+ if(currentGame === "nassau"){
+const s = nassauGame.status();
+potDisplay.textContent = `Front: ${s.front} Back: ${s.back} Total: ${s.total}`;
+}
 
  leaderboard.innerHTML =
  players.map(p=>`${p}: $${ledger[p]}`).join("<br>");

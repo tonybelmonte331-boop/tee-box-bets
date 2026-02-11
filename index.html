@@ -23,12 +23,16 @@
  <h3>Vegas</h3>
  <p>Two scores per team form a number. Difference × wager per point swings.</p>
 
+ <h3>Nassau</h3>
+ <p>Three Bets: Front 9, Back 9, and Total Round. Each hole won counts toward each segmant's total.</p>
+
  <button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-game" class="hidden">
  <button onclick="selectGame('skins')">Skins</button>
  <button onclick="selectGame('vegas')">Vegas</button>
+ <button onclick="selectGame('nassau')">Nassau</button>
  <button onclick="goHome()">Back</button>
 </section>
 
@@ -96,7 +100,12 @@
 
  <button id="tieBtn">Tie</button>
  </div>
+<!--NASSAU-->
+<div id="nassauBox" class="hidden">
+<div id="nassauWinners"></div>
+</div>
 
+ <!-- SIDE BET-->
  <button id="sideBetBtn">Side Bet</button>
 
  <!-- VEGAS -->
@@ -150,6 +159,7 @@
 
 <script src="games/skins.js"></script>
 <script src="games/vegas.js"></script>
+<script src="games/nassau.js"></script>
 <script src="games/sidebets.js"></script>
 <script src="app.js"></script>
 
