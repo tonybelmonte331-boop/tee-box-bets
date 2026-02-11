@@ -111,6 +111,17 @@ window.showRules=()=>show("rules-screen");
 window.selectGame = game =>{
 currentGame = game;
 
+const playLabel = document.getElementById("playStyleLabel");
+const countLabel = document.getElementById("playerCountLabel");
+
+if(game === "vegas" || game === "nassau"){
+playLabel.textContent = "Teams (2 vs 2)";
+countLabel.textContent = "Players (locked to 4)";
+} else {
+playLabel.textContent = "Play Style";
+countLabel.textContent = "Number of Players";
+}
+
 if(game === "vegas" || game === "nassau"){
 document.getElementById("playStyle").classList.add("hidden");
 } else {
