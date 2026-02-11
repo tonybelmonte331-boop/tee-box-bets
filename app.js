@@ -116,6 +116,19 @@ window.selectGame = game =>{
 };
 
 window.nextTeams = ()=>{
+    if(currentGame === "vegas"){
+playStyle = "teams";
+playerCount = 4;
+show("step-teams");
+return;
+}
+
+if(currentGame === "nassau"){
+playStyle = "teams";
+playerCount = 4;
+show("step-teams");
+return;
+}
  playStyle=document.getElementById("playStyle").value;
  playerCount=parseInt(document.getElementById("playerCount").value);
  playStyle==="teams"?show("step-teams"):buildPlayers();
@@ -176,7 +189,9 @@ window.startRound = ()=>{
  baseWager=parseFloat(document.getElementById("baseWager").value);
  holeLimit=parseInt(document.getElementById("holeLimit").value);
 
+ if(currentGame === "skins"){
  skinsGame.reset(baseWager);
+ }
 
  show("game-screen");
 
@@ -283,22 +298,38 @@ window.finishVegasHole = ()=>{
  nextHole();
 };
 
-/*----------- NASSAU ---------*/
+/* ---------- NASSAU ---------- */
 
 function buildNassauButtons(){
 nassauWinners.innerHTML="";
 
-players.forEach(p=>{
-const btn = document.createElement("button");
-btn.textContent = p;
-btn.onclick = ()=> winNassauHole(p);
-nassauWinners.appendChild(btn);
-});
+const btnA = document.createElement("button");
+btnA.textContent = teamAName;
+btnA.onclick = ()=> winNassauHole("A");
+
+const btnB = document.createElement("button");
+btnB.textContent = teamBName;
+btnB.onclick = ()=> winNassauHole("B");
+
+nassauWinners.appendChild(btnA);
+nassauWinners.appendChild(btnB);
 }
-function winNassauHole(player){
-nassauGame.scoreHole(player, players, ledger, baseWager, hole);
+
+function winNassauHole(team){
+nassauGame.recordHole(team, hole);
+
+if(hole === 9){
+nassauGame.settleFront(baseWager, teams, ledger);
+}
+
+if(hole === 18){
+nassauGame.settleBack(baseWager, teams, ledger);
+nassauGame.settleOverall(baseWager, teams, ledger);
+}
+
 nextHole();
 }
+
 
 /* ---------- FLOW ---------- */
 
@@ -322,9 +353,10 @@ function updateUI(){
  ? `$${skinsGame.currentPot()}/player`
  : "";
 
- if(currentGame === "nassau"){
-const s = nassauGame.status();
-potDisplay.textContent = `Front: ${s.front} Back: ${s.back} Total: ${s.total}`;
+if(currentGame === "nassau"){
+const s = nassauGame.getStatus();
+potDisplay.textContent =
+`Front: ${s.frontA}-${s.frontB} | Back: ${s.backA}-${s.backB} | Total: ${s.totalA}-${s.totalB}`;
 }
 
  leaderboard.innerHTML =
