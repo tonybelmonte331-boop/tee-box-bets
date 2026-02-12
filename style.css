@@ -1,121 +1,119 @@
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+box-sizing: border-box;
+margin: 0;
+padding: 0;
 }
 
 html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
-  background: #0b3d2e;
-  color: white;
+width: 100%;
+height: 100%;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
+background: #0b3d2e;
+color: white;
+overflow-x: hidden;
 }
 
 header {
-  height: 60px;
-  background: #06281d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 600;
+height: 60px;
+background: #06281d;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+font-weight: 600;
 }
 
 main {
-  height: calc(100vh - 60px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+min-height: calc(100vh - 60px);
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 section {
-  width: 100%;
-  max-width: 420px;
-  padding: 20px;
+width: 100%;
+max-width: 420px;
+padding: 20px;
 }
 
-/* CRITICAL FIX */
 .hidden {
-  display: none !important;
-  pointer-events: none !important;
+display: none !important;
 }
 
 input, select, button {
-  width: 100%;
-  padding: 14px;
-  margin: 8px 0;
-  border-radius: 12px;
-  border: none;
-  font-size: 16px;
+width: 100%;
+padding: 14px;
+margin: 10px 0;
+border-radius: 12px;
+border: none;
+font-size: 16px;
 }
 
 input, select {
-  background: #e6f5ee;
-  color: black;
+background: #e6f5ee;
+color: black;
 }
 
 button {
-  background: #1faa59;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
+background: #1faa59;
+color: white;
+font-weight: 600;
+cursor: pointer;
+}
+
+button:active {
+transform: scale(0.98);
 }
 
 #winnerButtons button {
-  margin: 6px 0;
+margin: 6px 0;
 }
 
-.ledger-row, .leader-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  margin: 6px 0;
-  background: rgba(255,255,255,.12);
-  border-radius: 12px;
+#leaderboard {
+margin-top: 10px;
+padding-bottom: 120px;
 }
 
-/* MODALS */
+.leader-row {
+display: flex;
+justify-content: space-between;
+padding: 12px;
+margin: 6px 0;
+background: rgba(255,255,255,.12);
+border-radius: 12px;
+}
+
+/* MODAL */
 
 .modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,.75);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 100;
 }
 
 .modal-box {
-  background: #06281d;
-  padding: 20px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 360px;
+background: #06281d;
+padding: 20px;
+border-radius: 16px;
+width: 90%;
+max-width: 360px;
 }
+
+/* Floating Side Bet Button */
 
 #sideBetBtn {
-  position: fixed;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-
-  padding: 14px 26px;
-  border-radius: 40px;
-  font-size: 16px;
-  font-weight: 600;
-
-  width: auto;
-  max-width: 240px;
-
-  background: #1faa59;
-  color: white;
-
-  box-shadow: 0 6px 16px rgba(0,0,0,.35);
-  z-index: 50;
-}
-#leaderboard {
-    padding-bottom: 110px;
+position: fixed;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%);
+width: auto;
+padding: 14px 28px;
+border-radius: 40px;
+font-size: 16px;
+box-shadow: 0 6px 16px rgba(0,0,0,.35);
+z-index: 50;
 }
