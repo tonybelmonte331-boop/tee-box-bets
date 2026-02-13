@@ -12,8 +12,8 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#041a13">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-
 </head>
+
 <body>
 
 <header>Tee Box Bets</header>
@@ -21,189 +21,170 @@
 <main>
 
 <section id="step-home">
- <button onclick="goGameSelect()">Play</button>
- <button onclick="showRules()">Rules</button>
+<button onclick="goGameSelect()">Play</button>
+<button onclick="showRules()">Rules</button>
 </section>
 
 <section id="rules-screen" class="hidden">
- <h3>Skins</h3>
- <p>
- Wager per player. Ties carry (the pot stacks). 
- Birdie adds one extra wager to the hole. 
- Eagle adds two extra wagers to the hole.
- </p>
+<h3>Skins</h3>
+<p>Wager per player. Ties carry. Birdie adds one wager. Eagle adds two wagers.</p>
 
- <h3>Vegas</h3>
- <p>
- Team game. Scores combine into numbers (5 and 4 = 45). 
- Difference earns points. 
- Birdie flips losing score. 
- Points × wager per point = payout.
- </p>
+<h3>Vegas</h3>
+<p>Team game. Scores form numbers. Difference × wager per point.</p>
 
- <h3>Nassau</h3>
- <p>
- Team match with three bets: Front 9, Back 9, Total Round. 
- Each bet pays the team winning the most holes.
- </p>
+<h3>Nassau</h3>
+<p>Team match: Front 9, Back 9, Total Round.</p>
 
- <button onclick="goHome()">Back</button>
+<button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-game" class="hidden">
- <button onclick="selectGame('skins')">Skins</button>
- <button onclick="selectGame('vegas')">Vegas</button>
- <button onclick="selectGame('nassau')">Nassau</button>
- <button onclick="goHome()">Back</button>
+<button onclick="selectGame('skins')">Skins</button>
+<button onclick="selectGame('vegas')">Vegas</button>
+<button onclick="selectGame('nassau')">Nassau</button>
+<button onclick="goHome()">Back</button>
 </section>
 
 <section id="step-style" class="hidden">
 
- <label id="playStyleLabel">Play Style</label>
- <select id="playStyle">
- <option value="ffa">Free For All</option>
- <option value="teams">Teams</option>
- </select>
+<p id="lockedNotice" class="hidden">
+This game is played with two teams of 2
+</p>
 
- <label id="playerCountLabel">Number of Players</label>
- <select id="playerCount">
- <option>2</option>
- <option>3</option>
- <option>4</option>
- </select>
+<label id="playStyleLabel">Play Style</label>
+<select id="playStyle">
+<option value="ffa">Free For All</option>
+<option value="teams">Teams</option>
+</select>
 
- <button onclick="nextTeams()">Next</button>
+<label id="playerCountLabel">Number of Players</label>
+<select id="playerCount">
+<option>2</option>
+<option>3</option>
+<option>4</option>
+</select>
+
+<button onclick="nextTeams()">Next</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-teams" class="hidden">
- <input id="teamAName" placeholder="Team 1 Name">
- <input id="teamBName" placeholder="Team 2 Name">
- <button onclick="nextPlayers()">Next</button>
+<input id="teamAName" placeholder="Team 1 Name">
+<input id="teamBName" placeholder="Team 2 Name">
+<button onclick="nextPlayers()">Next</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-players" class="hidden">
+<h4 id="teamALabel">Team 1</h4>
+<div id="teamAInputs"></div>
 
- <h4 id="teamALabel">Players</h4>
- <div id="teamAInputs"></div>
+<h4 id="teamBLabel">Team 2</h4>
+<div id="teamBInputs"></div>
 
- <h4 id="teamBLabel"></h4>
- <div id="teamBInputs"></div>
-
- <button onclick="nextSettings()">Next</button>
+<button onclick="nextSettings()">Next</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="step-settings" class="hidden">
 
- <!-- Skins & Vegas -->
- <input id="baseWager" type="number" placeholder="Base wager">
- <p id="wagerLabel"></p>
+<input id="baseWager" type="number" placeholder="Base wager">
+<p id="wagerLabel"></p>
 
- <select id="holeLimit">
- <option value="9">9 Holes</option>
- <option value="18">18 Holes</option>
- </select>
+<select id="holeLimit">
+<option value="9">9 Holes</option>
+<option value="18">18 Holes</option>
+</select>
 
- <!-- Nassau wagers -->
- <div id="nassauWagers" class="hidden">
- <input id="frontWager" type="number" placeholder="Front 9 wager">
- <input id="backWager" type="number" placeholder="Back 9 wager">
- <input id="totalWager" type="number" placeholder="Total round wager">
- <p>Nassau always plays 18 holes</p>
- </div>
+<div id="nassauWagers" class="hidden">
+<input id="frontWager" type="number" placeholder="Front 9 wager">
+<input id="backWager" type="number" placeholder="Back 9 wager">
+<input id="totalWager" type="number" placeholder="Total round wager">
+<p>Nassau always plays 18 holes</p>
+</div>
 
- <button onclick="startRound()">Start</button>
+<button onclick="startRound()">Start</button>
+<button onclick="goGameSelect()">Back</button>
 </section>
 
 <section id="game-screen" class="hidden">
 
- <h3 id="holeDisplay"></h3>
- <h3 id="potDisplay"></h3>
+<h3 id="holeDisplay"></h3>
+<h3 id="potDisplay"></h3>
 
- <!-- SKINS -->
- <div id="skinsBox">
+<button onclick="undoHole()">⬅ Undo Previous Hole</button>
 
- <div id="winnerButtons"></div>
+<!-- SKINS -->
+<div id="skinsBox">
+<div id="winnerButtons"></div>
 
- <label>
- <input type="checkbox" id="birdieToggle">
- Birdie (+1 wager)
- </label>
+<label><input type="checkbox" id="birdieToggle"> Birdie (+1)</label>
+<label><input type="checkbox" id="eagleToggle"> Eagle (+2)</label>
 
- <label>
- <input type="checkbox" id="eagleToggle">
- Eagle (+2 wagers)
- </label>
+<button id="tieBtn">Tie</button>
+</div>
 
- <button id="tieBtn">Tie</button>
- </div>
+<!-- NASSAU -->
+<div id="nassauBox" class="hidden">
+<div id="nassauWinners"></div>
+<button id="nassauTieBtn">Tie Hole</button>
+</div>
 
- <!-- NASSAU -->
- <div id="nassauBox" class="hidden">
- <div id="nassauWinners"></div>
- <button id="nassauTieBtn">Tie Hole</button>
- </div>
+<button id="sideBetBtn">Side Bet</button>
 
- <!-- SIDE BET -->
- <button id="sideBetBtn">Side Bet</button>
+<!-- VEGAS -->
+<div id="vegasBox" class="hidden">
 
- <!-- VEGAS -->
- <div id="vegasBox" class="hidden">
+<h4 id="teamABox"></h4>
+<div id="teamAPlayers"></div>
+<input id="a1" type="number">
+<input id="a2" type="number">
 
- <h4 id="teamABox"></h4>
- <div id="teamAPlayers"></div>
- <input id="a1" type="number">
- <input id="a2" type="number">
+<h4 id="teamBBox"></h4>
+<div id="teamBPlayers"></div>
+<input id="b1" type="number">
+<input id="b2" type="number">
 
- <h4 id="teamBBox"></h4>
- <div id="teamBPlayers"></div>
- <input id="b1" type="number">
- <input id="b2" type="number">
+<label>
+<input type="checkbox" id="birdieFlip"> Birdie Flip
+</label>
 
- <label>
- <input type="checkbox" id="birdieFlip">
- Birdie (Flip losing score)
- </label>
+<button onclick="finishVegasHole()">Finish Hole</button>
+</div>
 
- <button onclick="finishVegasHole()">Finish Hole</button>
- </div>
-
- <h3>Leaderboard</h3>
- <div id="leaderboard"></div>
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
 
 </section>
 
 <!-- END MODAL -->
-
 <div id="leaderboardModal" class="modal hidden">
- <div class="modal-box">
- <h3>Round Results</h3>
- <div id="leaderboardModalList"></div>
- <button id="leaderboardFinishBtn">Finish Round</button>
- </div>
+<div class="modal-box">
+<h3>Round Results</h3>
+<div id="leaderboardModalList"></div>
+<button id="leaderboardFinishBtn">Finish Round</button>
+</div>
 </div>
 
 <!-- SIDE BET MODAL -->
-
 <div id="sideBetModal" class="modal hidden">
- <div class="modal-box">
+<div class="modal-box">
 
- <h3>Side Bet</h3>
+<h3>Side Bet</h3>
 
- <input id="sideAmount" type="number" placeholder="Wager amount">
+<input id="sideAmount" type="number" placeholder="Wager amount">
 
- <select id="sideMode">
- <option value="player">Per Player</option>
- <option value="team">Per Team</option>
- </select>
+<select id="sideMode">
+<option value="player">Per Player</option>
+<option value="team">Per Team</option>
+</select>
 
- <div id="sideWinners"></div>
+<div id="sideWinners"></div>
 
- <button onclick="closeSideBet()">Cancel</button>
+<button onclick="closeSideBet()">Cancel</button>
 
- </div>
 </div>
-
-<!-- SCRIPTS -->
+</div>
 
 <script src="games/skins.js"></script>
 <script src="games/vegas.js"></script>
@@ -211,11 +192,9 @@
 <script src="games/sidebets.js"></script>
 <script src="app.js"></script>
 
-<!-- SERVICE WORKER -->
-
 <script>
 if ("serviceWorker" in navigator) {
- navigator.serviceWorker.register("./service-worker.js");
+navigator.serviceWorker.register("./service-worker.js");
 }
 </script>
 

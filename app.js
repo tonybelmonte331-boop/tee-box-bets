@@ -40,6 +40,8 @@ const backWager = document.getElementById("backWager");
 const totalWager = document.getElementById("totalWager");
 const holeLimitSelect = document.getElementById("holeLimit");
 
+const lockedNotice = document.getElementById("lockedNotice");
+
 /* ================= STATE ================= */
 
 let currentGame;
@@ -60,19 +62,25 @@ document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 document.getElementById(id).classList.remove("hidden");
 }
 
-window.goHome = ()=> show("step-home");
-window.goGameSelect = ()=> show("step-game");
-window.showRules = ()=> show("rules-screen");
+window.goHome=()=>show("step-home");
+window.goGameSelect=()=>show("step-game");
+window.showRules=()=>show("rules-screen");
 
 /* ================= GAME SELECT ================= */
 
 window.selectGame = game =>{
 currentGame = game;
 
+const playStyleBox = document.getElementById("playStyle");
+
 if(game==="vegas" || game==="nassau"){
-document.getElementById("playStyle").classList.add("hidden");
+lockedNotice.classList.remove("hidden");
+playStyleBox.classList.add("hidden");
+playStyle="teams";
+playerCount=4;
 }else{
-document.getElementById("playStyle").classList.remove("hidden");
+lockedNotice.classList.add("hidden");
+playStyleBox.classList.remove("hidden");
 }
 
 if(game==="nassau"){
@@ -104,7 +112,7 @@ return;
 playStyle=document.getElementById("playStyle").value;
 playerCount=parseInt(document.getElementById("playerCount").value);
 
-playStyle==="teams" ? show("step-teams") : buildPlayers();
+playStyle==="teams"?show("step-teams"):buildPlayers();
 };
 
 window.nextPlayers = ()=>{
@@ -117,8 +125,8 @@ function buildPlayers(){
 teamAInputs.innerHTML="";
 teamBInputs.innerHTML="";
 
-teamALabel.textContent = playStyle==="teams"?teamAName:"Players";
-teamBLabel.textContent = playStyle==="teams"?teamBName:"";
+teamALabel.textContent=playStyle==="teams"?teamAName:"Players";
+teamBLabel.textContent=playStyle==="teams"?teamBName:"";
 
 if(playStyle==="teams"){
 for(let i=0;i<2;i++){
@@ -134,7 +142,7 @@ teamAInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
 show("step-players");
 }
 
-window.nextSettings = ()=> show("step-settings");
+window.nextSettings=()=>show("step-settings");
 
 /* ================= HISTORY ================= */
 
@@ -142,8 +150,8 @@ function saveState(){
 historyStack.push({
 hole,
 ledger: JSON.parse(JSON.stringify(ledger)),
-skins: currentGame==="skins" ? skinsGame.getState() : null,
-nassau: currentGame==="nassau" ? nassauGame.getState() : null
+skins: currentGame==="skins"?skinsGame.getState():null,
+nassau: currentGame==="nassau"?nassauGame.getState():null
 });
 }
 
@@ -178,8 +186,8 @@ ledger[i.value]=0;
 teams.B.push(i.value);
 });
 
-baseWager = +document.getElementById("baseWager").value;
-holeLimit = currentGame==="nassau" ? 18 : +holeLimitSelect.value;
+baseWager=+document.getElementById("baseWager").value;
+holeLimit=currentGame==="nassau"?18:+holeLimitSelect.value;
 
 if(currentGame==="skins") skinsGame.reset(baseWager);
 if(currentGame==="nassau") nassauGame.reset();
@@ -192,6 +200,7 @@ teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
 
 if(currentGame==="nassau") buildNassauButtons();
+
 buildWinnerButtons();
 updateUI();
 show("game-screen");
@@ -270,7 +279,6 @@ saveState();
 nassauGame.recordHole(team,hole);
 
 if(hole===9) nassauGame.settleFront(+frontWager.value,teams,ledger);
-
 if(hole===18){
 nassauGame.settleBack(+backWager.value,teams,ledger);
 nassauGame.settleOverall(+totalWager.value,teams,ledger);
@@ -284,20 +292,26 @@ saveState();
 nextHole();
 };
 
-/* ================= SIDE BET ================= */
+/* ================= SIDE BET (FIXED) ================= */
+
+sideMode.onchange = buildSideButtons;
 
 sideBetBtn.onclick = ()=>{
+buildSideButtons();
+sideBetModal.classList.remove("hidden");
+};
+
+function buildSideButtons(){
 sideWinners.innerHTML="";
 sideBets.setAmount(+sideAmount.value);
 sideBets.setMode(sideMode.value);
-
-saveState();
 
 if(sideMode.value==="player"){
 players.forEach(p=>{
 const btn=document.createElement("button");
 btn.textContent=p;
 btn.onclick=()=>{
+saveState();
 sideBets.applyPlayer(p,players,ledger);
 updateUI();
 sideBetModal.classList.add("hidden");
@@ -309,6 +323,7 @@ sideWinners.appendChild(btn);
 const btn=document.createElement("button");
 btn.textContent=t==="A"?teamAName:teamBName;
 btn.onclick=()=>{
+saveState();
 sideBets.applyTeam(t,teams,ledger);
 updateUI();
 sideBetModal.classList.add("hidden");
@@ -316,9 +331,7 @@ sideBetModal.classList.add("hidden");
 sideWinners.appendChild(btn);
 });
 }
-
-sideBetModal.classList.remove("hidden");
-};
+}
 
 /* ================= FLOW ================= */
 
@@ -347,7 +360,7 @@ potDisplay.textContent=`Front ${s.frontA}-${s.frontB} | Back ${s.backA}-${s.back
 leaderboard.innerHTML=players.map(p=>`${p}: $${ledger[p]}`).join("<br>");
 }
 
-leaderboardFinishBtn.onclick = ()=>{
+leaderboardFinishBtn.onclick=()=>{
 leaderboardModal.classList.add("hidden");
 show("step-home");
 };
