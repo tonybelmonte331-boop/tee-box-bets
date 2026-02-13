@@ -42,6 +42,11 @@ const holeLimitSelect = document.getElementById("holeLimit");
 
 const lockedNotice = document.getElementById("lockedNotice");
 
+const playStyleBox = document.getElementById("playStyle");
+const playerCountBox = document.getElementById("playerCount");
+const playStyleLabel = document.getElementById("playStyleLabel");
+const playerCountLabel = document.getElementById("playerCountLabel");
+
 /* ================= STATE ================= */
 
 let currentGame;
@@ -54,33 +59,51 @@ let holeLimit=9;
 let baseWager=0;
 
 let historyStack=[];
+let screenHistory=[];
 
 /* ================= NAV ================= */
 
 function show(id){
+const current = document.querySelector("section:not(.hidden)");
+if(current) screenHistory.push(current.id);
+
 document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
 document.getElementById(id).classList.remove("hidden");
 }
 
-window.goHome=()=>show("step-home");
-window.goGameSelect=()=>show("step-game");
-window.showRules=()=>show("rules-screen");
+window.goBack = ()=>{
+if(!screenHistory.length) return;
+const prev = screenHistory.pop();
+document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+document.getElementById(prev).classList.remove("hidden");
+};
+
+window.goHome = ()=> show("step-home");
+window.goGameSelect = ()=> show("step-game");
+window.showRules = ()=> show("rules-screen");
 
 /* ================= GAME SELECT ================= */
 
 window.selectGame = game =>{
 currentGame = game;
 
-const playStyleBox = document.getElementById("playStyle");
-
 if(game==="vegas" || game==="nassau"){
 lockedNotice.classList.remove("hidden");
+
 playStyleBox.classList.add("hidden");
+playerCountBox.classList.add("hidden");
+playStyleLabel.classList.add("hidden");
+playerCountLabel.classList.add("hidden");
+
 playStyle="teams";
 playerCount=4;
 }else{
 lockedNotice.classList.add("hidden");
+
 playStyleBox.classList.remove("hidden");
+playerCountBox.classList.remove("hidden");
+playStyleLabel.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
 }
 
 if(game==="nassau"){
@@ -103,16 +126,14 @@ show("step-style");
 
 window.nextTeams = ()=>{
 if(currentGame==="vegas" || currentGame==="nassau"){
-playStyle="teams";
-playerCount=4;
 show("step-teams");
 return;
 }
 
-playStyle=document.getElementById("playStyle").value;
-playerCount=parseInt(document.getElementById("playerCount").value);
+playStyle = playStyleBox.value;
+playerCount = parseInt(playerCountBox.value);
 
-playStyle==="teams"?show("step-teams"):buildPlayers();
+playStyle==="teams" ? show("step-teams") : buildPlayers();
 };
 
 window.nextPlayers = ()=>{
@@ -292,7 +313,7 @@ saveState();
 nextHole();
 };
 
-/* ================= SIDE BET (FIXED) ================= */
+/* ================= SIDE BET ================= */
 
 sideMode.onchange = buildSideButtons;
 

@@ -35,14 +35,14 @@
 <h3>Nassau</h3>
 <p>Team match: Front 9, Back 9, Total Round.</p>
 
-<button onclick="goHome()">Back</button>
+<button onclick="goBack()">Back</button>
 </section>
 
 <section id="step-game" class="hidden">
 <button onclick="selectGame('skins')">Skins</button>
 <button onclick="selectGame('vegas')">Vegas</button>
 <button onclick="selectGame('nassau')">Nassau</button>
-<button onclick="goHome()">Back</button>
+<button onclick="goBack()">Back</button>
 </section>
 
 <section id="step-style" class="hidden">
@@ -65,14 +65,14 @@ This game is played with two teams of 2
 </select>
 
 <button onclick="nextTeams()">Next</button>
-<button onclick="goGameSelect()">Back</button>
+<button onclick="goBack()">Back</button>
 </section>
 
 <section id="step-teams" class="hidden">
 <input id="teamAName" placeholder="Team 1 Name">
 <input id="teamBName" placeholder="Team 2 Name">
 <button onclick="nextPlayers()">Next</button>
-<button onclick="goGameSelect()">Back</button>
+<button onclick="goBack()">Back</button>
 </section>
 
 <section id="step-players" class="hidden">
@@ -83,12 +83,17 @@ This game is played with two teams of 2
 <div id="teamBInputs"></div>
 
 <button onclick="nextSettings()">Next</button>
-<button onclick="goGameSelect()">Back</button>
+<button onclick="goBack()">Back</button>
 </section>
 
 <section id="step-settings" class="hidden">
 
-<input id="baseWager" type="number" placeholder="Base wager">
+<!-- Base wager -->
+<div class="money-input">
+<span>$</span>
+<input id="baseWager" type="number" placeholder="0">
+</div>
+
 <p id="wagerLabel"></p>
 
 <select id="holeLimit">
@@ -97,14 +102,27 @@ This game is played with two teams of 2
 </select>
 
 <div id="nassauWagers" class="hidden">
-<input id="frontWager" type="number" placeholder="Front 9 wager">
-<input id="backWager" type="number" placeholder="Back 9 wager">
-<input id="totalWager" type="number" placeholder="Total round wager">
+
+<div class="money-input">
+<span>$</span>
+<input id="frontWager" type="number" placeholder="0">
+</div>
+
+<div class="money-input">
+<span>$</span>
+<input id="backWager" type="number" placeholder="0">
+</div>
+
+<div class="money-input">
+<span>$</span>
+<input id="totalWager" type="number" placeholder="0">
+</div>
+
 <p>Nassau always plays 18 holes</p>
 </div>
 
 <button onclick="startRound()">Start</button>
-<button onclick="goGameSelect()">Back</button>
+<button onclick="goBack()">Back</button>
 </section>
 
 <section id="game-screen" class="hidden">
@@ -172,7 +190,10 @@ This game is played with two teams of 2
 
 <h3>Side Bet</h3>
 
-<input id="sideAmount" type="number" placeholder="Wager amount">
+<div class="money-input">
+<span>$</span>
+<input id="sideAmount" type="number" placeholder="0">
+</div>
 
 <select id="sideMode">
 <option value="player">Per Player</option>
@@ -181,7 +202,7 @@ This game is played with two teams of 2
 
 <div id="sideWinners"></div>
 
-<button onclick="closeSideBet()">Cancel</button>
+<button onclick="sideBetModal.classList.add('hidden')">Cancel</button>
 
 </div>
 </div>
