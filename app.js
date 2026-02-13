@@ -48,6 +48,14 @@ const playerCountBox = document.getElementById("playerCount");
 const playStyleLabel = document.getElementById("playStyleLabel");
 const playerCountLabel = document.getElementById("playerCountLabel");
 
+
+birdieToggle.onchange = () => {
+if (birdieToggle.checked) eagleToggle.checked = false;
+};
+
+eagleToggle.onchange = () => {
+if (eagleToggle.checked) birdieToggle.checked = false;
+};
 /* ================= STATE ================= */
 
 let currentGame;
