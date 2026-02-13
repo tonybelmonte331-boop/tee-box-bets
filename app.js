@@ -323,8 +323,15 @@ sideBetModal.classList.remove("hidden");
 };
 
 function buildSideButtons(){
+
+const amount = +sideAmount.value;
+if(!amount || amount <= 0){
+sideWinners.innerHTML = "<p>Enter wager first</p>";
+return;
+}
+
 sideWinners.innerHTML="";
-sideBets.setAmount(+sideAmount.value);
+sideBets.setAmount(amount);
 sideBets.setMode(sideMode.value);
 
 if(sideMode.value==="player"){
@@ -334,6 +341,7 @@ btn.textContent=p;
 btn.onclick=()=>{
 saveState();
 sideBets.applyPlayer(p,players,ledger);
+sideAmount.value=""; // reset
 updateUI();
 sideBetModal.classList.add("hidden");
 };
@@ -346,6 +354,7 @@ btn.textContent=t==="A"?teamAName:teamBName;
 btn.onclick=()=>{
 saveState();
 sideBets.applyTeam(t,teams,ledger);
+sideAmount.value=""; // reset
 updateUI();
 sideBetModal.classList.add("hidden");
 };
