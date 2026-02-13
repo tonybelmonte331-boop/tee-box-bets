@@ -8,7 +8,6 @@
 
 <link rel="stylesheet" href="style.css">
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#041a13">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -88,8 +87,8 @@ This game is played with two teams of 2
 
 <section id="step-settings" class="hidden">
 
-<!-- Base wager -->
-<div class="money-input">
+<!-- BASE WAGER (WRAPPED) -->
+<div id="baseWagerWrapper" class="money-input">
 <span>$</span>
 <input id="baseWager" type="number" placeholder="0">
 </div>
@@ -131,6 +130,7 @@ This game is played with two teams of 2
 <h3 id="potDisplay"></h3>
 
 <button onclick="undoHole()">⬅ Undo Previous Hole</button>
+<button onclick="endRoundNow()">End Round</button>
 
 <!-- SKINS -->
 <div id="skinsBox">
@@ -153,12 +153,10 @@ This game is played with two teams of 2
 <!-- VEGAS -->
 <div id="vegasBox" class="hidden">
 
-<h4 id="teamABox"></h4>
 <div id="teamAPlayers"></div>
 <input id="a1" type="number">
 <input id="a2" type="number">
 
-<h4 id="teamBBox"></h4>
 <div id="teamBPlayers"></div>
 <input id="b1" type="number">
 <input id="b2" type="number">
@@ -175,7 +173,6 @@ This game is played with two teams of 2
 
 </section>
 
-<!-- END MODAL -->
 <div id="leaderboardModal" class="modal hidden">
 <div class="modal-box">
 <h3>Round Results</h3>
@@ -184,7 +181,6 @@ This game is played with two teams of 2
 </div>
 </div>
 
-<!-- SIDE BET MODAL -->
 <div id="sideBetModal" class="modal hidden">
 <div class="modal-box">
 
