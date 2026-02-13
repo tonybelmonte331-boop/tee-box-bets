@@ -369,6 +369,7 @@ sideWinners.appendChild(btn);
 
 function nextHole(){
 if(hole>=holeLimit){
+updateUI();
 leaderboardModalList.innerHTML=leaderboard.innerHTML;
 leaderboardModal.classList.remove("hidden");
 return;

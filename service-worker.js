@@ -1,4 +1,4 @@
-const CACHE_NAME = "teeboxbets-v1";
+const CACHE_NAME = "teeboxbets-v2";
 
 const FILES_TO_CACHE = [
 "./",
