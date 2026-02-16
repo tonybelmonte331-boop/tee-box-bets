@@ -428,7 +428,7 @@ leaderboardModal.classList.add("hidden");
 show("step-home");
 };
 
-window.saveProfle = ()=>{
+window.saveProfile = ()=>{
     const name = document.getElementById("profileName").value.trim();
     const handicap = parseFloat(document.getElementById("profileHandicap").value) || 0;
 
