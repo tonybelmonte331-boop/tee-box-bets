@@ -170,22 +170,36 @@ function buildPlayers(){
 teamAInputs.innerHTML="";
 teamBInputs.innerHTML="";
 
-teamALabel.textContent=playStyle==="teams"?teamAName:"Players";
-teamBLabel.textContent=playStyle==="teams"?teamBName:"";
+teamALabel.textContent = playStyle==="teams" ? teamAName : "Players";
+teamBLabel.textContent = playStyle==="teams" ? teamBName : "";
+
+const userName = userProfile ? userProfile.name : "";
 
 if(playStyle==="teams"){
-for(let i=0;i<2;i++){
-teamAInputs.innerHTML+=`<input value="${userProfile.name}">`;
-teamBInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
-}
+
+// TEAM A
+teamAInputs.innerHTML += `<input value="${userName}">`; // Player 1 auto-fill
+teamAInputs.innerHTML += `<input placeholder="Player 2 name">`; // Player 2 blank
+
+// TEAM B (both blank)
+teamBInputs.innerHTML += `<input placeholder="Player 1 name">`;
+teamBInputs.innerHTML += `<input placeholder="Player 2 name">`;
+
 }else{
+
+// FFA mode
 for(let i=0;i<playerCount;i++){
-teamAInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
+if(i===0 && userName){
+teamAInputs.innerHTML += `<input value="${userName}">`;
+}else{
+teamAInputs.innerHTML += `<input placeholder="Player ${i+1} name">`;
+}
 }
 }
 
 show("step-players");
 }
+
 
 window.nextSettings=()=>show("step-settings");
 
