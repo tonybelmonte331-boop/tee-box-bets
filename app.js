@@ -56,12 +56,17 @@ if (birdieToggle.checked) eagleToggle.checked = false;
 eagleToggle.onchange = () => {
 if (eagleToggle.checked) birdieToggle.checked = false;
 };
+
+if(!userProfile){
+    show("profile-setup");
+}
 /* ================= STATE ================= */
 
 let currentGame;
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
+let userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
 let hole=1;
 let holeLimit=9;
@@ -160,7 +165,7 @@ teamBLabel.textContent=playStyle==="teams"?teamBName:"";
 
 if(playStyle==="teams"){
 for(let i=0;i<2;i++){
-teamAInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
+teamAInputs.innerHTML+=`<input value="${userProfile.name}">`;
 teamBInputs.innerHTML+=`<input placeholder="Player ${i+1} name">`;
 }
 }else{
@@ -411,4 +416,27 @@ leaderboardModal.classList.remove("hidden");
 leaderboardFinishBtn.onclick=()=>{
 leaderboardModal.classList.add("hidden");
 show("step-home");
+};
+
+window.saveProfle = ()=>{
+    const name = document.getElementById("profileName").value.trim();
+    const handicap = parseFloat(document.getElementById("profileHandicap").value) || 0;
+
+    if(!name){
+        alert("Please enter your name");
+        return;
+    }
+    userProfile = {
+        name,
+        startingHandicap: handicap,
+        currentHandicap: handicap,
+        rounds: [],
+        bettingStats: {
+            totalWon: 0,
+            totalLost: 0,
+            totalPlayed: 0,
+        }
+    };
+    localStorage.setItem("userProfile", JSON.stringify(userProfile));
+    show("step-home");
 };
