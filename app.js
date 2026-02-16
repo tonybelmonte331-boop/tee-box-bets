@@ -1,3 +1,20 @@
+/* ================= STATE ================= */
+
+let userProfile = JSON.parse(localStorage.getItem("userProfile"));
+
+let currentGame;
+let playStyle, playerCount;
+let teamAName="", teamBName="";
+let players=[], teams={A:[],B:[]}, ledger={};
+
+let hole=1;
+let holeLimit=9;
+let baseWager=0;
+
+let historyStack=[];
+let screenHistory=[];
+
+
 /* ================= DOM ================= */
 
 const winnerButtons = document.getElementById("winnerButtons");
@@ -49,31 +66,24 @@ const playStyleLabel = document.getElementById("playStyleLabel");
 const playerCountLabel = document.getElementById("playerCountLabel");
 
 
+/* ================= PROFILE CHECK ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+ if(!userProfile){
+ show("profile-setup");
+ }
+});
+
+
+/* ================= UI TOGGLES ================= */
+
 birdieToggle.onchange = () => {
-if (birdieToggle.checked) eagleToggle.checked = false;
+ if (birdieToggle.checked) eagleToggle.checked = false;
 };
 
 eagleToggle.onchange = () => {
-if (eagleToggle.checked) birdieToggle.checked = false;
+ if (eagleToggle.checked) birdieToggle.checked = false;
 };
-
-if(!userProfile){
-    show("profile-setup");
-}
-/* ================= STATE ================= */
-
-let currentGame;
-let playStyle, playerCount;
-let teamAName="", teamBName="";
-let players=[], teams={A:[],B:[]}, ledger={};
-let userProfile = JSON.parse(localStorage.getItem("userProfile"));
-
-let hole=1;
-let holeLimit=9;
-let baseWager=0;
-
-let historyStack=[];
-let screenHistory=[];
 
 /* ================= NAV ================= */
 
