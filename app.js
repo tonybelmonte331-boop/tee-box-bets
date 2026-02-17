@@ -14,6 +14,7 @@ let baseWager=0;
 let historyStack=[];
 let screenHistory=[];
 
+let currentRound = null;
 
 /* ================= DOM ================= */
 
@@ -464,3 +465,86 @@ window.saveProfile = ()=>{
     localStorage.setItem("userProfile", JSON.stringify(userProfile));
     show("step-home");
 };
+
+/* ================= ROUND TRACKING ================= */
+
+window.startNewRound = (holes, courseName, rating, slope) => {
+
+ currentRound = {
+ date: new Date().toISOString(),
+ courseName,
+ holes: holes,
+ rating: parseFloat(rating),
+ slope: parseInt(slope),
+ holeData: [],
+ gross: 0,
+ toPar: 0,
+ differential: 0
+ };
+
+ for(let i=0;i<holes;i++){
+ currentRound.holeData.push({
+ par: 0,
+ score: 0
+ });
+ }
+};
+
+window.enterHoleScore = (holeIndex, par, score) => {
+
+ currentRound.holeData[holeIndex].par = parseInt(par);
+ currentRound.holeData[holeIndex].score = parseInt(score);
+
+ calculateRoundTotals();
+};
+
+function calculateRoundTotals(){
+
+ let gross = 0;
+ let totalPar = 0;
+
+ currentRound.holeData.forEach(h => {
+ gross += h.score;
+ totalPar += h.par;
+ });
+
+ currentRound.gross = gross;
+ currentRound.toPar = gross - totalPar;
+
+ // Handicap differential formula
+ currentRound.differential =
+ ((gross - currentRound.rating) * 113) / currentRound.slope;
+}
+
+window.finishTrackedRound = () => {
+
+ if(!userProfile.rounds){
+ userProfile.rounds = [];
+ }
+
+ userProfile.rounds.push(currentRound);
+
+ recalculateHandicap();
+
+ localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+ currentRound = null;
+};
+
+function recalculateHandicap(){
+
+ if(userProfile.rounds.length < 3){
+ userProfile.currentHandicap = userProfile.startingHandicap;
+ return;
+ }
+
+ const diffs = userProfile.rounds
+ .map(r => r.differential)
+ .sort((a,b)=>a-b);
+
+ const lowest = diffs.slice(0, Math.min(8, diffs.length));
+
+ const avg = lowest.reduce((a,b)=>a+b,0) / lowest.length;
+
+ userProfile.currentHandicap = parseFloat(avg.toFixed(1));
+}
