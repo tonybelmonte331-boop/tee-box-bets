@@ -468,83 +468,117 @@ window.saveProfile = ()=>{
 
 /* ================= ROUND TRACKING ================= */
 
-window.startNewRound = (holes, courseName, rating, slope) => {
+let currentRound = null;
+let roundHistory = [];
 
- currentRound = {
- date: new Date().toISOString(),
- courseName,
- holes: holes,
- rating: parseFloat(rating),
- slope: parseInt(slope),
- holeData: [],
- gross: 0,
- toPar: 0,
- differential: 0
- };
+window.startRoundTracking = () => {
 
- for(let i=0;i<holes;i++){
- currentRound.holeData.push({
- par: 0,
- score: 0
- });
- }
+currentRound = {
+course: document.getElementById("courseName").value || "Unknown Course",
+rating: parseFloat(document.getElementById("courseRating").value) || 72,
+slope: parseInt(document.getElementById("courseSlope").value) || 113,
+holes: parseInt(document.getElementById("roundHoles").value),
+currentHole: 1,
+scores: [],
+pars: [],
+totalStrokes: 0,
+totalPar: 0
 };
 
-window.enterHoleScore = (holeIndex, par, score) => {
+roundHistory = [];
 
- currentRound.holeData[holeIndex].par = parseInt(par);
- currentRound.holeData[holeIndex].score = parseInt(score);
-
- calculateRoundTotals();
+updateRoundUI();
+show("round-play");
 };
 
-function calculateRoundTotals(){
+function updateRoundUI(){
+document.getElementById("roundHoleDisplay").textContent =
+`Hole ${currentRound.currentHole} of ${currentRound.holes}`;
 
- let gross = 0;
- let totalPar = 0;
+const toPar = currentRound.totalStrokes - currentRound.totalPar;
+const handicap = userProfile?.currentHandicap || 0;
 
- currentRound.holeData.forEach(h => {
- gross += h.score;
- totalPar += h.par;
- });
+const courseHandicap =
+Math.round((handicap * currentRound.slope) / 113);
 
- currentRound.gross = gross;
- currentRound.toPar = gross - totalPar;
+const net = currentRound.totalStrokes - courseHandicap;
 
- // Handicap differential formula
- currentRound.differential =
- ((gross - currentRound.rating) * 113) / currentRound.slope;
+document.getElementById("roundLiveStats").textContent =
+`Total: ${currentRound.totalStrokes} | To Par: ${toPar >= 0 ? "+"+toPar : toPar} | Net: ${net}`;
 }
 
-window.finishTrackedRound = () => {
+window.submitHoleScore = () => {
 
- if(!userProfile.rounds){
- userProfile.rounds = [];
- }
+const score = parseInt(document.getElementById("holeScore").value);
+const par = parseInt(document.getElementById("holePar").value);
 
- userProfile.rounds.push(currentRound);
+if(!score || score <= 0) return;
 
- recalculateHandicap();
+roundHistory.push(JSON.parse(JSON.stringify(currentRound)));
 
- localStorage.setItem("userProfile", JSON.stringify(userProfile));
+currentRound.scores.push(score);
+currentRound.pars.push(par);
 
- currentRound = null;
+currentRound.totalStrokes += score;
+currentRound.totalPar += par;
+
+document.getElementById("holeScore").value = "";
+
+if(currentRound.currentHole >= currentRound.holes){
+finishTrackedRound();
+return;
+}
+
+currentRound.currentHole++;
+updateRoundUI();
 };
 
-function recalculateHandicap(){
+window.undoRoundHole = () => {
+if(!roundHistory.length) return;
+currentRound = roundHistory.pop();
+updateRoundUI();
+};
 
- if(userProfile.rounds.length < 3){
- userProfile.currentHandicap = userProfile.startingHandicap;
- return;
- }
+function finishTrackedRound(){
 
- const diffs = userProfile.rounds
- .map(r => r.differential)
- .sort((a,b)=>a-b);
+const toPar = currentRound.totalStrokes - currentRound.totalPar;
 
- const lowest = diffs.slice(0, Math.min(8, diffs.length));
+userProfile.rounds.push({
+date: new Date().toISOString(),
+course: currentRound.course,
+strokes: currentRound.totalStrokes,
+toPar,
+holes: currentRound.holes
+});
 
- const avg = lowest.reduce((a,b)=>a+b,0) / lowest.length;
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
- userProfile.currentHandicap = parseFloat(avg.toFixed(1));
+alert("Round Saved!");
+
+show("step-home");
 }
+
+window.openScorecard = () => {
+
+let html = "<table style='width:100%;text-align:center'>";
+html += "<tr><th>Hole</th><th>Par</th><th>Score</th><th>+/-</th></tr>";
+
+for(let i=0;i<currentRound.scores.length;i++){
+const diff = currentRound.scores[i] - currentRound.pars[i];
+html += `<tr>
+<td>${i+1}</td>
+<td>${currentRound.pars[i]}</td>
+<td>${currentRound.scores[i]}</td>
+<td>${diff >= 0 ? "+"+diff : diff}</td>
+</tr>`;
+}
+
+html += "</table>";
+
+document.getElementById("scorecardTable").innerHTML = html;
+document.getElementById("scorecardModal").classList.remove("hidden");
+};
+
+window.closeScorecard = () => {
+document.getElementById("scorecardModal").classList.add("hidden");
+};
