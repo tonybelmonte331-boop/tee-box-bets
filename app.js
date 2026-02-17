@@ -491,33 +491,35 @@ show("round-play");
 };
 
 function updateRoundUI(){
+
+if(!currentRound) return;
+
 document.getElementById("roundHoleDisplay").textContent =
 `Hole ${currentRound.currentHole} of ${currentRound.holes}`;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
-const handicap = userProfile && userProfile.currentHandicap ? userProfile.currentHandicap : 0;
+
+const handicap = userProfile && userProfile.currentHandicap
+? userProfile.currentHandicap
+: 0;
 
 const courseHandicap =
 Math.round((handicap * currentRound.slope) / 113);
 
 const net = currentRound.totalStrokes - courseHandicap;
 
+// Live stats
 document.getElementById("roundLiveStats").textContent =
 `Total: ${currentRound.totalStrokes} | To Par: ${toPar >= 0 ? "+"+toPar : toPar} | Net: ${net}`;
+
+// 👇 Course Info Display
+document.getElementById("roundCourseInfo").textContent =
+`${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}`;
 }
 
-function finishTrackedRound(){
-    const toPar = currentRound.totalStrokes - currentRound.totalPar;
-
-userProfile.rounds.push({
-date: new Date().toISOString(),
-course: currentRound.course,
-strokes: currentRound.totalStrokes,
-toPar,
-holes: currentRound.holes
-});
-}
 window.submitHoleScore = () => {
+
+if(!currentRound) return;
 
 const score = parseInt(document.getElementById("holeScore").value);
 const par = parseInt(document.getElementById("holePar").value);
@@ -544,19 +546,39 @@ updateRoundUI();
 };
 
 window.undoRoundHole = () => {
+
 if(!roundHistory.length) return;
+
 currentRound = roundHistory.pop();
 updateRoundUI();
 };
 
+function finishTrackedRound(){
+
+if(!currentRound) return;
+
+const toPar = currentRound.totalStrokes - currentRound.totalPar;
+
+userProfile.rounds.push({
+date: new Date().toISOString(),
+course: currentRound.course,
+strokes: currentRound.totalStrokes,
+toPar,
+holes: currentRound.holes
+});
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 alert("Round Saved!");
 
+currentRound = null;
+
 show("step-home");
+}
 
 window.openScorecard = () => {
+
+if(!currentRound) return;
 
 let html = "<table style='width:100%;text-align:center'>";
 html += "<tr><th>Hole</th><th>Par</th><th>Score</th><th>+/-</th></tr>";
