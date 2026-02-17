@@ -468,7 +468,6 @@ window.saveProfile = ()=>{
 
 /* ================= ROUND TRACKING ================= */
 
-let currentRound = null;
 let roundHistory = [];
 
 window.startRoundTracking = () => {
@@ -496,7 +495,7 @@ document.getElementById("roundHoleDisplay").textContent =
 `Hole ${currentRound.currentHole} of ${currentRound.holes}`;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
-const handicap = userProfile && userProfileProfile.currentHandicap ? userProfile.currentHandicap : 0;
+const handicap = userProfile && userProfile.currentHandicap ? userProfile.currentHandicap : 0;
 
 const courseHandicap =
 Math.round((handicap * currentRound.slope) / 113);
@@ -517,7 +516,7 @@ strokes: currentRound.totalStrokes,
 toPar,
 holes: currentRound.holes
 });
-
+}
 window.submitHoleScore = () => {
 
 const score = parseInt(document.getElementById("holeScore").value);
@@ -556,7 +555,6 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 alert("Round Saved!");
 
 show("step-home");
-}
 
 window.openScorecard = () => {
 
