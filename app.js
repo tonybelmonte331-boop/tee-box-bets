@@ -496,7 +496,7 @@ document.getElementById("roundHoleDisplay").textContent =
 `Hole ${currentRound.currentHole} of ${currentRound.holes}`;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
-const handicap = userProfile?.currentHandicap || 0;
+const handicap = userProfile && userProfileProfile.currentHandicap ? userProfile.currentHandicap : 0;
 
 const courseHandicap =
 Math.round((handicap * currentRound.slope) / 113);
@@ -506,6 +506,17 @@ const net = currentRound.totalStrokes - courseHandicap;
 document.getElementById("roundLiveStats").textContent =
 `Total: ${currentRound.totalStrokes} | To Par: ${toPar >= 0 ? "+"+toPar : toPar} | Net: ${net}`;
 }
+
+function finishTrackedRound(){
+    const toPar = currentRound.totalStrokes - currentRound.totalPar;
+
+userProfile.rounds.push({
+date: new Date().toISOString(),
+course: currentRound.course,
+strokes: currentRound.totalStrokes,
+toPar,
+holes: currentRound.holes
+});
 
 window.submitHoleScore = () => {
 
@@ -539,17 +550,6 @@ currentRound = roundHistory.pop();
 updateRoundUI();
 };
 
-function finishTrackedRound(){
-
-const toPar = currentRound.totalStrokes - currentRound.totalPar;
-
-userProfile.rounds.push({
-date: new Date().toISOString(),
-course: currentRound.course,
-strokes: currentRound.totalStrokes,
-toPar,
-holes: currentRound.holes
-});
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
