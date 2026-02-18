@@ -654,7 +654,26 @@ window.editProfile = () => {
 
 document.getElementById("profileName").value = userProfile.name;
 document.getElementById("profileHandicap").value = userProfile.currentHandicap;
+document.getElementById("profileSaveBtn").textContent = "Save Profile";
 
 show("profile-setup");
 
+};
+window.saveProfileChanges = () => {
+
+const name = document.getElementById("profileName").value.trim();
+const handicap = parseFloat(document.getElementById("profileHandicap").value) || 0;
+
+if(!name){
+alert("Please enter your name");
+return;
+}
+
+userProfile.name = name;
+userProfile.currentHandicap = handicap;
+
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+renderProfile();
+show("step-home");
 };
