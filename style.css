@@ -13,7 +13,7 @@ color: white;
 overflow-x: hidden;
 }
 
-/* ================= HEADER ================= */
+/* ===== HEADER ===== */
 
 header{
 position: fixed;
@@ -45,204 +45,137 @@ color:white;
 font-size:18px;
 padding:8px 10px;
 border-radius:10px;
-display:none;
 cursor:pointer;
+display:none;
 }
 
+#navBack:active{
+transform:translateY(-50%) scale(.92);
+}
+
+/* ===== LAYOUT ===== */
 
 main{
 padding-top:60px;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
 }
 
-
-/* ================= LAYOUT ================= */
-
-main {
-min-height: 100vh;
-padding-top: 60px;
-display: flex;
-justify-content: center;
-align-items: center;
-position: relative;
-overflow: hidden;
+section{
+width:100%;
+max-width:420px;
+padding:20px;
+animation:slideIn .25s ease;
 }
 
-section {
-width: 100%;
-max-width: 420px;
-padding: 20px;
-animation: slideIn .25s ease;
+.hidden{
+display:none !important;
 }
 
-.hidden {
-display: none !important;
+/* ===== INPUTS ===== */
+
+input, select, button{
+width:100%;
+padding:14px;
+margin:10px 0;
+border-radius:14px;
+border:none;
+font-size:16px;
 }
 
-/* ================= NAV BAR ================= */
-
-.has-nav {
-padding-top: 110px; /* header (60) + nav bar (50) */
+input, select{
+background:#e6f5ee;
+color:black;
 }
 
-.nav-bar {
-position: fixed;
-top: 60px;
-left: 0;
-right: 0;
-height: 50px;
-background: rgba(6,40,29,.96);
-display: flex;
-align-items: center;
-padding: 0 12px;
-backdrop-filter: blur(10px);
-border-bottom: 1px solid rgba(255,255,255,.1);
-z-index: 500;
+button{
+background:#1faa59;
+color:white;
+font-weight:600;
+cursor:pointer;
 }
 
-.nav-back {
-background: none;
-color: white;
-font-size: 18px;
-display: flex;
-align-items: center;
-gap: 6px;
-padding: 8px 12px;
-border-radius: 10px;
-width: auto;
+button:active{
+transform:scale(.97);
 }
 
-.nav-back span {
-font-size: 26px;
-line-height: 0;
+/* ===== MONEY ===== */
+
+.money-input{
+display:flex;
+align-items:center;
+background:#e6f5ee;
+border-radius:14px;
+padding-left:12px;
+margin:10px 0;
 }
 
-.nav-back:active {
-transform: scale(.9);
+.money-input span{
+color:black;
+font-weight:600;
+margin-right:6px;
 }
 
-.nav-title {
-position: absolute;
-left: 50%;
-transform: translateX(-50%);
-font-weight: 600;
-font-size: 18px;
+.money-input input{
+border:none;
+background:transparent;
+margin:0;
+padding:14px 0;
+width:100%;
 }
 
-/* ================= INPUTS ================= */
+/* ===== PROFILE ===== */
 
-input, select, button {
-width: 100%;
-padding: 14px;
-margin: 10px 0;
-border-radius: 14px;
-border: none;
-font-size: 16px;
+.profile-card{
+background:rgba(255,255,255,.12);
+border-radius:16px;
+padding:16px;
+margin:12px 0;
 }
 
-input, select {
-background: #e6f5ee;
-color: black;
+.profile-card h3{
+margin-bottom:8px;
 }
 
-button {
-background: #1faa59;
-color: white;
-font-weight: 600;
-cursor: pointer;
+/* ===== MODALS ===== */
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.75);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:100;
 }
 
-button:active {
-transform: scale(0.97);
+.modal-box{
+background:#06281d;
+padding:20px;
+border-radius:18px;
+width:90%;
+max-width:360px;
 }
 
-/* ================= MONEY ================= */
+/* ===== FLOATING SIDE BET ===== */
 
-.money-input {
-display: flex;
-align-items: center;
-background: #e6f5ee;
-border-radius: 14px;
-padding-left: 12px;
-margin: 10px 0;
+#sideBetBtn{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+padding:14px 28px;
+border-radius:40px;
+box-shadow:0 6px 16px rgba(0,0,0,.35);
+z-index:50;
 }
 
-.money-input span {
-color: black;
-font-weight: 600;
-margin-right: 6px;
-}
+/* ===== ANIMATION ===== */
 
-.money-input input {
-border: none;
-background: transparent;
-padding: 14px 0;
-margin: 0;
-width: 100%;
-}
-
-/* ================= PROFILE ================= */
-
-.profile-card {
-background: rgba(255,255,255,.12);
-border-radius: 16px;
-padding: 16px;
-margin: 12px 0;
-}
-
-.profile-card h3 {
-margin-bottom: 8px;
-}
-
-/* ================= LEADERBOARD ================= */
-
-#leaderboard {
-margin-top: 10px;
-padding-bottom: 120px;
-}
-
-/* ================= MODALS ================= */
-
-.modal {
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,.75);
-display: flex;
-align-items: center;
-justify-content: center;
-z-index: 100;
-}
-
-.modal-box {
-background: #06281d;
-padding: 20px;
-border-radius: 18px;
-width: 90%;
-max-width: 360px;
-}
-
-/* ================= FLOATING SIDE BET ================= */
-
-#sideBetBtn {
-position: fixed;
-bottom: 20px;
-left: 50%;
-transform: translateX(-50%);
-width: auto;
-padding: 14px 28px;
-border-radius: 40px;
-box-shadow: 0 6px 16px rgba(0,0,0,.35);
-z-index: 50;
-}
-
-/* ================= ANIMATION ================= */
-
-@keyframes slideIn {
-from {
-transform: translateX(30px);
-opacity: 0;
-}
-to {
-transform: translateX(0);
-opacity: 1;
-}
+@keyframes slideIn{
+from{transform:translateX(30px);opacity:0}
+to{transform:translateX(0);opacity:1}
 }

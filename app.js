@@ -94,11 +94,18 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
+function resetNav(){
+screenHistory = [];
+document.getElementById("navBack").style.display = "none";
+}
+
 function show(id){
 haptic();
 
 const current = document.querySelector("section:not(.hidden)");
-if(current) screenHistory.push(current.id);
+if(current && current.id !== id){
+screenHistory.push(current.id);
+}
 
 document.querySelectorAll("section").forEach(s=>{
 s.classList.add("hidden");
@@ -127,9 +134,18 @@ document.getElementById("navBack").style.display =
 screenHistory.length ? "block" : "none";
 };
 
-window.goHome=()=>show("step-home");
-window.goGameSelect=()=>show("step-game");
-window.showRules=()=>show("rules-screen");
+window.goHome = () =>{
+resetNav();
+show("step-home");
+};
+
+window.goGameSelect = () =>{
+show("step-game");
+};
+
+window.showRules = () =>{
+show("rules-screen");
+};
 
 /* ================= GAME SELECT ================= */
 
@@ -467,29 +483,6 @@ leaderboardModal.classList.add("hidden");
 show("step-home");
 };
 
-window.saveProfile = ()=>{
-    const name = document.getElementById("profileName").value.trim();
-    const handicap = parseFloat(document.getElementById("profileHandicap").value) || 0;
-
-    if(!name){
-        alert("Please enter your name");
-        return;
-    }
-    userProfile = {
-        name,
-        startingHandicap: handicap,
-        currentHandicap: handicap,
-        rounds: [],
-        bettingStats: {
-            totalWon: 0,
-            totalLost: 0,
-            totalPlayed: 0,
-        }
-    };
-    localStorage.setItem("userProfile", JSON.stringify(userProfile));
-    show("step-home");
-};
-
 /* ================= ROUND TRACKING ================= */
 
 let roundHistory = [];
@@ -669,11 +662,26 @@ alert("Please enter your name");
 return;
 }
 
+if(!userProfile){
+userProfile = {
+name,
+startingHandicap: handicap,
+currentHandicap: handicap,
+rounds: [],
+bettingStats:{
+totalWon:0,
+totalLost:0,
+totalPlayed:0
+}
+};
+}else{
 userProfile.name = name;
 userProfile.currentHandicap = handicap;
+}
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 renderProfile();
+resetNav();
 show("step-home");
 };
