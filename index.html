@@ -22,9 +22,38 @@
 <!-- ================= HOME ================= -->
 
 <section id="step-home">
-<button onclick="goGameSelect()">Play</button>
-<button onclick="showRules()">Rules</button>
-<button onclick="show('round-setup')">Track a Round</button>
+<button onclick="startRoundTracking()">Track a Round</button>
+<button onclick="goGameSelect()">Bet</button>
+<button onclick="openProfile()">Player Profile</button>
+</section>
+
+<!-- ================= PROFILE SCREEN ================= -->
+ <section id="profile-screen" class="hidden">
+
+<button class="back-btn" onclick="goHome()">←</button>
+
+<h2>Your Profile</h2>
+
+<div class="profile-card">
+<h3 id="profileNameDisplay"></h3>
+<p>Handicap: <strong id="profileHandicapDisplay"></strong></p>
+<p>Rounds Played: <strong id="profileRounds"></strong></p>
+<p>Average Score: <strong id="profileAvg"></strong></p>
+</div>
+
+<div class="profile-card">
+<h3>Betting Stats</h3>
+<p>Total + / - : <strong id="betNet"></strong></p>
+<p>Games Played: <strong id="betGames"></strong></p>
+</div>
+
+<div class="profile-card">
+<h3>Recent Rounds</h3>
+<div id="roundList"></div>
+</div>
+
+<button onclick="editProfile()">Edit Profile</button>
+
 </section>
 
 <!-- ================= PROFILE ================= -->
@@ -55,7 +84,7 @@
 <h3>Nassau</h3>
 <p>Team match: Front 9, Back 9, Total Round.</p>
 
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
 <!-- ================= GAME SELECT ================= -->
@@ -64,7 +93,7 @@
 <button onclick="selectGame('skins')">Skins</button>
 <button onclick="selectGame('vegas')">Vegas</button>
 <button onclick="selectGame('nassau')">Nassau</button>
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
 <!-- ================= PLAY STYLE ================= -->
@@ -89,7 +118,7 @@ This game is played with two teams of 2
 </select>
 
 <button onclick="nextTeams()">Next</button>
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
 <!-- ================= TEAMS ================= -->
@@ -98,7 +127,7 @@ This game is played with two teams of 2
 <input id="teamAName" placeholder="Team 1 Name">
 <input id="teamBName" placeholder="Team 2 Name">
 <button onclick="nextPlayers()">Next</button>
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
 <!-- ================= PLAYERS ================= -->
@@ -112,7 +141,7 @@ This game is played with two teams of 2
 <div id="teamBInputs"></div>
 
 <button onclick="nextSettings()">Next</button>
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
 <!-- ================= SETTINGS ================= -->
@@ -152,12 +181,13 @@ This game is played with two teams of 2
 </div>
 
 <button onclick="startRound()">Start</button>
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
 <!-- ================= GAME PLAY ================= -->
 
 <section id="game-screen" class="hidden">
+    <button class="back-btn" onclick="goBack()">&larr;</button>
 
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
@@ -225,7 +255,7 @@ This game is played with two teams of 2
 </select>
 
 <button onclick="startRoundTracking()">Start Round</button>
-<button onclick="goBack()">Back</button>
+<button class="back-btn" onclick="goBack()">&larr;</button>
 
 </section>
 

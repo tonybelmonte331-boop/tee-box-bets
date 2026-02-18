@@ -602,3 +602,39 @@ document.getElementById("scorecardModal").classList.remove("hidden");
 window.closeScorecard = () => {
 document.getElementById("scorecardModal").classList.add("hidden");
 };
+
+/* ================= PROFILE ================= */
+
+window.openProfile = () =>{
+renderProfile();
+show("profile-screen");
+};
+
+function renderProfile(){
+
+if(!userProfile) return;
+
+document.getElementById("profileNameDisplay").textContent = userProfile.name;
+document.getElementById("profileHandicapDisplay").textContent = userProfile.currentHandicap.toFixed(1);
+document.getElementById("profileRounds").textContent = userProfile.rounds.length;
+
+const avg = userProfile.rounds.length
+? Math.round(userProfile.rounds.reduce((a,b)=>a+b.strokes,0) / userProfile.rounds.length)
+: "--";
+
+document.getElementById("profileAvg").textContent = avg;
+
+document.getElementById("betNet").textContent =
+(userProfile.bettingStats.totalWon - userProfile.bettingStats.totalLost).toFixed(2);
+
+document.getElementById("betGames").textContent = userProfile.bettingStats.totalPlayed;
+
+const list = document.getElementById("roundList");
+list.innerHTML="";
+
+[...userProfile.rounds].reverse().slice(0,10).forEach(r=>{
+const div=document.createElement("div");
+div.textContent = `${new Date(r.date).toLocaleDateString()} — ${r.strokes} (${r.toPar>=0?"+":""}${r.toPar})`;
+list.appendChild(div);
+});
+}
