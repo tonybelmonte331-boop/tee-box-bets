@@ -13,6 +13,8 @@ color: white;
 overflow-x: hidden;
 }
 
+/* ================= HEADER ================= */
+
 header {
 height: 60px;
 background: #06281d;
@@ -21,30 +23,82 @@ align-items: center;
 justify-content: center;
 font-size: 22px;
 font-weight: 600;
+position: sticky;
+top: 0;
+z-index: 50;
 }
+
+/* ================= LAYOUT ================= */
 
 main {
 min-height: calc(100vh - 60px);
 display: flex;
 justify-content: center;
 align-items: center;
+position: relative;
+overflow: hidden;
 }
 
 section {
 width: 100%;
 max-width: 420px;
 padding: 20px;
+animation: slideIn .25s ease;
 }
 
 .hidden {
 display: none !important;
 }
 
+/* ================= NAV BAR ================= */
+
+.has-nav {
+padding-top: 60px;
+}
+
+.nav-bar {
+position: fixed;
+top: 60px;
+left: 0;
+right: 0;
+height: 50px;
+background: rgba(6,40,29,.95);
+display: flex;
+align-items: center;
+padding: 0 12px;
+backdrop-filter: blur(8px);
+z-index: 40;
+}
+
+.nav-back {
+background: transparent;
+color: white;
+font-size: 18px;
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 8px 12px;
+border-radius: 10px;
+width: auto;
+}
+
+.nav-back span {
+font-size: 28px;
+line-height: 0;
+margin-top: -2px;
+}
+
+.nav-back:active {
+transform: scale(.9);
+}
+
+/* ================= INPUTS ================= */
+
 input, select, button {
 width: 100%;
 padding: 14px;
 margin: 10px 0;
-border-radius: 12px;
+border-radius: 14px;
 border: none;
 font-size: 16px;
 }
@@ -62,28 +116,55 @@ cursor: pointer;
 }
 
 button:active {
-transform: scale(0.98);
+transform: scale(0.97);
 }
 
-#winnerButtons button {
-margin: 6px 0;
+/* ================= MONEY ================= */
+
+.money-input {
+display: flex;
+align-items: center;
+background: #e6f5ee;
+border-radius: 14px;
+padding-left: 12px;
+margin: 10px 0;
 }
+
+.money-input span {
+color: black;
+font-weight: 600;
+margin-right: 6px;
+}
+
+.money-input input {
+border: none;
+background: transparent;
+padding: 14px 0;
+margin: 0;
+width: 100%;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-card{
+background: rgba(255,255,255,.12);
+border-radius: 16px;
+padding: 16px;
+margin: 12px 0;
+}
+
+.profile-card h3{
+margin-bottom: 8px;
+}
+
+/* ================= LEADERBOARD ================= */
 
 #leaderboard {
 margin-top: 10px;
 padding-bottom: 120px;
 }
 
-.leader-row {
-display: flex;
-justify-content: space-between;
-padding: 12px;
-margin: 6px 0;
-background: rgba(255,255,255,.12);
-border-radius: 12px;
-}
-
-/* MODAL */
+/* ================= MODALS ================= */
 
 .modal {
 position: fixed;
@@ -98,12 +179,12 @@ z-index: 100;
 .modal-box {
 background: #06281d;
 padding: 20px;
-border-radius: 16px;
+border-radius: 18px;
 width: 90%;
 max-width: 360px;
 }
 
-/* Floating Side Bet Button */
+/* ================= FLOATING SIDE BET ================= */
 
 #sideBetBtn {
 position: fixed;
@@ -113,70 +194,19 @@ transform: translateX(-50%);
 width: auto;
 padding: 14px 28px;
 border-radius: 40px;
-font-size: 16px;
 box-shadow: 0 6px 16px rgba(0,0,0,.35);
 z-index: 50;
 }
 
-/* ================= MONEY INPUT ================= */
+/* ================= ANIMATIONS ================= */
 
-.money-input {
-display: flex;
-align-items: center;
-background: #e6f5ee;
-border-radius: 12px;
-padding-left: 12px;
-margin: 10px 0;
+@keyframes slideIn {
+from {
+transform: translateX(30px);
+opacity: 0;
 }
-
-.money-input span {
-color: black;
-font-weight: 600;
-margin-right: 6px;
-font-size: 16px;
+to {
+transform: translateX(0);
+opacity: 1;
 }
-
-.money-input input {
-border: none;
-background: transparent;
-margin: 0;
-padding: 14px 0;
-font-size: 16px;
-width: 100%;
-}
-
-#profile-setup h2 {
-    margin-bottom: 10px;
-}
-
-#profile-setup p {
-    opacity: 8;
-    margin-bottom: 12px;
-}
-
-.back-btn{
-position: absolute;
-top: 12px;
-left: 12px;
-background: transparent;
-color: white;
-font-size: 22px;
-width: auto;
-padding: 6px 10px;
-border-radius: 8px;
-}
-
-.back-btn:active{
-transform: scale(.9);
-}
-
-.profile-card{
-background: rgba(255,255,255,.12);
-border-radius: 14px;
-padding: 16px;
-margin: 12px 0;
-}
-
-.profile-card h3{
-margin-bottom: 8px;
 }

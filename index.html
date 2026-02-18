@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Tee Box Bets</title>
-
 <link rel="stylesheet" href="style.css">
 
 <link rel="manifest" href="manifest.json">
@@ -22,15 +21,17 @@
 <!-- ================= HOME ================= -->
 
 <section id="step-home">
-<button onclick="startRoundTracking()">Track a Round</button>
+<button onclick="show('round-setup')">Track a Round</button>
 <button onclick="goGameSelect()">Bet</button>
 <button onclick="openProfile()">Player Profile</button>
 </section>
 
 <!-- ================= PROFILE SCREEN ================= -->
- <section id="profile-screen" class="hidden">
 
-<button class="back-btn" onclick="goHome()">←</button>
+<section id="profile-screen" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goHome()"><span>‹</span> Back</button>
+</div>
 
 <h2>Your Profile</h2>
 
@@ -43,7 +44,7 @@
 
 <div class="profile-card">
 <h3>Betting Stats</h3>
-<p>Total + / - : <strong id="betNet"></strong></p>
+<p>Total +/- : <strong id="betNet"></strong></p>
 <p>Games Played: <strong id="betGames"></strong></p>
 </div>
 
@@ -51,30 +52,99 @@
 <h3>Recent Rounds</h3>
 <div id="roundList"></div>
 </div>
-
-<button onclick="editProfile()">Edit Profile</button>
-
 </section>
 
-<!-- ================= PROFILE ================= -->
+<!-- ================= PROFILE SETUP ================= -->
 
-<section id="profile-setup" class="hidden">
+<section id="profile-setup" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
+
 <h2>Create Your Player Profile</h2>
 
 <label>Your Name</label>
-<input id="profileName" type="text" placeholder="Name">
+<input id="profileName" type="text">
 
 <label>Current Handicap (optional)</label>
-<input id="profileHandicap" type="number" step="0.1" placeholder="Example 12.4">
-
-<p>This will be used for games, handicap, and stats.</p>
+<input id="profileHandicap" type="number" step="0.1">
 
 <button onclick="saveProfile()">Start Playing</button>
 </section>
 
-<!-- ================= RULES ================= -->
+<!-- ================= ROUND SETUP ================= -->
 
-<section id="rules-screen" class="hidden">
+<section id="round-setup" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
+
+<h3>Start New Round</h3>
+
+<label>Course Name</label>
+<input id="courseName" type="text">
+
+<label>Course Rating</label>
+<input id="courseRating" type="number" step="0.1">
+
+<label>Slope Rating</label>
+<input id="courseSlope" type="number">
+
+<label>Holes</label>
+<select id="roundHoles">
+<option value="9">9 Holes</option>
+<option value="18">18 Holes</option>
+</select>
+
+<button onclick="startRoundTracking()">Start Round</button>
+</section>
+
+<!-- ================= ROUND PLAY ================= -->
+
+<section id="round-play" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
+
+<h3 id="roundHoleDisplay"></h3>
+<h4 id="roundCourseInfo"></h4>
+
+<label>Par</label>
+<select id="holePar">
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+</select>
+
+<label>Score</label>
+<input id="holeScore" type="number" inputmode="numeric">
+
+<h4 id="roundLiveStats"></h4>
+
+<button onclick="undoRoundHole()">⬅ Undo</button>
+<button onclick="openScorecard()">Scorecard</button>
+<button onclick="submitHoleScore()">Next Hole</button>
+</section>
+
+<!-- ================= BETTING FLOW ================= -->
+
+<section id="step-game" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
+
+<button onclick="selectGame('skins')">Skins</button>
+<button onclick="selectGame('vegas')">Vegas</button>
+<button onclick="selectGame('nassau')">Nassau</button>
+<button onclick="showRules()">Rules</button>
+</section>
+
+<section id="rules-screen" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
+
 <h3>Skins</h3>
 <p>Wager per player. Ties carry. Birdie adds one wager. Eagle adds two wagers.</p>
 
@@ -83,22 +153,12 @@
 
 <h3>Nassau</h3>
 <p>Team match: Front 9, Back 9, Total Round.</p>
-
-<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
-<!-- ================= GAME SELECT ================= -->
-
-<section id="step-game" class="hidden">
-<button onclick="selectGame('skins')">Skins</button>
-<button onclick="selectGame('vegas')">Vegas</button>
-<button onclick="selectGame('nassau')">Nassau</button>
-<button class="back-btn" onclick="goBack()">&larr;</button>
-</section>
-
-<!-- ================= PLAY STYLE ================= -->
-
-<section id="step-style" class="hidden">
+<section id="step-style" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
 
 <p id="lockedNotice" class="hidden">
 This game is played with two teams of 2
@@ -118,21 +178,22 @@ This game is played with two teams of 2
 </select>
 
 <button onclick="nextTeams()">Next</button>
-<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
-<!-- ================= TEAMS ================= -->
+<section id="step-teams" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
 
-<section id="step-teams" class="hidden">
 <input id="teamAName" placeholder="Team 1 Name">
 <input id="teamBName" placeholder="Team 2 Name">
 <button onclick="nextPlayers()">Next</button>
-<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
-<!-- ================= PLAYERS ================= -->
-
-<section id="step-players" class="hidden">
+<section id="step-players" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
 
 <h4 id="teamALabel">Team 1</h4>
 <div id="teamAInputs"></div>
@@ -141,12 +202,12 @@ This game is played with two teams of 2
 <div id="teamBInputs"></div>
 
 <button onclick="nextSettings()">Next</button>
-<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
-<!-- ================= SETTINGS ================= -->
-
-<section id="step-settings" class="hidden">
+<section id="step-settings" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
 
 <div id="baseWagerWrapper" class="money-input">
 <span>$</span>
@@ -161,33 +222,19 @@ This game is played with two teams of 2
 </select>
 
 <div id="nassauWagers" class="hidden">
-
-<div class="money-input">
-<span>$</span>
-<input id="frontWager" type="number" placeholder="0">
-</div>
-
-<div class="money-input">
-<span>$</span>
-<input id="backWager" type="number" placeholder="0">
-</div>
-
-<div class="money-input">
-<span>$</span>
-<input id="totalWager" type="number" placeholder="0">
-</div>
-
+<div class="money-input"><span>$</span><input id="frontWager" type="number"></div>
+<div class="money-input"><span>$</span><input id="backWager" type="number"></div>
+<div class="money-input"><span>$</span><input id="totalWager" type="number"></div>
 <p>Nassau always plays 18 holes</p>
 </div>
 
 <button onclick="startRound()">Start</button>
-<button class="back-btn" onclick="goBack()">&larr;</button>
 </section>
 
-<!-- ================= GAME PLAY ================= -->
-
-<section id="game-screen" class="hidden">
-    <button class="back-btn" onclick="goBack()">&larr;</button>
+<section id="game-screen" class="hidden has-nav">
+<div class="nav-bar">
+<button class="nav-back" onclick="goBack()"><span>‹</span> Back</button>
+</div>
 
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
@@ -197,10 +244,8 @@ This game is played with two teams of 2
 
 <div id="skinsBox">
 <div id="winnerButtons"></div>
-
 <label><input type="checkbox" id="birdieToggle"> Birdie (+1)</label>
 <label><input type="checkbox" id="eagleToggle"> Eagle (+2)</label>
-
 <button id="tieBtn">Tie</button>
 </div>
 
@@ -212,86 +257,21 @@ This game is played with two teams of 2
 <button id="sideBetBtn">Side Bet</button>
 
 <div id="vegasBox" class="hidden">
-
 <div id="teamAPlayers"></div>
-<input id="a1" type="number" inputmode="numeric">
-<input id="a2" type="number" inputmode="numeric">
-
+<input id="a1" type="number">
+<input id="a2" type="number">
 <div id="teamBPlayers"></div>
-<input id="b1" type="number" inputmode="numeric">
-<input id="b2" type="number" inputmode="numeric">
-
-<label>
-<input type="checkbox" id="birdieFlip"> Birdie Flip
-</label>
-
+<input id="b1" type="number">
+<input id="b2" type="number">
+<label><input type="checkbox" id="birdieFlip"> Birdie Flip</label>
 <button onclick="finishVegasHole()">Finish Hole</button>
 </div>
 
 <h3>Leaderboard</h3>
 <div id="leaderboard"></div>
-
-</section>
-
-<!-- ================= ROUND TRACKING ================= -->
-
-<section id="round-setup" class="hidden">
-
-<h3>Start New Round</h3>
-
-<label>Course Name</label>
-<input id="courseName" type="text">
-
-<label>Course Rating</label>
-<input id="courseRating" type="number" step="0.1" inputmode="decimal">
-
-<label>Slope Rating</label>
-<input id="courseSlope" type="number" inputmode="numeric">
-
-<label>Holes</label>
-<select id="roundHoles">
-<option value="9">9 Holes</option>
-<option value="18">18 Holes</option>
-</select>
-
-<button onclick="startRoundTracking()">Start Round</button>
-<button class="back-btn" onclick="goBack()">&larr;</button>
-
-</section>
-
-<section id="round-play" class="hidden">
-
-<h3 id="roundHoleDisplay"></h3>
-<h4 id="roundCourseInfo"></h4>
-
-<label>Par</label>
-<select id="holePar">
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-</select>
-
-<label>Score</label>
-<input id="holeScore" type="number" inputmode="numeric">
-
-<h4 id="roundLiveStats"></h4>
-
-<button onclick="undoRoundHole()">⬅ Undo Last Hole</button>
-<button onclick="openScorecard()"> View Scorecard</button>
-<button onclick="submitHoleScore()">Next Hole</button>
-
 </section>
 
 <!-- ================= MODALS ================= -->
-
-<div id="leaderboardModal" class="modal hidden">
-<div class="modal-box">
-<h3>Round Results</h3>
-<div id="leaderboardModalList"></div>
-<button id="leaderboardFinishBtn">Finish Round</button>
-</div>
-</div>
 
 <div id="scorecardModal" class="modal hidden">
 <div class="modal-box">
@@ -301,27 +281,31 @@ This game is played with two teams of 2
 </div>
 </div>
 
-<div id="sideBetModal" class="modal hidden">
+<div id="leaderboardModal" class="modal hidden">
 <div class="modal-box">
-
-<h3>Side Bet</h3>
-
-<div class="money-input">
-<span>$</span>
-<input id="sideAmount" type="number" placeholder="0">
+<h3>Round Results</h3>
+<div id="leaderboardModalList"></div>
+<button id="leaderboardFinishBtn">Finish Round</button>
+</div>
 </div>
 
+<div id="sideBetModal" class="modal hidden">
+<div class="modal-box">
+<h3>Side Bet</h3>
+<div class="money-input">
+<span>$</span>
+<input id="sideAmount" type="number">
+</div>
 <select id="sideMode">
 <option value="player">Per Player</option>
 <option value="team">Per Team</option>
 </select>
-
 <div id="sideWinners"></div>
-
 <button onclick="sideBetModal.classList.add('hidden')">Cancel</button>
+</div>
+</div>
 
-</div>
-</div>
+</main>
 
 <script src="games/skins.js"></script>
 <script src="games/vegas.js"></script>

@@ -89,11 +89,28 @@ eagleToggle.onchange = () => {
 /* ================= NAV ================= */
 
 function show(id){
-const current=document.querySelector("section:not(.hidden)");
-if(current) screenHistory.push(current.id);
 
-document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
-document.getElementById(id).classList.remove("hidden");
+// Haptic feedback (mobile only)
+if (navigator.vibrate) {
+navigator.vibrate(10);
+}
+
+const current = document.querySelector("section:not(.hidden)");
+
+if(current){
+current.classList.add("hidden");
+screenHistory.push(current.id);
+}
+
+const next = document.getElementById(id);
+next.classList.remove("hidden");
+next.style.transform = "translateX(30px)";
+next.style.opacity = "0";
+
+setTimeout(()=>{
+next.style.transform = "translateX(0)";
+next.style.opacity = "1";
+},10);
 }
 
 window.goBack=()=>{
@@ -474,9 +491,9 @@ window.startRoundTracking = () => {
 
 currentRound = {
 course: document.getElementById("courseName").value || "Unknown Course",
-rating: parseFloat(document.getElementById("courseRating").value) || 72,
-slope: parseInt(document.getElementById("courseSlope").value) || 113,
-holes: parseInt(document.getElementById("roundHoles").value),
+rating: +document.getElementById("courseRating").value || 72,
+slope: +document.getElementById("courseSlope").value || 113,
+holes: +document.getElementById("roundHoles").value,
 currentHole: 1,
 scores: [],
 pars: [],
@@ -485,7 +502,6 @@ totalPar: 0
 };
 
 roundHistory = [];
-
 updateRoundUI();
 show("round-play");
 };
@@ -497,40 +513,33 @@ if(!currentRound) return;
 document.getElementById("roundHoleDisplay").textContent =
 `Hole ${currentRound.currentHole} of ${currentRound.holes}`;
 
+document.getElementById("roundCourseInfo").textContent =
+`${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}`;
+
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
 
-const handicap = userProfile && userProfile.currentHandicap
-? userProfile.currentHandicap
-: 0;
-
-const courseHandicap =
-Math.round((handicap * currentRound.slope) / 113);
+const courseHandicap = Math.round(
+(userProfile.currentHandicap * currentRound.slope) / 113
+);
 
 const net = currentRound.totalStrokes - courseHandicap;
 
-// Live stats
 document.getElementById("roundLiveStats").textContent =
-`Total: ${currentRound.totalStrokes} | To Par: ${toPar >= 0 ? "+"+toPar : toPar} | Net: ${net}`;
-
-// 👇 Course Info Display
-document.getElementById("roundCourseInfo").textContent =
-`${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}`;
+`Total ${currentRound.totalStrokes} | To Par ${toPar>=0?"+":""}${toPar} | Net ${net}`;
 }
 
 window.submitHoleScore = () => {
 
 if(!currentRound) return;
 
-const score = parseInt(document.getElementById("holeScore").value);
-const par = parseInt(document.getElementById("holePar").value);
-
-if(!score || score <= 0) return;
+const score = +document.getElementById("holeScore").value;
+const par = +document.getElementById("holePar").value;
+if(!score) return;
 
 roundHistory.push(JSON.parse(JSON.stringify(currentRound)));
 
 currentRound.scores.push(score);
 currentRound.pars.push(par);
-
 currentRound.totalStrokes += score;
 currentRound.totalPar += par;
 
@@ -546,9 +555,7 @@ updateRoundUI();
 };
 
 window.undoRoundHole = () => {
-
 if(!roundHistory.length) return;
-
 currentRound = roundHistory.pop();
 updateRoundUI();
 };
@@ -569,10 +576,8 @@ holes: currentRound.holes
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
-alert("Round Saved!");
-
 currentRound = null;
-
+alert("Round Saved!");
 show("step-home");
 }
 
@@ -580,8 +585,7 @@ window.openScorecard = () => {
 
 if(!currentRound) return;
 
-let html = "<table style='width:100%;text-align:center'>";
-html += "<tr><th>Hole</th><th>Par</th><th>Score</th><th>+/-</th></tr>";
+let html = "<table style='width:100%'><tr><th>Hole</th><th>Par</th><th>Score</th><th>+/-</th></tr>";
 
 for(let i=0;i<currentRound.scores.length;i++){
 const diff = currentRound.scores[i] - currentRound.pars[i];
@@ -589,12 +593,11 @@ html += `<tr>
 <td>${i+1}</td>
 <td>${currentRound.pars[i]}</td>
 <td>${currentRound.scores[i]}</td>
-<td>${diff >= 0 ? "+"+diff : diff}</td>
+<td>${diff>=0?"+":""}${diff}</td>
 </tr>`;
 }
 
 html += "</table>";
-
 document.getElementById("scorecardTable").innerHTML = html;
 document.getElementById("scorecardModal").classList.remove("hidden");
 };
@@ -602,6 +605,7 @@ document.getElementById("scorecardModal").classList.remove("hidden");
 window.closeScorecard = () => {
 document.getElementById("scorecardModal").classList.add("hidden");
 };
+
 
 /* ================= PROFILE ================= */
 
@@ -638,3 +642,9 @@ div.textContent = `${new Date(r.date).toLocaleDateString()} — ${r.strokes} (${
 list.appendChild(div);
 });
 }
+
+document.addEventListener("click", e => {
+if(navigator.vibrate){
+navigator.vibrate(10);
+}
+});
