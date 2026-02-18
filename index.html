@@ -28,12 +28,16 @@
 
 <!-- ================= PROFILE SCREEN ================= -->
 
-<section id="profile-screen" class="hidden has-nav">
+<section id="profile-screen" class="hidden">
+
 <div class="nav-bar">
-<button class="nav-back" onclick="goHome()"><span>‹</span> Back</button>
+<button class="nav-back" onclick="goHome()">‹ Back</button>
+<div class="nav-title">Profile</div>
 </div>
 
 <h2>Your Profile</h2>
+
+<div class="screen-content">
 
 <div class="profile-card">
 <h3 id="profileNameDisplay"></h3>
@@ -52,6 +56,11 @@
 <h3>Recent Rounds</h3>
 <div id="roundList"></div>
 </div>
+
+<button class="secondary-btn" onclick="editProfile()">Edit Profile</button>
+
+</div>
+
 </section>
 
 <!-- ================= PROFILE SETUP ================= -->

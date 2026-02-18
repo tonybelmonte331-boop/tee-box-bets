@@ -648,3 +648,12 @@ if(navigator.vibrate){
 navigator.vibrate(10);
 }
 });
+
+window.editProfile = () => {
+
+document.getElementById("profileName").value = userProfile.name;
+document.getElementById("profileHandicap").value = userProfile.currentHandicap;
+
+show("profile-setup");
+
+};
