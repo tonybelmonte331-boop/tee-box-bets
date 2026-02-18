@@ -89,35 +89,36 @@ eagleToggle.onchange = () => {
 /* ================= NAV ================= */
 
 function show(id){
-
-// Haptic feedback (mobile only)
-if (navigator.vibrate) {
-navigator.vibrate(10);
-}
+haptic();
 
 const current = document.querySelector("section:not(.hidden)");
+if(current) screenHistory.push(current.id);
 
-if(current){
-current.classList.add("hidden");
-screenHistory.push(current.id);
+document.querySelectorAll("section").forEach(s=>{
+s.classList.add("hidden");
+});
+
+document.getElementById(id).classList.remove("hidden");
+
+document.getElementById("navBack").style.display =
+screenHistory.length ? "block" : "none";
 }
 
-const next = document.getElementById(id);
-next.classList.remove("hidden");
-next.style.transform = "translateX(30px)";
-next.style.opacity = "0";
+window.goBack = () =>{
+haptic();
 
-setTimeout(()=>{
-next.style.transform = "translateX(0)";
-next.style.opacity = "1";
-},10);
-}
-
-window.goBack=()=>{
 if(!screenHistory.length) return;
-const prev=screenHistory.pop();
-document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+
+const prev = screenHistory.pop();
+
+document.querySelectorAll("section").forEach(s=>{
+s.classList.add("hidden");
+});
+
 document.getElementById(prev).classList.remove("hidden");
+
+document.getElementById("navBack").style.display =
+screenHistory.length ? "block" : "none";
 };
 
 window.goHome=()=>show("step-home");
@@ -656,4 +657,8 @@ document.getElementById("profileHandicap").value = userProfile.currentHandicap;
 
 show("profile-setup");
 
+};
+
+window.editProfile = () =>{
+show("profile-setup");
 };

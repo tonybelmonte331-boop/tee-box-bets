@@ -232,3 +232,49 @@ z-index: 100;
 font-weight: 600;
 font-size: 18px;
 }
+/* ===== NATIVE HEADER BAR ===== */
+
+header{
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+height: 60px;
+background: linear-gradient(#083a2b,#06281d);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:1000;
+}
+
+header h1{
+font-size:20px;
+font-weight:600;
+}
+
+#navBack{
+position:absolute;
+left:12px;
+background:none;
+border:none;
+color:white;
+font-size:18px;
+display:none;
+padding:8px;
+cursor:pointer;
+}
+
+#navBack:active{
+transform:scale(.9);
+}
+
+/* ===== SCREEN ANIMATION ===== */
+
+section{
+animation: slideIn .25s ease;
+}
+
+@keyframes slideIn{
+from{transform:translateX(40px);opacity:0}
+to{transform:translateX(0);opacity:1}
+}
