@@ -16,6 +16,12 @@ let screenHistory=[];
 
 let currentRound = null;
 
+/* ================= HAPTIC ================= */
+function haptic(){
+    if (navigator.vibrate){
+        navigator.vibrate(10);
+    }
+}
 /* ================= DOM ================= */
 
 const winnerButtons = document.getElementById("winnerButtons");
@@ -643,12 +649,6 @@ div.textContent = `${new Date(r.date).toLocaleDateString()} — ${r.strokes} (${
 list.appendChild(div);
 });
 }
-
-document.addEventListener("click", e => {
-if(navigator.vibrate){
-navigator.vibrate(10);
-}
-});
 
 window.editProfile = () => {
 
