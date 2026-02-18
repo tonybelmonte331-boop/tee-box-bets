@@ -94,18 +94,19 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
-function resetNav(){
-screenHistory = [];
-document.getElementById("navBack").style.display = "none";
-}
+let isResetting = false;
 
 function show(id){
 haptic();
 
+if(!isResetting){
 const current = document.querySelector("section:not(.hidden)");
 if(current && current.id !== id){
 screenHistory.push(current.id);
 }
+}
+
+isResetting = false;
 
 document.querySelectorAll("section").forEach(s=>{
 s.classList.add("hidden");
@@ -113,6 +114,10 @@ s.classList.add("hidden");
 
 document.getElementById(id).classList.remove("hidden");
 
+updateBackBtn();
+}
+
+function updateBackBtn(){
 document.getElementById("navBack").style.display =
 screenHistory.length ? "block" : "none";
 }
@@ -130,22 +135,25 @@ s.classList.add("hidden");
 
 document.getElementById(prev).classList.remove("hidden");
 
-document.getElementById("navBack").style.display =
-screenHistory.length ? "block" : "none";
+updateBackBtn();
 };
 
-window.goHome = () =>{
-resetNav();
-show("step-home");
-};
+function goHomeClean(){
+isResetting = true;
+screenHistory = [];
 
-window.goGameSelect = () =>{
-show("step-game");
-};
+document.querySelectorAll("section").forEach(s=>{
+s.classList.add("hidden");
+});
 
-window.showRules = () =>{
-show("rules-screen");
-};
+document.getElementById("step-home").classList.remove("hidden");
+
+updateBackBtn();
+}
+
+window.goHome = goHomeClean;
+window.goGameSelect = () => show("step-game");
+window.showRules = () => show("rules-screen");
 
 /* ================= GAME SELECT ================= */
 
@@ -682,6 +690,5 @@ userProfile.currentHandicap = handicap;
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 renderProfile();
-resetNav();
-show("step-home");
+goHomeClean(); // 👈 THIS is the important part
 };
