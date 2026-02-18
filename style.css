@@ -50,48 +50,6 @@ animation: slideIn .25s ease;
 display: none !important;
 }
 
-/* ================= NAV BAR ================= */
-
-.has-nav {
-padding-top: 60px;
-}
-
-.nav-bar {
-position: fixed;
-top: 60px;
-left: 0;
-right: 0;
-height: 50px;
-background: rgba(6,40,29,.95);
-display: flex;
-align-items: center;
-padding: 0 12px;
-backdrop-filter: blur(8px);
-z-index: 40;
-}
-
-.nav-back {
-background: transparent;
-color: white;
-font-size: 18px;
-display: flex;
-align-items: center;
-gap: 6px;
-padding: 8px 12px;
-border-radius: 10px;
-width: auto;
-}
-
-.nav-back span {
-font-size: 28px;
-line-height: 0;
-margin-top: -2px;
-}
-
-.nav-back:active {
-transform: scale(.9);
-}
-
 /* ================= INPUTS ================= */
 
 input, select, button {
@@ -199,7 +157,7 @@ z-index: 50;
 }
 
 /* ================= ANIMATIONS ================= */
-
+section{
 @keyframes slideIn {
 from {
 transform: translateX(30px);
@@ -210,28 +168,8 @@ transform: translateX(0);
 opacity: 1;
 }
 }
-
-/* ================= NAV BAR ================= */
-
-.nav-bar{
-position: fixed;
-top: 60px; /* below header */
-left: 0;
-right: 0;
-height: 52px;
-display: flex;
-align-items: center;
-justify-content: center;
-background: rgba(6,40,29,.95);
-backdrop-filter: blur(10px);
-border-bottom: 1px solid rgba(255,255,255,.1);
-z-index: 100;
 }
 
-.nav-title{
-font-weight: 600;
-font-size: 18px;
-}
 /* ===== NATIVE HEADER BAR ===== */
 
 header{
@@ -266,15 +204,4 @@ cursor:pointer;
 
 #navBack:active{
 transform:scale(.9);
-}
-
-/* ===== SCREEN ANIMATION ===== */
-
-section{
-animation: slideIn .25s ease;
-}
-
-@keyframes slideIn{
-from{transform:translateX(40px);opacity:0}
-to{transform:translateX(0);opacity:1}
 }
