@@ -158,6 +158,12 @@ z-index: 50;
 
 /* ================= ANIMATIONS ================= */
 section{
+width: 100%;
+max-width: 420px;
+padding: 20px;
+animation: slideIn .25s ease;
+}
+
 @keyframes slideIn {
 from {
 transform: translateX(30px);
@@ -166,7 +172,6 @@ opacity: 0;
 to {
 transform: translateX(0);
 opacity: 1;
-}
 }
 }
 
@@ -204,4 +209,7 @@ cursor:pointer;
 
 #navBack:active{
 transform:scale(.9);
+}
+.nav-bar{
+    display: none;
 }

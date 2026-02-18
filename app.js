@@ -658,7 +658,3 @@ document.getElementById("profileHandicap").value = userProfile.currentHandicap;
 show("profile-setup");
 
 };
-
-window.editProfile = () =>{
-show("profile-setup");
-};
