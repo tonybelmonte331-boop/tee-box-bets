@@ -83,7 +83,6 @@ eagleToggle.onchange = () => {
 };
 
 /* ================= NAV ================= */
-/* ================= NAV ================= */
 
 let screenHistory = [];
 
@@ -92,7 +91,7 @@ function show(id){
 
  const current = document.querySelector("section:not(.hidden)");
 
- if(current && current.id !== id){
+ if (current && current.id !== id){
  screenHistory.push(current.id);
  }
 
@@ -102,17 +101,17 @@ function show(id){
 
  document.getElementById(id).classList.remove("hidden");
 
- updateBackBtn();
+ syncBackButton();
 }
 
-function updateBackBtn(){
+function syncBackButton(){
  const btn = document.getElementById("navBack");
+ const current = document.querySelector("section:not(.hidden)");
 
- if(screenHistory.length === 0){
- btn.style.display = "none";
- } else {
- btn.style.display = "flex";
- }
+ // Back ONLY shows if not on home
+ btn.style.display = current && current.id !== "step-home"
+ ? "flex"
+ : "none";
 }
 
 window.goBack = () =>{
@@ -128,7 +127,7 @@ window.goBack = () =>{
 
  document.getElementById(prev).classList.remove("hidden");
 
- updateBackBtn();
+ syncBackButton();
 };
 
 function goHomeClean(){
@@ -140,7 +139,7 @@ function goHomeClean(){
 
  document.getElementById("step-home").classList.remove("hidden");
 
- updateBackBtn();
+ syncBackButton();
 }
 
 window.goHome = goHomeClean;
