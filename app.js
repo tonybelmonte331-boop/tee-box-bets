@@ -107,6 +107,12 @@ function show(id){
 
 function syncBackButton(){
  const btn = document.getElementById("navBack");
+ const current = document.querySelector("section:not(.hidden)");
+
+ if (!current || current.id === "step-home"){
+    btn.style.display = "none";
+    return;
+ }
 
  // Back exists ONLY if there's something to go back to
  btn.style.display = screenHistory.length ? "flex" : "none";
