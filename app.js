@@ -84,71 +84,59 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
-let screenHistory = [];
+const navBack = document.getElementById("navBack");
+let navStack = [];
 
-function show(id){
- haptic();
+function show(id) {
+haptic();
 
- const current = document.querySelector("section:not(.hidden)");
+const current = document.querySelector("section:not(.hidden)");
 
- // NEVER push home into history
- if (
- current &&
- current.id !== id &&
- current.id !== "step-home"
- ){
- screenHistory.push(current.id);
- }
-
- document.querySelectorAll("section").forEach(s =>
- s.classList.add("hidden")
- );
-
- document.getElementById(id).classList.remove("hidden");
-
- updateBackBtn();
+if (current && current.id !== id) {
+navStack.push(current.id);
 }
 
-function updateBackBtn(){
- const btn = document.getElementById("navBack");
- const current = document.querySelector("section:not(.hidden)");
+document.querySelectorAll("section").forEach(s =>
+s.classList.add("hidden")
+);
 
- // Back ONLY appears off home and when history exists
- btn.style.display =
- current && current.id !== "step-home" && screenHistory.length
- ? "flex"
- : "none";
+document.getElementById(id).classList.remove("hidden");
+
+navBack.style.display = id === "step-home" ? "none" : "flex";
 }
 
-window.goBack = () =>{
- haptic();
+function goBack() {
+if (!navStack.length) {
+show("step-home");
+return;
+}
 
- if(!screenHistory.length) return;
+const prev = navStack.pop();
 
- const prev = screenHistory.pop();
+document.querySelectorAll("section").forEach(s =>
+s.classList.add("hidden")
+);
 
- document.querySelectorAll("section").forEach(s =>
- s.classList.add("hidden")
- );
+document.getElementById(prev).classList.remove("hidden");
 
- document.getElementById(prev).classList.remove("hidden");
+navBack.style.display = prev === "step-home" ? "none" : "flex";
+}
 
- updateBackBtn();
-};
+function goHomeClean() {
+navStack = [];
 
-function goHomeClean(){
- screenHistory = [];
+document.querySelectorAll("section").forEach(s =>
+s.classList.add("hidden")
+);
 
- document.querySelectorAll("section").forEach(s =>
- s.classList.add("hidden")
- );
+document.getElementById("step-home").classList.remove("hidden");
 
- document.getElementById("step-home").classList.remove("hidden");
-
- updateBackBtn();
+navBack.style.display = "none";
 }
 
 window.goHome = goHomeClean;
+window.show = show;
+window.goBack = goBack;
 window.goGameSelect = () => show("step-game");
 window.showRules = () => show("rules-screen");
 
