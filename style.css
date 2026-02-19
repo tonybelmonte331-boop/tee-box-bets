@@ -1,34 +1,32 @@
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
 }
 
-html, body {
-width: 100%;
-height: 100%;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
-background: #0b3d2e;
-color: white;
-overflow-x: hidden;
+html,body{
+width:100%;
+height:100%;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
+background:#0b3d2e;
+color:white;
+overflow-x:hidden;
 }
 
-/* ===== HEADER ===== */
+/* ================= HEADER ================= */
 
 header{
-position: fixed;
-top: 0;
-left: 0;
-right: 0;
-height: 60px;
-background: linear-gradient(#083a2b,#06281d);
-z-index:1000;
-
+position:fixed;
+top:0;
+left:0;
+right:0;
+height:60px;
+background:linear-gradient(#083a2b,#06281d);
 display:flex;
 align-items:center;
 justify-content:center;
-
-padding: 0 48px; /* space for back button */
+z-index:1000;
+box-shadow:0 2px 8px rgba(0,0,0,.35);
 }
 
 header h1{
@@ -37,26 +35,45 @@ font-weight:600;
 pointer-events:none;
 }
 
+/* iOS-style back pill */
+
 #navBack{
 position:absolute;
 left:12px;
-top: 50%;
-transform: translateY(-50%);
-background:none;
-border:none;
-color:white;
-font-size:18px;
-padding:6px 10px;
-border-radius:10px;
+top:50%;
+transform:translateY(-50%);
 display:none;
+
+background:rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.25);
+backdrop-filter:blur(6px);
+
+color:white;
+font-size:16px;
+font-weight:500;
+
+padding:6px 14px;
+border-radius:18px;
 cursor:pointer;
+
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+#navBack::before{
+content:"‹";
+font-size:26px;
+line-height:0;
+margin-top:-2px;
 }
 
 #navBack:active{
 transform:translateY(-50%) scale(.92);
+background:rgba(255,255,255,.2);
 }
 
-/* ===== LAYOUT ===== */
+/* ================= LAYOUT ================= */
 
 main{
 padding-top:60px;
@@ -78,9 +95,9 @@ animation:slideIn .25s ease;
 display:none !important;
 }
 
-/* ===== INPUTS ===== */
+/* ================= INPUTS ================= */
 
-input, select, button{
+input,select,button{
 width:100%;
 padding:14px;
 margin:10px 0;
@@ -89,7 +106,7 @@ border:none;
 font-size:16px;
 }
 
-input, select{
+input,select{
 background:#e6f5ee;
 color:black;
 }
@@ -99,13 +116,14 @@ background:#1faa59;
 color:white;
 font-weight:600;
 cursor:pointer;
+box-shadow:0 3px 8px rgba(0,0,0,.25);
 }
 
 button:active{
 transform:scale(.97);
 }
 
-/* ===== MONEY ===== */
+/* ================= MONEY ================= */
 
 .money-input{
 display:flex;
@@ -130,20 +148,21 @@ padding:14px 0;
 width:100%;
 }
 
-/* ===== PROFILE ===== */
+/* ================= PROFILE ================= */
 
 .profile-card{
 background:rgba(255,255,255,.12);
 border-radius:16px;
 padding:16px;
 margin:12px 0;
+backdrop-filter:blur(4px);
 }
 
 .profile-card h3{
 margin-bottom:8px;
 }
 
-/* ===== MODALS ===== */
+/* ================= MODALS ================= */
 
 .modal{
 position:fixed;
@@ -161,9 +180,10 @@ padding:20px;
 border-radius:18px;
 width:90%;
 max-width:360px;
+box-shadow:0 12px 30px rgba(0,0,0,.5);
 }
 
-/* ===== FLOATING SIDE BET ===== */
+/* ================= FLOATING SIDE BET ================= */
 
 #sideBetBtn{
 position:fixed;
@@ -172,13 +192,19 @@ left:50%;
 transform:translateX(-50%);
 padding:14px 28px;
 border-radius:40px;
-box-shadow:0 6px 16px rgba(0,0,0,.35);
+box-shadow:0 6px 16px rgba(0,0,0,.45);
 z-index:50;
 }
 
-/* ===== ANIMATION ===== */
+/* ================= ANIMATION ================= */
 
 @keyframes slideIn{
-from{transform:translateX(30px);opacity:0}
-to{transform:translateX(0);opacity:1}
+from{
+transform:translateX(30px);
+opacity:0;
+}
+to{
+transform:translateX(0);
+opacity:1;
+}
 }
