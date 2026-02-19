@@ -91,25 +91,31 @@ function show(id){
 
  const current = document.querySelector("section:not(.hidden)");
 
- if (current && current.id !== id){
+ // NEVER push home into history
+ if (
+ current &&
+ current.id !== id &&
+ current.id !== "step-home"
+ ){
  screenHistory.push(current.id);
  }
 
- document.querySelectorAll("section").forEach(s=>{
- s.classList.add("hidden");
- });
+ document.querySelectorAll("section").forEach(s =>
+ s.classList.add("hidden")
+ );
 
  document.getElementById(id).classList.remove("hidden");
 
- syncBackButton();
+ updateBackBtn();
 }
 
-function syncBackButton(){
+function updateBackBtn(){
  const btn = document.getElementById("navBack");
  const current = document.querySelector("section:not(.hidden)");
 
- // Back ONLY shows if not on home
- btn.style.display = current && current.id !== "step-home"
+ // Back ONLY appears off home and when history exists
+ btn.style.display =
+ current && current.id !== "step-home" && screenHistory.length
  ? "flex"
  : "none";
 }
@@ -121,25 +127,25 @@ window.goBack = () =>{
 
  const prev = screenHistory.pop();
 
- document.querySelectorAll("section").forEach(s=>{
- s.classList.add("hidden");
- });
+ document.querySelectorAll("section").forEach(s =>
+ s.classList.add("hidden")
+ );
 
  document.getElementById(prev).classList.remove("hidden");
 
- syncBackButton();
+ updateBackBtn();
 };
 
 function goHomeClean(){
  screenHistory = [];
 
- document.querySelectorAll("section").forEach(s=>{
- s.classList.add("hidden");
- });
+ document.querySelectorAll("section").forEach(s =>
+ s.classList.add("hidden")
+ );
 
  document.getElementById("step-home").classList.remove("hidden");
 
- syncBackButton();
+ updateBackBtn();
 }
 
 window.goHome = goHomeClean;
