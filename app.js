@@ -117,12 +117,8 @@ function show(id){
 function updateBackBtn(){
  const btn = document.getElementById("navBack");
  const homeVisible = !document.getElementById("step-home").classList.contains("hidden");
- if (homeVisible){
-    btn.hidden = true;
-    return;
- }
 
- btn.hidden = screenHistory.length === 0 || onHome;
+ btn.hidden = homeVisible || screenHistory.length === 0;
 }
 
 window.goBack = () =>{
@@ -499,7 +495,7 @@ leaderboardModal.classList.remove("hidden");
 
 leaderboardFinishBtn.onclick=()=>{
 leaderboardModal.classList.add("hidden");
-show("step-home");
+goHomeClean();
 };
 
 /* ================= ROUND TRACKING ================= */
@@ -597,7 +593,7 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 currentRound = null;
 alert("Round Saved!");
-show("step-home");
+goHomeClean();
 }
 
 window.openScorecard = () => {
