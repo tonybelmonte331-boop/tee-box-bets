@@ -116,7 +116,11 @@ function show(id){
 
 function updateBackBtn(){
  const btn = document.getElementById("navBack");
- const onHome = !document.getElementById("step-home").classList.contains("hidden");
+ const homeVisible = !document.getElementById("step-home").classList.contains("hidden");
+ if (homeVisible){
+    btn.hidden = true;
+    return;
+ }
 
  btn.hidden = screenHistory.length === 0 || onHome;
 }
