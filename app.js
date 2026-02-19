@@ -119,8 +119,8 @@ updateBackBtn();
 }
 
 function updateBackBtn(){
-document.getElementById("navBack").style.display =
-screenHistory.length ? "block" : "none";
+const btn = document.getElementById("navBack")
+btn.hidden = !screenHistory.length;
 }
 
 window.goBack = () =>{
@@ -138,6 +138,8 @@ document.getElementById(prev).classList.remove("hidden");
 
 updateBackBtn();
 };
+
+updateBackBtn();
 
 function goHomeClean(){
 isResetting = true;
