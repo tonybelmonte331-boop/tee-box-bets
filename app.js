@@ -92,7 +92,7 @@ function show(id){
  const current = document.querySelector("section:not(.hidden)");
 
  // NEVER allow Home in history
- if (current && current.id !== id && current.id !== "step-home") {
+ if (current && current.id !== id) {
  screenHistory.push(current.id);
  }
 
