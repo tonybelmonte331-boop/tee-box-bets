@@ -106,11 +106,18 @@ function show(id){
 }
 
 function updateBackBtn(){
- const btn = document.getElementById("navBack");
- const homeVisible = !document.getElementById("step-home").classList.contains("hidden");
+const btn = document.getElementById("navBack");
+const homeVisible = !document
+.getElementById("step-home")
+.classList.contains("hidden");
 
- btn.hidden = homeVisible || screenHistory.length === 0;
+if(homeVisible || screenHistory.length === 0){
+btn.style.display = "none";
+} else {
+btn.style.display = "flex";
 }
+}
+
 
 window.goBack = () =>{
  haptic();
