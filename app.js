@@ -12,7 +12,6 @@ let holeLimit=9;
 let baseWager=0;
 
 let historyStack=[];
-let screenHistory=[];
 
 let currentRound = null;
 
@@ -73,15 +72,6 @@ const playStyleLabel = document.getElementById("playStyleLabel");
 const playerCountLabel = document.getElementById("playerCountLabel");
 
 
-/* ================= PROFILE CHECK ================= */
-
-document.addEventListener("DOMContentLoaded", () => {
- if(!userProfile){
- show("profile-setup");
- }
-});
-
-
 /* ================= UI TOGGLES ================= */
 
 birdieToggle.onchange = () => {
@@ -94,27 +84,41 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
+let screenHistory = [];
+let isResetting = false;
+let firstLoad = true;
+
 function show(id){
- haptic();
+  haptic();
 
- const current = document.querySelector("section:not(.hidden)");
+  const current = document.querySelector("section:not(.hidden)");
 
- if(current && current.id !== id){
- screenHistory.push(current.id);
- }
+  if(
+    current &&
+    current.id !== id &&
+    !isResetting &&
+    id !== "step-home"
+  ){
+    screenHistory.push(current.id);
+  }
 
- document.querySelectorAll("section").forEach(s=>{
- s.classList.add("hidden");
- });
+  isResetting = false;
+  firstLoad = false;
 
- document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll("section").forEach(s=>{
+    s.classList.add("hidden");
+  });
 
- updateBackBtn();
+  document.getElementById(id).classList.remove("hidden");
+
+  updateBackBtn();
 }
 
 function updateBackBtn(){
  const btn = document.getElementById("navBack");
- btn.style.display = screenHistory.length ? "flex" : "none";
+ const onHome = !document.getElementById("step-home").classList.contains("hidden");
+
+ btn.hidden = screenHistory.length === 0 || onHome;
 }
 
 window.goBack = () =>{
@@ -134,6 +138,7 @@ window.goBack = () =>{
 };
 
 function goHomeClean(){
+ isResetting = true;
  screenHistory = [];
 
  document.querySelectorAll("section").forEach(s=>{
@@ -149,8 +154,13 @@ window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
 window.showRules = () => show("rules-screen");
 
-/* Init on load */
-updateBackBtn();
+/* ================= PROFILE CHECK ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+ if(!userProfile){
+ show("profile-setup");
+ }
+});
 
 /* ================= GAME SELECT ================= */
 
