@@ -94,69 +94,63 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
-let isResetting = false;
-
 function show(id){
-haptic();
+ haptic();
 
-if(!isResetting && !firstLoad){
-const current = document.querySelector("section:not(.hidden)");
-if(current && current.id !== id){
-screenHistory.push(current.id);
-}
-}
+ const current = document.querySelector("section:not(.hidden)");
 
-let firstLoad = true;
-let isResetting = false;
+ if(current && current.id !== id){
+ screenHistory.push(current.id);
+ }
 
-document.querySelectorAll("section").forEach(s=>{
-s.classList.add("hidden");
-});
+ document.querySelectorAll("section").forEach(s=>{
+ s.classList.add("hidden");
+ });
 
-document.getElementById(id).classList.remove("hidden");
-firstLoad = false;
-updateBackBtn();
+ document.getElementById(id).classList.remove("hidden");
+
+ updateBackBtn();
 }
 
 function updateBackBtn(){
-const btn = document.getElementById("navBack")
-btn.hidden = !screenHistory.length;
+ const btn = document.getElementById("navBack");
+ btn.style.display = screenHistory.length ? "flex" : "none";
 }
 
 window.goBack = () =>{
-haptic();
+ haptic();
 
-if(!screenHistory.length) return;
+ if(!screenHistory.length) return;
 
-const prev = screenHistory.pop();
+ const prev = screenHistory.pop();
 
-document.querySelectorAll("section").forEach(s=>{
-s.classList.add("hidden");
-});
+ document.querySelectorAll("section").forEach(s=>{
+ s.classList.add("hidden");
+ });
 
-document.getElementById(prev).classList.remove("hidden");
+ document.getElementById(prev).classList.remove("hidden");
 
-updateBackBtn();
+ updateBackBtn();
 };
 
-updateBackBtn();
-
 function goHomeClean(){
-isResetting = true;
-screenHistory = [];
+ screenHistory = [];
 
-document.querySelectorAll("section").forEach(s=>{
-s.classList.add("hidden");
-});
+ document.querySelectorAll("section").forEach(s=>{
+ s.classList.add("hidden");
+ });
 
-document.getElementById("step-home").classList.remove("hidden");
+ document.getElementById("step-home").classList.remove("hidden");
 
-updateBackBtn();
+ updateBackBtn();
 }
 
 window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
 window.showRules = () => show("rules-screen");
+
+/* Init on load */
+updateBackBtn();
 
 /* ================= GAME SELECT ================= */
 
