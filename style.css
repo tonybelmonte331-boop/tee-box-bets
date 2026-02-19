@@ -39,7 +39,7 @@ pointer-events:none;
 
 #navBack{
 position:fixed;
-top:16px;
+top:12px;
 left:12px;
 
 display:none;
@@ -72,7 +72,6 @@ margin-top:-2px;
 transform:scale(.92);
 background:rgba(255,255,255,.22);
 }
-
 /* ================= LAYOUT ================= */
 
 main{
