@@ -99,21 +99,22 @@ let isResetting = false;
 function show(id){
 haptic();
 
-if(!isResetting){
+if(!isResetting && !firstLoad){
 const current = document.querySelector("section:not(.hidden)");
 if(current && current.id !== id){
 screenHistory.push(current.id);
 }
 }
 
-isResetting = false;
+let firstLoad = true;
+let isResetting = false;
 
 document.querySelectorAll("section").forEach(s=>{
 s.classList.add("hidden");
 });
 
 document.getElementById(id).classList.remove("hidden");
-
+firstLoad = false;
 updateBackBtn();
 }
 
