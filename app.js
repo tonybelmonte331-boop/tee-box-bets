@@ -84,6 +84,31 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
+const headerMap = {
+"step-home": "Tee Box Bets",
+
+"step-game": "Select Game",
+"rules-screen": "Game Rules",
+
+"step-style": "Play Style",
+"step-teams": "Teams",
+"step-players": "Players",
+"step-settings": "Wager Settings",
+
+"game-screen": "Live Game",
+
+"round-setup": "Round Setup",
+"round-play": "Round In Progress",
+
+"profile-screen": "Your Profile",
+"profile-setup": "Edit Profile"
+};
+
+function updateHeader(id){
+const title = document.getElementById("appTitle");
+title.textContent = headerMap[id] || "Tee Box Bets";
+}
+
 let screenHistory = [];
 
 function show(id){
@@ -101,6 +126,8 @@ function show(id){
  );
 
  document.getElementById(id).classList.remove("hidden");
+
+ updateHeader(id);
 
  syncBackButton();
 }
@@ -651,7 +678,11 @@ list.innerHTML="";
 
 [...userProfile.rounds].reverse().slice(0,10).forEach(r=>{
 const div=document.createElement("div");
-div.textContent = `${new Date(r.date).toLocaleDateString()} — ${r.strokes} (${r.toPar>=0?"+":""}${r.toPar})`;
+const d = new Date(r.date);
+const formatted =
+`${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+
+div.textContent = `${formatted} — ${r.strokes} (${r.toPar>=0?"+":""}${r.toPar})`;
 list.appendChild(div);
 });
 }
