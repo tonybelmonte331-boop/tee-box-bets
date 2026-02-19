@@ -84,59 +84,63 @@ eagleToggle.onchange = () => {
 
 /* ================= NAV ================= */
 
-const navBack = document.getElementById("navBack");
-let navStack = [];
+let screenHistory = [];
 
-function show(id) {
-haptic();
+function show(id){
+ haptic();
 
-const current = document.querySelector("section:not(.hidden)");
+ const current = document.querySelector("section:not(.hidden)");
 
-if (current && current.id !== id) {
-navStack.push(current.id);
+ // NEVER allow Home in history
+ if (current && current.id !== id && current.id !== "step-home") {
+ screenHistory.push(current.id);
+ }
+
+ document.querySelectorAll("section").forEach(s =>
+ s.classList.add("hidden")
+ );
+
+ document.getElementById(id).classList.remove("hidden");
+
+ syncBackButton();
 }
 
-document.querySelectorAll("section").forEach(s =>
-s.classList.add("hidden")
-);
+function syncBackButton(){
+ const btn = document.getElementById("navBack");
 
-document.getElementById(id).classList.remove("hidden");
-
-navBack.style.display = id === "step-home" ? "none" : "flex";
+ // Back exists ONLY if there's something to go back to
+ btn.style.display = screenHistory.length ? "flex" : "none";
 }
 
-function goBack() {
-if (!navStack.length) {
-show("step-home");
-return;
-}
+window.goBack = () => {
+ haptic();
 
-const prev = navStack.pop();
+ if (!screenHistory.length) return;
 
-document.querySelectorAll("section").forEach(s =>
-s.classList.add("hidden")
-);
+ const prev = screenHistory.pop();
 
-document.getElementById(prev).classList.remove("hidden");
+ document.querySelectorAll("section").forEach(s =>
+ s.classList.add("hidden")
+ );
 
-navBack.style.display = prev === "step-home" ? "none" : "flex";
-}
+ document.getElementById(prev).classList.remove("hidden");
 
-function goHomeClean() {
-navStack = [];
+ syncBackButton();
+};
 
-document.querySelectorAll("section").forEach(s =>
-s.classList.add("hidden")
-);
+function goHomeClean(){
+ screenHistory = [];
 
-document.getElementById("step-home").classList.remove("hidden");
+ document.querySelectorAll("section").forEach(s =>
+ s.classList.add("hidden")
+ );
 
-navBack.style.display = "none";
+ document.getElementById("step-home").classList.remove("hidden");
+
+ syncBackButton();
 }
 
 window.goHome = goHomeClean;
-window.show = show;
-window.goBack = goBack;
 window.goGameSelect = () => show("step-game");
 window.showRules = () => show("rules-screen");
 
