@@ -106,16 +106,18 @@ function show(id){
 }
 
 function syncBackButton(){
- const btn = document.getElementById("navBack");
- const current = document.querySelector("section:not(.hidden)");
+const btn = document.getElementById("navBack");
+const current = document.querySelector("section:not(.hidden)");
 
- if (!current || current.id === "step-home"){
-    btn.style.display = "none";
-    return;
- }
+// Screens where back should be disabled
+const lockScreens = ["round-play", "game-screen"];
 
- // Back exists ONLY if there's something to go back to
- btn.style.display = screenHistory.length ? "flex" : "none";
+if (!current || lockScreens.includes(current.id)) {
+btn.style.display = "none";
+return;
+}
+
+btn.style.display = screenHistory.length ? "flex" : "none";
 }
 
 window.goBack = () => {
