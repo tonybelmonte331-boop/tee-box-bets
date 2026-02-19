@@ -207,3 +207,10 @@ transform:translateX(0);
 opacity:1;
 }
 }
+/* 🔒 FORCE BACK BUTTON SIZE — overrides all global button rules */
+#navBack{
+width:auto !important;
+min-width:0 !important;
+max-width:max-content !important;
+display:inline-flex !important;
+}
