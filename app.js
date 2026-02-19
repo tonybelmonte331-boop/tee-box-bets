@@ -85,33 +85,24 @@ eagleToggle.onchange = () => {
 /* ================= NAV ================= */
 
 let screenHistory = [];
-let isResetting = false;
-let firstLoad = true;
 
 function show(id){
-  haptic();
+ haptic();
 
-  const current = document.querySelector("section:not(.hidden)");
+ const current = document.querySelector("section:not(.hidden)");
 
-  if(
-    current &&
-    current.id !== id &&
-    !isResetting &&
-    id !== "step-home"
-  ){
-    screenHistory.push(current.id);
-  }
+ // push history only when navigating forward (not home)
+ if (current && current.id !== id && id !== "step-home") {
+ screenHistory.push(current.id);
+ }
 
-  isResetting = false;
-  firstLoad = false;
+ document.querySelectorAll("section").forEach(s=>{
+ s.classList.add("hidden");
+ });
 
-  document.querySelectorAll("section").forEach(s=>{
-    s.classList.add("hidden");
-  });
+ document.getElementById(id).classList.remove("hidden");
 
-  document.getElementById(id).classList.remove("hidden");
-
-  updateBackBtn();
+ updateBackBtn();
 }
 
 function updateBackBtn(){
@@ -124,7 +115,7 @@ function updateBackBtn(){
 window.goBack = () =>{
  haptic();
 
- if(!screenHistory.length) return;
+ if (!screenHistory.length) return;
 
  const prev = screenHistory.pop();
 
@@ -138,7 +129,6 @@ window.goBack = () =>{
 };
 
 function goHomeClean(){
- isResetting = true;
  screenHistory = [];
 
  document.querySelectorAll("section").forEach(s=>{
