@@ -106,8 +106,30 @@ const headerMap = {
 
 function updateHeader(id){
 const title = document.getElementById("appTitle");
+
+/* Live betting game */
+if(id === "game-screen"){
+const gameName =
+currentGame === "skins" ? "Skins" :
+currentGame === "vegas" ? "Vegas" :
+currentGame === "nassau" ? "Nassau" :
+"Game";
+
+title.textContent = `${gameName} — Hole ${hole}`;
+return;
+}
+
+/* Round tracking */
+if(id === "round-play" && currentRound){
+title.textContent = `Round — Hole ${currentRound.currentHole} of ${currentRound.holes}`;
+return;
+}
+
+/* Default screen titles */
 title.textContent = headerMap[id] || "Tee Box Bets";
 }
+
+
 
 let screenHistory = [];
 
@@ -164,15 +186,16 @@ window.goBack = () => {
 };
 
 function goHomeClean(){
- screenHistory = [];
+screenHistory = [];
 
- document.querySelectorAll("section").forEach(s =>
- s.classList.add("hidden")
- );
+document.querySelectorAll("section").forEach(s =>
+s.classList.add("hidden")
+);
 
- document.getElementById("step-home").classList.remove("hidden");
+document.getElementById("step-home").classList.remove("hidden");
 
- syncBackButton();
+updateHeader("step-home"); // ✅ reset title
+syncBackButton();
 }
 
 window.goHome = goHomeClean;
@@ -509,6 +532,8 @@ potDisplay.textContent=`Front ${s.frontA}-${s.frontB} | Back ${s.backA}-${s.back
 }
 
 leaderboard.innerHTML=players.map(p=>`${p}: $${ledger[p]}`).join("<br>");
+
+updateHeader("game-screen");
 }
 
 /* ================= END ROUND ================= */
@@ -566,6 +591,8 @@ const net = currentRound.totalStrokes - courseHandicap;
 
 document.getElementById("roundLiveStats").textContent =
 `Total ${currentRound.totalStrokes} | To Par ${toPar>=0?"+":""}${toPar} | Net ${net}`;
+
+updateHeader("round-play");
 }
 
 window.submitHoleScore = () => {
@@ -621,6 +648,14 @@ alert("Round Saved!");
 goHomeClean();
 }
 
+window.cancelTrackedRound = () => {
+if(!confirm("End round without saving?")) return;
+
+currentRound = null;
+roundHistory = [];
+goHomeClean();
+};
+
 window.openScorecard = () => {
 
 if(!currentRound) return;
@@ -644,6 +679,44 @@ document.getElementById("scorecardModal").classList.remove("hidden");
 
 window.closeScorecard = () => {
 document.getElementById("scorecardModal").classList.add("hidden");
+};
+
+window.addManualRound = () => {
+
+const date = document.getElementById("manualDate").value;
+const course = document.getElementById("manualCourse").value || "Manual Entry";
+const rating = +document.getElementById("manualRating").value || 72;
+const slope = +document.getElementById("manualSlope").value || 113;
+const strokes = +document.getElementById("manualStrokes").value;
+const holes = +document.getElementById("manualHoles").value;
+
+if(!date || !strokes || !holes){
+alert("Fill all required fields");
+return;
+}
+
+// Estimate par for manual entry (simple average)
+const par = holes === 9 ? 36 : 72;
+const toPar = strokes - par;
+
+userProfile.rounds.push({
+date: new Date(date).toISOString(),
+course,
+rating,
+slope,
+strokes,
+toPar,
+holes
+});
+
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
+renderProfile();
+
+// clear fields
+["manualDate","manualCourse","manualRating","manualSlope","manualStrokes"].forEach(id=>{
+const el=document.getElementById(id);
+if(el) el.value="";
+});
 };
 
 
@@ -676,16 +749,43 @@ document.getElementById("betGames").textContent = userProfile.bettingStats.total
 const list = document.getElementById("roundList");
 list.innerHTML="";
 
-[...userProfile.rounds].reverse().slice(0,10).forEach(r=>{
-const div=document.createElement("div");
+[...userProfile.rounds].reverse().slice(0,10).forEach((r, index)=>{
+
+const row = document.createElement("div");
+row.style.display = "flex";
+row.style.justifyContent = "space-between";
+row.style.alignItems = "center";
+row.style.marginBottom = "6px";
+
 const d = new Date(r.date);
 const formatted =
 `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
 
-div.textContent = `${formatted} — ${r.strokes} (${r.toPar>=0?"+":""}${r.toPar})`;
-list.appendChild(div);
+const text = document.createElement("span");
+text.textContent = `${formatted} — ${r.strokes} (${r.toPar>=0?"+":""}${r.toPar})`;
+
+const del = document.createElement("button");
+del.textContent = "✕";
+del.style.background = "#a83232";
+del.style.padding = "4px 10px";
+del.style.borderRadius = "10px";
+del.style.fontSize = "14px";
+
+del.onclick = () => deleteRound(index);
+
+row.appendChild(text);
+row.appendChild(del);
+list.appendChild(row);
 });
 }
+
+window.deleteRound = index => {
+if(!confirm("Delete this round?")) return;
+
+userProfile.rounds.splice(index,1);
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
+renderProfile();
+};
 
 window.editProfile = () => {
 
@@ -728,3 +828,18 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 renderProfile();
 goHomeClean(); // 👈 THIS is the important part
 };
+
+function deleteRound(displayIndex){
+
+if(!confirm("Delete this round permanently?")) return;
+
+// because we reversed list for display
+const realIndex = userProfile.rounds.length - 1 - displayIndex;
+
+userProfile.rounds.splice(realIndex,1);
+
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+renderProfile();
+}
+
