@@ -182,6 +182,7 @@ window.goBack = () => {
 
  document.getElementById(prev).classList.remove("hidden");
 
+ updateHeader(prev);
  syncBackButton();
 };
 
