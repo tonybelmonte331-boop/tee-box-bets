@@ -17,6 +17,7 @@
 <header>
 <button id="navBack" onclick="goBack()">Back</button>
 <h1 id="appTitle">Tee Box Bets</h1>
+<div id="breadcrumb"></div>
 </header>
 
 <main>
@@ -53,31 +54,6 @@
 
 <hr style="margin:20px 0">
 
-<h3>Add Previous Round</h3>
-
-<label>Date (MM/DD/YYYY)</label>
-<input id="manualDate" placeholder="MM/DD/YYYY">
-
-<label>Course Name</label>
-<input id="manualCourse">
-
-<label>Course Rating</label>
-<input id="manualRating" type="number" step="0.1">
-
-<label>Slope Rating</label>
-<input id="manualSlope" type="number">
-
-<label>Total Strokes</label>
-<input id="manualStrokes" type="number">
-
-<label>Holes Played</label>
-<select id="manualHoles">
-<option value="9">9</option>
-<option value="18">18</option>
-</select>
-
-<button onclick="addManualRound()">Add Round</button>
-
 </div>
 
 <button onclick="editProfile()">Edit Profile</button>
@@ -101,16 +77,18 @@
 
 <section id="round-setup" class="hidden">
 
-<h3>Start New Round</h3>
+<h3>Track a Round</h3>
+
+<!-- ===== NEW ROUND ===== -->
 
 <label>Course Name</label>
 <input id="courseName" type="text">
 
 <label>Course Rating</label>
-<input id="courseRating" type="number" step="0.1">
+<input id="courseRating" type="number" inputmode="decimal">
 
 <label>Slope Rating</label>
-<input id="courseSlope" type="number">
+<input id="courseSlope" type="number" inputmode="numeric">
 
 <label>Holes</label>
 <select id="roundHoles">
@@ -118,7 +96,37 @@
 <option value="18">18 Holes</option>
 </select>
 
-<button onclick="startRoundTracking()">Start Round</button>
+<button onclick="startRoundTracking()">Start New Round</button>
+
+<hr style="margin:20px 0;opacity:.3">
+
+<!-- ===== MANUAL ROUND ===== -->
+
+<h3>Add Previous Round</h3>
+
+<label>Date (MM/DD/YYYY)</label>
+<input id="manualDate" type="date">
+
+<label>Course Name</label>
+<input id="manualCourse">
+
+<label>Course Rating</label>
+<input id="manualRating" type="number" inputmode="decimal">
+
+<label>Slope Rating</label>
+<input id="manualSlope" type=number inputmode="numeric">
+
+<label>Total Strokes</label>
+<input id="manualStrokes" type="number">
+
+<label>Holes Played</label>
+<select id="manualHoles">
+<option value="9">9</option>
+<option value="18">18</option>
+</select>
+
+<button onclick="addManualRound()">Add Round</button>
+
 </section>
 
 <!-- ===== ROUND PLAY ===== -->
@@ -146,7 +154,7 @@
 <button onclick="submitHoleScore()">Next Hole</button>
 
 <div style="margin-top:30px">
-<button style="background:#a83232" onclick="confirmEndTrackedRound()">
+<button style="background:#a83232" onclick="cancelTrackedRound()">
 End Round (Discard)
 </button>
 </div>

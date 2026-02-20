@@ -21,6 +21,27 @@ function haptic(){
         navigator.vibrate(10);
     }
 }
+
+/* ================= AUTO DECIMAL ================= */
+function autoDecimal(el){
+el.addEventListener("input",()=>{
+let v = el.value.replace(/\D/g,"");
+
+if(v.length <= 2){
+el.value = v;
+return;
+}
+
+el.value = v.slice(0,2) + "." + v.slice(2,4);
+});
+}
+
+function numericOnly(el){
+el.addEventListener("input",()=>{
+el.value = el.value.replace(/\D/g,"");
+});
+}
+
 /* ================= DOM ================= */
 
 const winnerButtons = document.getElementById("winnerButtons");
@@ -104,8 +125,35 @@ const headerMap = {
 "profile-setup": "Edit Profile"
 };
 
+const breadcrumbMap = {
+"step-home":"Home",
+"step-game":"Bet",
+"rules-screen":"Rules",
+"step-style":"Setup",
+"step-teams":"Teams",
+"step-players":"Players",
+"step-settings":"Wager",
+"game-screen":"Live Game",
+"round-setup":"Track Round",
+"round-play":"Round",
+"profile-screen":"Profile",
+"profile-setup":"Edit Profile"
+};
+
+function updateBreadcrumb(){
+const trail = screenHistory.slice(-2).map(id=>breadcrumbMap[id]);
+const current = document.querySelector("section:not(.hidden)")?.id;
+
+if(current && breadcrumbMap[current]) trail.push(breadcrumbMap[current]);
+
+document.getElementById("breadcrumb").textContent = trail.join(" → ");
+}
+
 function updateHeader(id){
 const title = document.getElementById("appTitle");
+title.classList.add("title-swap");
+
+setTimeout(()=>{
 
 /* Live betting game */
 if(id === "game-screen"){
@@ -115,21 +163,25 @@ currentGame === "vegas" ? "Vegas" :
 currentGame === "nassau" ? "Nassau" :
 "Game";
 
-title.textContent = `${gameName} — Hole ${hole}`;
+title.textContent = `${gameName} – Hole ${hole}`;
+title.classList.remove("title-swap");
 return;
 }
 
 /* Round tracking */
 if(id === "round-play" && currentRound){
-title.textContent = `Round — Hole ${currentRound.currentHole} of ${currentRound.holes}`;
+title.textContent =
+`Round – Hole ${currentRound.currentHole} of ${currentRound.holes}`;
+title.classList.remove("title-swap");
 return;
 }
 
-/* Default screen titles */
+/* Default */
 title.textContent = headerMap[id] || "Tee Box Bets";
+title.classList.remove("title-swap");
+
+},120);
 }
-
-
 
 let screenHistory = [];
 
@@ -139,9 +191,9 @@ function show(id){
  const current = document.querySelector("section:not(.hidden)");
 
  // NEVER allow Home in history
- if (current && current.id !== id) {
- screenHistory.push(current.id);
- }
+ if (current && current.id !== id && current.id !== "step-home") {
+screenHistory.push(current.id);
+}
 
  document.querySelectorAll("section").forEach(s =>
  s.classList.add("hidden")
@@ -150,6 +202,7 @@ function show(id){
  document.getElementById(id).classList.remove("hidden");
 
  updateHeader(id);
+ updateBreadcrumb();
 
  syncBackButton();
 }
@@ -182,8 +235,9 @@ window.goBack = () => {
 
  document.getElementById(prev).classList.remove("hidden");
 
- updateHeader(prev);
  syncBackButton();
+ updateBreadcrumb();
+ updateHeader(prev);
 };
 
 function goHomeClean(){
@@ -195,6 +249,7 @@ s.classList.add("hidden")
 
 document.getElementById("step-home").classList.remove("hidden");
 
+updateBreadcrumb();
 updateHeader("step-home"); // ✅ reset title
 syncBackButton();
 }
@@ -205,11 +260,26 @@ window.showRules = () => show("rules-screen");
 
 /* ================= PROFILE CHECK ================= */
 
+
 document.addEventListener("DOMContentLoaded", () => {
- if(!userProfile){
- show("profile-setup");
- }
+
+const ratingInput = document.getElementById("courseRating");
+const slopeInput = document.getElementById("courseSlope");
+const manualRating = document.getElementById("manualRating");
+const manualSlope = document.getElementById("manualSlope");
+
+if(ratingInput) autoDecimal(ratingInput);
+if(manualRating) autoDecimal(manualRating);
+
+if(slopeInput) numericOnly(slopeInput);
+if(manualSlope) numericOnly(manualSlope);
+
+if(!userProfile){
+show("profile-setup");
+}
+
 });
+
 
 /* ================= GAME SELECT ================= */
 
@@ -539,9 +609,12 @@ updateHeader("game-screen");
 
 /* ================= END ROUND ================= */
 
-window.endRoundNow=()=>{
-leaderboardModalList.innerHTML=leaderboard.innerHTML;
-leaderboardModal.classList.remove("hidden");
+window.endRoundNow = () =>{
+if(!confirm("End round? Progress will be lost.")) return;
+
+currentRound = null;
+historyStack = [];
+goHomeClean();
 };
 
 leaderboardFinishBtn.onclick=()=>{
@@ -779,14 +852,6 @@ row.appendChild(del);
 list.appendChild(row);
 });
 }
-
-window.deleteRound = index => {
-if(!confirm("Delete this round?")) return;
-
-userProfile.rounds.splice(index,1);
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
-renderProfile();
-};
 
 window.editProfile = () => {
 

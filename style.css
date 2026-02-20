@@ -39,6 +39,12 @@ font-weight:600;
 pointer-events:none;
 }
 
+#breadcrumb{
+font-size:13px;
+opacity:.75;
+margin-top:4px;
+}
+
 /* iOS-style back pill */
 
 #navBack{
@@ -217,3 +223,14 @@ width:auto;
 min-width:auto;
 max-width:fit-content;
 }
+
+/* ================= ANIMATION HEADER ================= */
+#appTitle{
+transition:opacity .18s ease, transform .18s ease;
+}
+.title-swap{
+opacity:0;
+transform:translateY(-6px);
+}
+
+
