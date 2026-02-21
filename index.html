@@ -102,19 +102,23 @@
 
 <!-- ===== MANUAL ROUND ===== -->
 
-<h3>Add Previous Round</h3>
+<button onclick="toggleManualRound()" id="manualToggleBtn">
+Add Previous Round
+</button>
+
+<div id="manualRoundBox" class="hidden">
 
 <label>Date (MM/DD/YYYY)</label>
-<input id="manualDate" type="date">
+<input id="manualDate" placeholder="MM/DD/YYYY">
 
 <label>Course Name</label>
 <input id="manualCourse">
 
 <label>Course Rating</label>
-<input id="manualRating" type="number" inputmode="decimal">
+<input id="manualRating" inputmode="decimal">
 
 <label>Slope Rating</label>
-<input id="manualSlope" type=number inputmode="numeric">
+<input id="manualSlope" inputmode="numeric">
 
 <label>Total Strokes</label>
 <input id="manualStrokes" type="number">
@@ -125,7 +129,10 @@
 <option value="18">18</option>
 </select>
 
-<button onclick="addManualRound()">Add Round</button>
+<button onclick="addManualRound()">Save Previous Round</button>
+
+</div>
+
 
 </section>
 

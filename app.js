@@ -219,7 +219,7 @@ btn.style.display = "none";
 return;
 }
 
-btn.style.display = screenHistory.length ? "flex" : "none";
+btn.style.display = current.id !== "step-home" ? "flex" : "none";
 }
 
 window.goBack = () => {
@@ -253,6 +253,19 @@ updateBreadcrumb();
 updateHeader("step-home"); // ✅ reset title
 syncBackButton();
 }
+
+window.toggleManualRound = () => {
+const box = document.getElementById("manualRoundBox");
+const btn = document.getElementById("manualToggleBtn");
+
+const open = box.classList.contains("hidden");
+
+box.classList.toggle("hidden");
+
+btn.textContent = open
+? "Cancel Previous Round"
+: "Add Previous Round";
+};
 
 window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
