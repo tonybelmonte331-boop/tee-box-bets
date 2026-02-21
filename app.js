@@ -103,6 +103,11 @@ eagleToggle.onchange = () => {
  if (eagleToggle.checked) birdieToggle.checked = false;
 };
 
+window.toggleManualRound = () => {
+document.getElementById("manualRoundBox")
+.classList.toggle("hidden");
+};
+
 /* ================= NAV ================= */
 
 const headerMap = {
@@ -141,10 +146,18 @@ const breadcrumbMap = {
 };
 
 function updateBreadcrumb(){
-const trail = screenHistory.slice(-2).map(id=>breadcrumbMap[id]);
-const current = document.querySelector("section:not(.hidden)")?.id;
 
-if(current && breadcrumbMap[current]) trail.push(breadcrumbMap[current]);
+const current = document.querySelector("section:not(.hidden)")?.id;
+const hideCrumbScreens = ["game-screen","round-play"];
+
+if(!current || hideCrumbScreens.includes(current)){
+document.getElementById("breadcrumb").textContent = "";
+return;
+}
+
+const trail = screenHistory.slice(-2).map(id => breadcrumbMap[id]).filter(Boolean);
+
+if(breadcrumbMap[current]) trail.push(breadcrumbMap[current]);
 
 document.getElementById("breadcrumb").textContent = trail.join(" → ");
 }
@@ -193,6 +206,7 @@ function show(id){
  // NEVER allow Home in history
  if (current && current.id !== id) {
 screenHistory.push(current.id);
+if(screenHistory.length > 2) screenHistory.shift();
 }
 
  document.querySelectorAll("section").forEach(s =>
@@ -219,7 +233,7 @@ btn.style.display = "none";
 return;
 }
 
-btn.style.display = current.id !== "step-home" ? "flex" : "none";
+btn.style.display = screenHistory.length ? "flex" : "none";
 }
 
 window.goBack = () => {
@@ -427,6 +441,11 @@ ledger[i.value]=0;
 teams.A.push(i.value);
 });
 
+if(playStyle === "ffa"){
+teams.A = [...players];
+teams.B = [];
+}
+
 document.querySelectorAll("#teamBInputs input").forEach(i=>{
 players.push(i.value);
 ledger[i.value]=0;
@@ -457,6 +476,20 @@ show("game-screen");
 
 function buildWinnerButtons(){
 winnerButtons.innerHTML="";
+
+if(playStyle === "ffa"){
+
+players.forEach(player=>{
+const btn = document.createElement("button");
+btn.textContent = player;
+btn.onclick = () => handleFFAWin(player);
+winnerButtons.appendChild(btn);
+});
+
+return;
+}
+
+/* Team mode */
 ["A","B"].forEach(t=>{
 const btn=document.createElement("button");
 btn.textContent=t==="A"?teamAName:teamBName;
@@ -479,6 +512,22 @@ function handleTeamWin(t){
 saveState();
 applyBonus();
 skinsGame.winTeam(t,teams,ledger);
+nextHole();
+}
+
+function handleFFAWin(player){
+saveState();
+applyBonus();
+
+players.forEach(p=>{
+if(p === player){
+ledger[p] += skinsGame.currentPot();
+}else{
+ledger[p] -= skinsGame.currentPot();
+}
+});
+
+skinsGame.clearPot();
 nextHole();
 }
 

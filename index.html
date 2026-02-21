@@ -266,14 +266,19 @@ This game is played with two teams of 2
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
 
-<button onclick="undoHole()">Undo Previous Hole</button>
-<button onclick="endRoundNow()">End Round</button>
 
 <div id="skinsBox">
+
 <div id="winnerButtons"></div>
+
+<button id="tieBtn">Tie</button>
+
+<button onclick="undoHole()">Undo Previous Hole</button>
+
+<div style="margin-top:10px">
 <label><input type="checkbox" id="birdieToggle"> Birdie (+1)</label>
 <label><input type="checkbox" id="eagleToggle"> Eagle (+2)</label>
-<button id="tieBtn">Tie</button>
+</div>
 </div>
 
 <div id="nassauBox" class="hidden">
@@ -281,7 +286,7 @@ This game is played with two teams of 2
 <button id="nassauTieBtn">Tie Hole</button>
 </div>
 
-<button id="sideBetBtn">Side Bet</button>
+
 
 <div id="vegasBox" class="hidden">
 <div id="teamAPlayers"></div>
@@ -293,6 +298,12 @@ This game is played with two teams of 2
 <label><input type="checkbox" id="birdieFlip"> Birdie Flip</label>
 <button onclick="finishVegasHole()">Finish Hole</button>
 </div>
+
+<button
+style="background:#b83232;margin-top:20px"
+onclick="endRoundNow()">
+End Round
+</button>
 
 <h3>Leaderboard</h3>
 <div id="leaderboard"></div>
@@ -332,6 +343,7 @@ This game is played with two teams of 2
 </div>
 </div>
 
+<button id="sideBetBtn">Side Bet</button>
 </main>
 
 <script src="games/skins.js"></script>
