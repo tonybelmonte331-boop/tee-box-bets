@@ -42,6 +42,15 @@ el.value = el.value.replace(/\D/g,"");
 });
 }
 
+/* ================= HANDICAP MATH ================= */
+
+function calculateDifferential(strokes, rating, slope){
+return Number(
+((strokes - rating) * 113 / slope).toFixed(1)
+);
+}
+
+
 /* ================= DOM ================= */
 
 const winnerButtons = document.getElementById("winnerButtons");
@@ -744,13 +753,21 @@ function finishTrackedRound(){
 if(!currentRound) return;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
+const differential = calculateDifferential(
+currentRound.totalStrokes,
+currentRound.rating,
+currentRound.slope
+);
 
 userProfile.rounds.push({
 date: new Date().toISOString(),
 course: currentRound.course,
 strokes: currentRound.totalStrokes,
+rating: currentRound.rating,
+slope: currentRound.slope,
 toPar,
-holes: currentRound.holes
+holes: currentRound.holes,
+differential
 });
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
@@ -810,6 +827,7 @@ return;
 // Estimate par for manual entry (simple average)
 const par = holes === 9 ? 36 : 72;
 const toPar = strokes - par;
+const differential = calculateDifferential(strokes, rating, slope);
 
 userProfile.rounds.push({
 date: new Date(date).toISOString(),
@@ -818,7 +836,8 @@ rating,
 slope,
 strokes,
 toPar,
-holes
+holes,
+differential
 });
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
