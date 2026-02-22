@@ -45,11 +45,14 @@ bonus = 0;
 
 function winPlayer(player, players, ledger){
 const pot = currentPot();
+const losers = players.length - 1;
 
+// winner gets pot from each opponent
+ledger[player] += pot * losers;
+
+// each opponent loses one pot
 players.forEach(p=>{
-if(p === player){
-ledger[p] += pot;
-}else{
+if(p !== player){
 ledger[p] -= pot;
 }
 });
@@ -57,6 +60,7 @@ ledger[p] -= pot;
 carry = 0;
 bonus = 0;
 }
+
 
 function getState(){
 return { base, carry, bonus };
