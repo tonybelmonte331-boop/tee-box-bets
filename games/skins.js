@@ -43,6 +43,21 @@ carry = 0;
 bonus = 0;
 }
 
+function winPlayer(player, players, ledger){
+const pot = currentPot();
+
+players.forEach(p=>{
+if(p === player){
+ledger[p] += pot;
+}else{
+ledger[p] -= pot;
+}
+});
+
+carry = 0;
+bonus = 0;
+}
+
 function getState(){
 return { base, carry, bonus };
 }
@@ -60,6 +75,7 @@ applyBonus,
 clearBonus,
 tie,
 winTeam,
+winPlayer,
 getState,
 setState
 };

@@ -215,6 +215,12 @@ if(screenHistory.length > 2) screenHistory.shift();
 
  document.getElementById(id).classList.remove("hidden");
 
+ // Show side bet only in live game
+const sideBtn = document.getElementById("sideBetBtn");
+if(sideBtn){
+sideBtn.style.display = id === "game-screen" ? "block" : "none";
+}
+
  updateHeader(id);
  updateBreadcrumb();
 
@@ -313,7 +319,7 @@ show("profile-setup");
 window.selectGame=game=>{
 currentGame=game;
 
-if(game==="vegas"||game==="nassau"){
+if(game==="vegas"||game==="nassau" || game==="skins"){
 lockedNotice.classList.remove("hidden");
 
 playStyleBox.classList.add("hidden");
@@ -479,17 +485,22 @@ winnerButtons.innerHTML="";
 
 if(playStyle === "ffa"){
 
-players.forEach(player=>{
-const btn = document.createElement("button");
-btn.textContent = player;
-btn.onclick = () => handleFFAWin(player);
+players.forEach(p=>{
+const btn=document.createElement("button");
+btn.textContent=p;
+btn.onclick=()=>{
+saveState();
+applyBonus();
+skinsGame.winPlayer(p,players,ledger);
+nextHole();
+};
 winnerButtons.appendChild(btn);
 });
 
 return;
 }
 
-/* Team mode */
+// Team mode
 ["A","B"].forEach(t=>{
 const btn=document.createElement("button");
 btn.textContent=t==="A"?teamAName:teamBName;
@@ -498,15 +509,6 @@ winnerButtons.appendChild(btn);
 });
 }
 
-function applyBonus(){
-if(birdieToggle.checked){
-eagleToggle.checked=false;
-skinsGame.applyBonus("birdie");
-}else if(eagleToggle.checked){
-birdieToggle.checked=false;
-skinsGame.applyBonus("eagle");
-}
-}
 
 function handleTeamWin(t){
 saveState();
