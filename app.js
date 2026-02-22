@@ -314,6 +314,8 @@ if(!userProfile){
 show("profile-setup");
 }
 sideBetBtn.classList.add("hidden");
+
+document.getElementById("manualSaveBtn").onclick = addManualRound;
 });
 
 
@@ -907,7 +909,10 @@ function renderProfile(){
 if(!userProfile) return;
 
 document.getElementById("profileNameDisplay").textContent = userProfile.name;
-document.getElementById("profileHandicapDisplay").textContent = userProfile.currentHandicap.toFixed(1);
+const handicap = userProfile.currentHandicap ?? 0;
+
+document.getElementById("profileHandicapDisplay").textContent =
+handicap.toFixed(1);
 document.getElementById("profileRounds").textContent = userProfile.rounds.length;
 
 const avg = userProfile.rounds.length
@@ -1000,12 +1005,14 @@ function deleteRound(displayIndex){
 
 if(!confirm("Delete this round permanently?")) return;
 
-// because we reversed list for display
+// Correct index from reversed display
 const realIndex = userProfile.rounds.length - 1 - displayIndex;
+
+if(realIndex < 0 || realIndex >= userProfile.rounds.length) return;
 
 userProfile.rounds.splice(realIndex,1);
 
-// 🔥 Recalculate handicap after deletion
+// Recalculate handicap safely
 userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
