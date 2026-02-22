@@ -72,6 +72,42 @@ const avg = lowest.reduce((a,b)=>a+b,0) / lowest.length;
 return Number(avg.toFixed(1));
 }
 
+function calculateHandicapFromDiffs(diffs){
+
+const recent = diffs.slice(-20).sort((a,b)=>a-b);
+const count = recent.length;
+
+if(count < 3) return null;
+
+let use = 1;
+if(count >= 6) use = 2;
+if(count >= 9) use = 3;
+if(count >= 12) use = 4;
+if(count >= 15) use = 5;
+if(count >= 17) use = 6;
+if(count >= 19) use = 7;
+if(count >= 20) use = 8;
+
+const selected = recent.slice(0,use);
+const avg = selected.reduce((a,b)=>a+b,0) / use;
+
+return Number((avg * 0.96).toFixed(1));
+}
+
+function updateHandicap(){
+
+const diffs = userProfile.rounds
+.map(r => r.differential)
+.filter(d => d !== undefined);
+
+const newHdcp = calculateHandicapFromDiffs(diffs);
+
+if(newHdcp !== null){
+userProfile.currentHandicap = newHdcp;
+}
+}
+
+
 /* ================= DOM ================= */
 
 const winnerButtons = document.getElementById("winnerButtons");
@@ -776,8 +812,14 @@ function finishTrackedRound(){
 if(!currentRound) return;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
+let adjustedStrokes = currentRound.totalStrokes;
+
+if(currentRound.holes === 9){
+adjustedStrokes = currentRound.totalStrokes * 2;
+}
+
 const differential = calculateDifferential(
-currentRound.totalStrokes,
+adjustedStrokes,
 currentRound.rating,
 currentRound.slope
 );
@@ -793,7 +835,7 @@ holes: currentRound.holes,
 differential
 });
 
-userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
+updateHandicap();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
@@ -852,7 +894,13 @@ return;
 // Estimate par for manual entry (simple average)
 const par = holes === 9 ? 36 : 72;
 const toPar = strokes - par;
-const differential = calculateDifferential(strokes, rating, slope);
+let adjustedStrokes = strokes;
+
+if(holes === 9){
+adjustedStrokes = strokes * 2;
+}
+
+const differential = calculateDifferential(adjustedStrokes, rating, slope);
 
 userProfile.rounds.push({
 date: new Date(date).toISOString(),
@@ -865,7 +913,7 @@ holes,
 differential
 });
 
-userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
+updateHandicap();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 renderProfile();
@@ -1013,7 +1061,7 @@ if(realIndex < 0 || realIndex >= userProfile.rounds.length) return;
 userProfile.rounds.splice(realIndex,1);
 
 // Recalculate handicap safely
-userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
+updateHandicap();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 

@@ -109,6 +109,12 @@ border:none;
 font-size:16px;
 }
 
+input[type="date"]{
+    appearance: none;
+    -webkit-appearance: none;
+    height: 52px;
+}
+
 input,select{
 background:#e6f5ee;
 color:black;
