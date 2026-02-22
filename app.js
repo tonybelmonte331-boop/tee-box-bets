@@ -50,6 +50,27 @@ return Number(
 );
 }
 
+function calculateHandicapIndex(rounds){
+
+// only rounds that have differentials
+const diffs = rounds
+.filter(r => r.differential !== undefined)
+.map(r => r.differential)
+.slice(-20); // most recent 20
+
+if(diffs.length < 3) return null; // USGA minimum safety
+
+// take lowest 8
+const lowest = diffs
+.sort((a,b)=>a-b)
+.slice(0, Math.min(8, diffs.length));
+
+// average
+const avg = lowest.reduce((a,b)=>a+b,0) / lowest.length;
+
+// round to 1 decimal
+return Number(avg.toFixed(1));
+}
 
 /* ================= DOM ================= */
 
@@ -770,6 +791,8 @@ holes: currentRound.holes,
 differential
 });
 
+userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
+
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 currentRound = null;
@@ -839,6 +862,8 @@ toPar,
 holes,
 differential
 });
+
+userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 renderProfile();
