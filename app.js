@@ -869,10 +869,29 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 renderProfile();
 
 // clear fields
-["manualDate","manualCourse","manualRating","manualSlope","manualStrokes"].forEach(id=>{
-const el=document.getElementById(id);
-if(el) el.value="";
+
+// Clear ALL fields
+[
+"manualDate",
+"manualCourse",
+"manualRating",
+"manualSlope",
+"manualStrokes"
+].forEach(id=>{
+const el = document.getElementById(id);
+if(el) el.value = "";
 });
+
+// Reset holes dropdown
+document.getElementById("manualHoles").value = "9";
+
+// Close manual entry box
+const box = document.getElementById("manualRoundBox");
+const btn = document.getElementById("manualToggleBtn");
+
+box.classList.add("hidden");
+btn.textContent = "Add Previous Round";
+
 };
 
 
@@ -985,6 +1004,9 @@ if(!confirm("Delete this round permanently?")) return;
 const realIndex = userProfile.rounds.length - 1 - displayIndex;
 
 userProfile.rounds.splice(realIndex,1);
+
+// 🔥 Recalculate handicap after deletion
+userProfile.currentHandicap = calculateHandicapIndex(userProfile.rounds);
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
