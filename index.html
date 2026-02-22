@@ -17,7 +17,6 @@
 <header>
 <button id="navBack" onclick="goBack()">Back</button>
 <h1 id="appTitle">Tee Box Bets</h1>
-<div id="breadcrumb"></div>
 </header>
 
 <main>
@@ -109,7 +108,7 @@ Add Previous Round
 <div id="manualRoundBox" class="hidden">
 
 <label>Date (MM/DD/YYYY)</label>
-<input id="manualDate" placeholder="MM/DD/YYYY">
+<input id="manualDate" type="date">
 
 <label>Course Name</label>
 <input id="manualCourse">
@@ -239,7 +238,7 @@ This game is played with two teams of 2
 
 <div id="baseWagerWrapper" class="money-input">
 <span>$</span>
-<input id="baseWager" type="number">
+<input id="baseWager" type="number" inputmode="decimal">
 </div>
 
 <p id="wagerLabel"></p>
@@ -250,9 +249,9 @@ This game is played with two teams of 2
 </select>
 
 <div id="nassauWagers" class="hidden">
-<div class="money-input"><span>$</span><input id="frontWager" type="number"></div>
-<div class="money-input"><span>$</span><input id="backWager" type="number"></div>
-<div class="money-input"><span>$</span><input id="totalWager" type="number"></div>
+<div class="money-input"><span>$</span><input id="frontWager" type="number" inputmode="decimal"></div>
+<div class="money-input"><span>$</span><input id="backWager" type="number" inputmode="decimal"></div>
+<div class="money-input"><span>$</span><input id="totalWager" type="number" inputmode="decimal"></div>
 <p>Nassau always plays 18 holes</p>
 </div>
 
@@ -290,11 +289,11 @@ This game is played with two teams of 2
 
 <div id="vegasBox" class="hidden">
 <div id="teamAPlayers"></div>
-<input id="a1" type="number">
-<input id="a2" type="number">
+<input id="a1" type="number" inputmode="numeric">
+<input id="a2" type="number" inputmode="numeric">
 <div id="teamBPlayers"></div>
-<input id="b1" type="number">
-<input id="b2" type="number">
+<input id="b1" type="number" inputmode="numeric">
+<input id="b2" type="number" inputmode="numeric">
 <label><input type="checkbox" id="birdieFlip"> Birdie Flip</label>
 <button onclick="finishVegasHole()">Finish Hole</button>
 </div>
@@ -332,7 +331,7 @@ End Round
 <h3>Side Bet</h3>
 <div class="money-input">
 <span>$</span>
-<input id="sideAmount" type="number">
+<input id="sideAmount" type="number" inputmode="decimal">
 </div>
 <select id="sideMode">
 <option value="player">Per Player</option>

@@ -130,38 +130,6 @@ const headerMap = {
 "profile-setup": "Edit Profile"
 };
 
-const breadcrumbMap = {
-"step-home":"Home",
-"step-game":"Bet",
-"rules-screen":"Rules",
-"step-style":"Setup",
-"step-teams":"Teams",
-"step-players":"Players",
-"step-settings":"Wager",
-"game-screen":"Live Game",
-"round-setup":"Track Round",
-"round-play":"Round",
-"profile-screen":"Profile",
-"profile-setup":"Edit Profile"
-};
-
-function updateBreadcrumb(){
-
-const current = document.querySelector("section:not(.hidden)")?.id;
-const hideCrumbScreens = ["game-screen","round-play"];
-
-if(!current || hideCrumbScreens.includes(current)){
-document.getElementById("breadcrumb").textContent = "";
-return;
-}
-
-const trail = screenHistory.slice(-2).map(id => breadcrumbMap[id]).filter(Boolean);
-
-if(breadcrumbMap[current]) trail.push(breadcrumbMap[current]);
-
-document.getElementById("breadcrumb").textContent = trail.join(" → ");
-}
-
 function updateHeader(id){
 const title = document.getElementById("appTitle");
 title.classList.add("title-swap");
@@ -199,33 +167,31 @@ title.classList.remove("title-swap");
 let screenHistory = [];
 
 function show(id){
- haptic();
+haptic();
 
- const current = document.querySelector("section:not(.hidden)");
+const current = document.querySelector("section:not(.hidden)");
 
- // NEVER allow Home in history
- if (current && current.id !== id) {
+if (current && current.id !== id) {
 screenHistory.push(current.id);
-if(screenHistory.length > 2) screenHistory.shift();
 }
 
- document.querySelectorAll("section").forEach(s =>
- s.classList.add("hidden")
- );
+document.querySelectorAll("section").forEach(s =>
+s.classList.add("hidden")
+);
 
- document.getElementById(id).classList.remove("hidden");
+document.getElementById(id).classList.remove("hidden");
 
- // Show side bet only in live game
-const sideBtn = document.getElementById("sideBetBtn");
-if(sideBtn){
-sideBtn.style.display = id === "game-screen" ? "block" : "none";
+// ✅ Side bet ONLY during live game
+if(id === "game-screen"){
+sideBetBtn.classList.remove("hidden");
+}else{
+sideBetBtn.classList.add("hidden");
 }
 
- updateHeader(id);
- updateBreadcrumb();
-
- syncBackButton();
+updateHeader(id);
+syncBackButton();
 }
+
 
 function syncBackButton(){
 const btn = document.getElementById("navBack");
@@ -256,7 +222,6 @@ window.goBack = () => {
  document.getElementById(prev).classList.remove("hidden");
 
  syncBackButton();
- updateBreadcrumb();
  updateHeader(prev);
 };
 
@@ -269,7 +234,6 @@ s.classList.add("hidden")
 
 document.getElementById("step-home").classList.remove("hidden");
 
-updateBreadcrumb();
 updateHeader("step-home"); // ✅ reset title
 syncBackButton();
 }
@@ -310,7 +274,7 @@ if(manualSlope) numericOnly(manualSlope);
 if(!userProfile){
 show("profile-setup");
 }
-
+sideBetBtn.classList.add("hidden");
 });
 
 
@@ -319,7 +283,7 @@ show("profile-setup");
 window.selectGame=game=>{
 currentGame=game;
 
-if(game==="vegas"||game==="nassau" || game==="skins"){
+if(game==="vegas" || game==="nassau"){
 lockedNotice.classList.remove("hidden");
 
 playStyleBox.classList.add("hidden");
@@ -330,6 +294,15 @@ playerCountLabel.classList.add("hidden");
 playStyle="teams";
 playerCount=4;
 }else{
+lockedNotice.classList.add("hidden");
+
+playStyleBox.classList.remove("hidden");
+playerCountBox.classList.remove("hidden");
+playStyleLabel.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+}
+
+if(game === "skins"){
 lockedNotice.classList.add("hidden");
 
 playStyleBox.classList.remove("hidden");
@@ -362,8 +335,14 @@ show("step-teams");
 return;
 }
 
-playStyle=playStyleBox.value;
-playerCount=parseInt(playerCountBox.value);
+playStyle = playStyleBox.value;
+
+if(playStyle === "teams"){
+playerCount = 4;
+}else{
+playerCount = parseInt(playerCountBox.value);
+}
+
 
 playStyle==="teams"?show("step-teams"):buildPlayers();
 };
@@ -486,27 +465,40 @@ winnerButtons.innerHTML="";
 if(playStyle === "ffa"){
 
 players.forEach(p=>{
-const btn=document.createElement("button");
-btn.textContent=p;
-btn.onclick=()=>{
+const btn = document.createElement("button");
+btn.textContent = p;
+btn.onclick = ()=>{
 saveState();
-applyBonus();
-skinsGame.winPlayer(p,players,ledger);
+
+const pot = skinsGame.currentPot();
+
+players.forEach(pl=>{
+if(pl === p){
+ledger[pl] += pot;
+}else{
+ledger[pl] -= pot;
+}
+});
+
+skinsGame.clearBonus();
+skinsGame.reset(baseWager);
+
+nextHole();
 nextHole();
 };
 winnerButtons.appendChild(btn);
 });
 
-return;
-}
+}else{
 
-// Team mode
 ["A","B"].forEach(t=>{
 const btn=document.createElement("button");
 btn.textContent=t==="A"?teamAName:teamBName;
 btn.onclick=()=>handleTeamWin(t);
 winnerButtons.appendChild(btn);
 });
+
+}
 }
 
 
@@ -514,22 +506,6 @@ function handleTeamWin(t){
 saveState();
 applyBonus();
 skinsGame.winTeam(t,teams,ledger);
-nextHole();
-}
-
-function handleFFAWin(player){
-saveState();
-applyBonus();
-
-players.forEach(p=>{
-if(p === player){
-ledger[p] += skinsGame.currentPot();
-}else{
-ledger[p] -= skinsGame.currentPot();
-}
-});
-
-skinsGame.clearPot();
 nextHole();
 }
 

@@ -39,12 +39,6 @@ font-weight:600;
 pointer-events:none;
 }
 
-#breadcrumb{
-font-size:13px;
-opacity:.75;
-margin-top:4px;
-}
-
 /* iOS-style back pill */
 
 #navBack{
@@ -196,14 +190,14 @@ box-shadow:0 12px 30px rgba(0,0,0,.5);
 
 #sideBetBtn{
 position:fixed;
-top:12px;
+top:70px;
 right:12px;
 width:auto;
 padding:8px 18px;
 border-radius:22px;
 font-size:14px;
 z-index:1500;
-box-shadow:0 4px 12px rgba(0,0,0,.4);
+display: none;
 }
 
 /* ================= ANIMATION ================= */
@@ -233,5 +227,3 @@ transition:opacity .18s ease, transform .18s ease;
 opacity:0;
 transform:translateY(-6px);
 }
-
-
