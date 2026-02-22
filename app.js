@@ -103,6 +103,15 @@ eagleToggle.onchange = () => {
  if (eagleToggle.checked) birdieToggle.checked = false;
 };
 
+function applyBonus(){
+if(birdieToggle.checked){
+skinsGame.applyBonus("birdie");
+}
+if(eagleToggle.checked){
+skinsGame.applyBonus("eagle");
+}
+}
+
 window.toggleManualRound = () => {
 document.getElementById("manualRoundBox")
 .classList.toggle("hidden");
@@ -469,27 +478,16 @@ const btn = document.createElement("button");
 btn.textContent = p;
 btn.onclick = ()=>{
 saveState();
-
-const pot = skinsGame.currentPot();
-
-players.forEach(pl=>{
-if(pl === p){
-ledger[pl] += pot;
-}else{
-ledger[pl] -= pot;
-}
-});
-
-skinsGame.clearBonus();
-skinsGame.reset(baseWager);
-
-nextHole();
+applyBonus();
+skinsGame.winPlayer(p, players, ledger);
 nextHole();
 };
 winnerButtons.appendChild(btn);
 });
 
-}else{
+}
+
+else{
 
 ["A","B"].forEach(t=>{
 const btn=document.createElement("button");
@@ -948,4 +946,3 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 renderProfile();
 }
-
