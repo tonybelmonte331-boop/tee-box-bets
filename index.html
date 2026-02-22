@@ -34,6 +34,14 @@
 <section id="profile-screen" class="hidden">
 <h2>Your Profile</h2>
 
+<div class="profile-tabs">
+<button class="profile-tab active" onclick="showProfileTab('summaryTab')">Summary</button>
+<button class="profile-tab" onclick="showProfileTab('roundsTab')">Rounds</button>
+<button class="profile-tab" onclick="showProfileTab('bettingTab')">Betting</button>
+</div>
+
+<div id="summaryTab" class="profile-tab-content">
+
 <div class="profile-card">
 <h3 id="profileNameDisplay"></h3>
 <p>Handicap: <strong id="profileHandicapDisplay"></strong></p>
@@ -41,18 +49,39 @@
 <p>Average Score: <strong id="profileAvg"></strong></p>
 </div>
 
+</div>
+
+<div id="bettingTab" class="profile-tab-content hidden">
+
 <div class="profile-card">
 <h3>Betting Stats</h3>
 <p>Total +/- : <strong id="betNet"></strong></p>
 <p>Games Played: <strong id="betGames"></strong></p>
 </div>
 
+</div>
+
+<div id="roundsTab" class="profile-tab-content hidden">
+
 <div class="profile-card">
-<h3>Recent Rounds</h3>
-<div id="roundList"></div>
+<h3>Round History</h3>
 
-<hr style="margin:20px 0">
+<table style="width:100%;font-size:14px">
+<tr>
+<th>Date</th>
+<th>Course</th>
+<th>Par</th>
+<th>Score</th>
+<th>+/-</th>
+<th onclick="alert('Differential measures how your score compares to course difficulty. Lower is better. It’s used to calculate your handicap.')">
+Diff ℹ️
+</th>
+</tr>
 
+<tbody id="roundHistoryTable"></tbody>
+</table>
+
+</div>
 </div>
 
 <button onclick="editProfile()">Edit Profile</button>

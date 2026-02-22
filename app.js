@@ -104,6 +104,8 @@ const newHdcp = calculateHandicapFromDiffs(diffs);
 
 if(newHdcp !== null){
 userProfile.currentHandicap = newHdcp;
+}else{
+    userProfile.currentHandicap = 0;
 }
 }
 
@@ -947,6 +949,27 @@ btn.textContent = "Add Previous Round";
 
 /* ================= PROFILE ================= */
 
+function showProfileTab(tabId){
+
+document.querySelectorAll(".profile-tab").forEach(btn=>{
+btn.classList.remove("active");
+});
+
+document.querySelectorAll(".profile-tab-content").forEach(tab=>{
+tab.classList.add("hidden");
+});
+
+document.getElementById(tabId).classList.remove("hidden");
+
+const buttons = document.querySelectorAll(".profile-tab");
+buttons.forEach(b=>{
+if(b.textContent.toLowerCase().includes(tabId.replace("Tab","").toLowerCase())){
+b.classList.add("active");
+}
+});
+
+}
+
 window.openProfile = () =>{
 renderProfile();
 show("profile-screen");
@@ -957,10 +980,9 @@ function renderProfile(){
 if(!userProfile) return;
 
 document.getElementById("profileNameDisplay").textContent = userProfile.name;
-const handicap = userProfile.currentHandicap ?? 0;
 
-document.getElementById("profileHandicapDisplay").textContent =
-handicap.toFixed(1);
+const handicap = userProfile.currentHandicap ?? 0;
+document.getElementById("profileHandicapDisplay").textContent = handicap.toFixed(1);
 document.getElementById("profileRounds").textContent = userProfile.rounds.length;
 
 const avg = userProfile.rounds.length
@@ -972,39 +994,38 @@ document.getElementById("profileAvg").textContent = avg;
 document.getElementById("betNet").textContent =
 (userProfile.bettingStats.totalWon - userProfile.bettingStats.totalLost).toFixed(2);
 
-document.getElementById("betGames").textContent = userProfile.bettingStats.totalPlayed;
+document.getElementById("betGames").textContent =
+userProfile.bettingStats.totalPlayed;
 
-const list = document.getElementById("roundList");
-list.innerHTML="";
+/* ===== ROUND HISTORY TABLE ===== */
 
-[...userProfile.rounds].reverse().slice(0,10).forEach((r, index)=>{
+const table = document.getElementById("roundHistoryTable");
+table.innerHTML = "";
 
-const row = document.createElement("div");
-row.style.display = "flex";
-row.style.justifyContent = "space-between";
-row.style.alignItems = "center";
-row.style.marginBottom = "6px";
+[...userProfile.rounds].reverse().forEach(r=>{
 
 const d = new Date(r.date);
-const formatted =
-`${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+const date = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
 
-const text = document.createElement("span");
-text.textContent = `${formatted} — ${r.strokes} (${r.toPar>=0?"+":""}${r.toPar})`;
+const par = r.holes === 9 ? 36 : 72;
+const diff = r.strokes - par;
 
-const del = document.createElement("button");
-del.textContent = "✕";
-del.style.background = "#a83232";
-del.style.padding = "4px 10px";
-del.style.borderRadius = "10px";
-del.style.fontSize = "14px";
+const row = document.createElement("tr");
 
-del.onclick = () => deleteRound(index);
+row.innerHTML = `
+<td>${date}</td>
+<td>${r.course}</td>
+<td>${par}</td>
+<td>${r.strokes}</td>
+<td>${diff>=0?"+":""}${diff}</td>
+<td>${r.differential ?? "-"}</td>
+`;
 
-row.appendChild(text);
-row.appendChild(del);
-list.appendChild(row);
+table.appendChild(row);
 });
+
+/* Default tab */
+showProfileTab("summaryTab");
 }
 
 window.editProfile = () => {
