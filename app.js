@@ -710,7 +710,44 @@ const s=nassauGame.getStatus();
 potDisplay.textContent=`Front ${s.frontA}-${s.frontB} | Back ${s.backA}-${s.backB} | Total ${s.totalA}-${s.totalB}`;
 }
 
-leaderboard.innerHTML=players.map(p=>`${p}: $${ledger[p]}`).join("<br>");
+/* ===== ENHANCED LEADERBOARD ===== */
+
+const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
+
+leaderboard.innerHTML = "";
+
+sorted.forEach((p,i)=>{
+
+const value = ledger[p];
+const row = document.createElement("div");
+
+row.style.display = "flex";
+row.style.justifyContent = "space-between";
+row.style.padding = "8px 12px";
+row.style.marginBottom = "6px";
+row.style.borderRadius = "10px";
+row.style.fontWeight = "600";
+
+if(i === 0){
+row.style.background = "#0f5132"; // leader highlight
+}
+
+if(value > 0){
+row.style.color = "#2ecc71";
+}else if(value < 0){
+row.style.color = "#e74c3c";
+}else{
+row.style.color = "#ffffff";
+}
+
+row.innerHTML = `
+<span>${p}</span>
+<span>${value>=0?"+":""}$${value.toFixed(2)}</span>
+`;
+
+leaderboard.appendChild(row);
+
+});
 
 updateHeader("game-screen");
 }
