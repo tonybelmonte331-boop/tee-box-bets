@@ -113,18 +113,15 @@ userProfile.currentHandicap = newHdcp;
 
 function updateBettingStats(){
 
-let won = 0;
-let lost = 0;
+const net = Object.values(ledger).reduce((a,b)=>a+b,0);
 
-players.forEach(p=>{
-const val = ledger[p];
+if(net > 0){
+userProfile.bettingStats.totalWon += net;
+}
+if(net < 0){
+userProfile.bettingStats.totalLost += Math.abs(net);
+}
 
-if(val > 0) won += val;
-if(val < 0) lost += Math.abs(val);
-});
-
-userProfile.bettingStats.totalWon += won;
-userProfile.bettingStats.totalLost += lost;
 userProfile.bettingStats.totalPlayed += 1;
 
 }
@@ -1184,8 +1181,6 @@ if(p === userProfile.name) return;
 userProfile.bettingStats.opponents[p] =
 (userProfile.bettingStats.opponents[p] || 0) + 1;
 });
-
-userProfile.bettingStats.totalPlayed++;
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 }
