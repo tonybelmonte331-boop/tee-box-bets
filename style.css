@@ -205,6 +205,19 @@ font-size:14px;
 z-index:1500;
 }
 
+/* ================= PAR BUTTONS ================= */
+.par-btn{
+flex:1;
+background:#1faa59;
+border-radius:14px;
+padding:14px;
+font-weight:600;
+}
+
+.par-btn.active{
+background:#0f5132;
+}
+
 /* ================= ANIMATION ================= */
 
 @keyframes slideIn{

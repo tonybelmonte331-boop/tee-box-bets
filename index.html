@@ -60,6 +60,8 @@
 <button id="resetBettingBtn" style="background:#a83232;margin-top:10px">
 Reset Betting Stats
 </button>
+<h3 style="margin-top:20px">Most Played With</h3>
+<div id="opponentList"></div>
 </div>
 
 </div>
@@ -175,12 +177,16 @@ Add Previous Round
 <h4 id="roundCourseInfo"></h4>
 
 <label>Par</label>
-<select id="holePar">
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-</select>
+
+<div id="parButtons" style="display:flex;gap:10px">
+
+<button onclick="setPar(3)" class="par-btn">Par 3</button>
+<button onclick="setPar(4)" class="par-btn active">Par 4</button>
+<button onclick="setPar(5)" class="par-btn">Par 5</button>
+
+</div>
+
+<input type="hidden" id="holePar" value="4">
 
 <label>Score</label>
 <input id="holeScore" type="number" inputmode="numeric">

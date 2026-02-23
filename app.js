@@ -198,6 +198,18 @@ skinsGame.applyBonus("eagle");
 }
 }
 
+function setPar(value){
+
+document.getElementById("holePar").value = value;
+
+document.querySelectorAll(".par-btn").forEach(b=>{
+b.classList.remove("active");
+});
+
+event.target.classList.add("active");
+
+}
+
 window.toggleManualRound = () => {
 document.getElementById("manualRoundBox")
 .classList.toggle("hidden");
@@ -1061,6 +1073,37 @@ document.getElementById("betNet").textContent =
 
 document.getElementById("betGames").textContent =
 userProfile.bettingStats.totalPlayed;
+
+const oppBox = document.getElementById("opponentList");
+oppBox.innerHTML = "";
+
+const opponents = userProfile.bettingStats.opponents || {};
+
+const sortedOpps = Object.entries(opponents)
+.sort((a,b)=>b[1]-a[1]);
+
+if(!sortedOpps.length){
+oppBox.innerHTML = "<p>No opponents yet</p>";
+}else{
+sortedOpps.forEach(([name,count])=>{
+const row = document.createElement("div");
+
+row.style.display = "flex";
+row.style.justifyContent = "space-between";
+row.style.padding = "6px 10px";
+row.style.marginBottom = "6px";
+row.style.borderRadius = "10px";
+row.style.background = "rgba(255,255,255,.08)";
+
+row.innerHTML = `
+<span>${name}</span>
+<span>${count} games</span>
+`;
+
+oppBox.appendChild(row);
+});
+}
+
 
 /* ===== ROUND HISTORY TABLE ===== */
 
