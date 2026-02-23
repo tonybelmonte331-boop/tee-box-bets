@@ -210,13 +210,13 @@ End Round (Discard)
 
 <section id="rules-screen" class="hidden">
 <h3>Skins</h3>
-<p>Wager per player. Ties carry. Birdie adds one wager. Eagle adds two wagers.</p>
+<p>Wager per player. Lowest score per hole wins. Ties carry. Birdie adds one wager. Eagle adds two wagers.</p>
 
 <h3>Vegas</h3>
-<p>Team game. Scores form numbers. Difference × wager per point.</p>
+<p>Team game. Scores combine to form the lowest number (4 and 3 becomes 34). Birdie or better flips the losing teams score. Difference in temas scores = Points. Points × wager per point = Payout.</p>
 
 <h3>Nassau</h3>
-<p>Team match: Front 9, Back 9, Total Round.</p>
+<p>Team match: Front 9, Back 9, Total Round each carry their own wagers. 3 total bets to be won.</p>
 </section>
 
 <!-- ===== PLAY STYLE ===== -->
@@ -281,11 +281,25 @@ This game is played with two teams of 2
 </select>
 
 <div id="nassauWagers" class="hidden">
-<div class="money-input"><span>$</span><input id="frontWager" type="number" inputmode="decimal"></div>
-<div class="money-input"><span>$</span><input id="backWager" type="number" inputmode="decimal"></div>
-<div class="money-input"><span>$</span><input id="totalWager" type="number" inputmode="decimal"></div>
+
+<label>Front 9 Wager</label>
+<div class="money-input">
+<span>$</span><input id="frontWager" type="number" inputmode="decimal">
+</div>
+
+<label>Back 9 Wager</label>
+<div class="money-input">
+<span>$</span><input id="backWager" type="number" inputmode="decimal">
+</div>
+
+<label>Total Round Wager</label>
+<div class="money-input">
+<span>$</span><input id="totalWager" type="number" inputmode="decimal">
+</div>
+
 <p>Nassau always plays 18 holes</p>
 </div>
+
 
 <button onclick="startRound()">Start</button>
 </section>

@@ -113,13 +113,14 @@ userProfile.currentHandicap = newHdcp;
 
 function updateBettingStats(){
 
-const net = Object.values(ledger).reduce((a,b)=>a+b,0);
+const myName = userProfile.name;
+const myNet = ledger[myName] || 0;
 
-if(net > 0){
-userProfile.bettingStats.totalWon += net;
+if(myNet > 0){
+userProfile.bettingStats.totalWon += myNet;
 }
-if(net < 0){
-userProfile.bettingStats.totalLost += Math.abs(net);
+if(myNet < 0){
+userProfile.bettingStats.totalLost += Math.abs(myNet);
 }
 
 userProfile.bettingStats.totalPlayed += 1;
@@ -1052,8 +1053,11 @@ const avg = userProfile.rounds.length
 
 document.getElementById("profileAvg").textContent = avg;
 
+const net =
+userProfile.bettingStats.totalWon - userProfile.bettingStats.totalLost;
+
 document.getElementById("betNet").textContent =
-(userProfile.bettingStats.totalWon - userProfile.bettingStats.totalLost).toFixed(2);
+`${net>=0?"+":""}$${net.toFixed(2)}`;
 
 document.getElementById("betGames").textContent =
 userProfile.bettingStats.totalPlayed;
