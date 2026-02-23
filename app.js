@@ -109,6 +109,26 @@ userProfile.currentHandicap = newHdcp;
 }
 }
 
+/* ================= BETTING STATS ================= */
+
+function updateBettingStats(){
+
+let won = 0;
+let lost = 0;
+
+players.forEach(p=>{
+const val = ledger[p];
+
+if(val > 0) won += val;
+if(val < 0) lost += Math.abs(val);
+});
+
+userProfile.bettingStats.totalWon += won;
+userProfile.bettingStats.totalLost += lost;
+userProfile.bettingStats.totalPlayed += 1;
+
+}
+
 
 /* ================= DOM ================= */
 
@@ -762,9 +782,16 @@ historyStack = [];
 goHomeClean();
 };
 
-leaderboardFinishBtn.onclick=()=>{
+leaderboardFinishBtn.onclick = () => {
+
+updateBettingStats();
+trackOpponents();
+
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
 leaderboardModal.classList.add("hidden");
 goHomeClean();
+
 };
 
 /* ================= ROUND TRACKING ================= */
@@ -1124,4 +1151,41 @@ updateHandicap();
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 renderProfile();
+}
+
+/* ================= RESET BETTING ================= */
+
+document.getElementById("resetBettingBtn").onclick = () => {
+
+if(!confirm("Reset all betting stats? This cannot be undone.")) return;
+
+userProfile.bettingStats = {
+totalWon:0,
+totalLost:0,
+totalPlayed:0
+};
+
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
+renderProfile();
+
+};
+
+/* ================= OPPONENT TRACKING ================= */
+
+function trackOpponents(){
+
+if(!userProfile.bettingStats.opponents){
+userProfile.bettingStats.opponents = {};
+}
+
+players.forEach(p=>{
+if(p === userProfile.name) return;
+
+userProfile.bettingStats.opponents[p] =
+(userProfile.bettingStats.opponents[p] || 0) + 1;
+});
+
+userProfile.bettingStats.totalPlayed++;
+
+localStorage.setItem("userProfile", JSON.stringify(userProfile));
 }
