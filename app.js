@@ -932,7 +932,40 @@ window.openScorecard = () => {
 
 if(!currentRound) return;
 
-let html = "<table style='width:100%'><tr><th>Hole</th><th>Par</th><th>Score</th><th>+/-</th></tr>";
+function openScorecard(){
+
+if(!currentRound) return;
+
+let html = `
+<table style="width:100%;border-collapse:collapse;text-align:center">
+<tr style="border-bottom:1px solid rgba(255,255,255,.4)">
+<th>Hole</th>
+<th>Par</th>
+<th>Score</th>
+<th>+/-</th>
+</tr>
+`;
+
+for(let i=0;i<currentRound.scores.length;i++){
+
+const diff = currentRound.scores[i] - currentRound.pars[i];
+
+html += `
+<tr style="border-bottom:1px solid rgba(255,255,255,.15)">
+<td>${i+1}</td>
+<td>${currentRound.pars[i]}</td>
+<td>${currentRound.scores[i]}</td>
+<td>${diff>=0?"+":""}${diff}</td>
+</tr>
+`;
+}
+
+html += "</table>";
+
+document.getElementById("scorecardTable").innerHTML = html;
+document.getElementById("scorecardModal").classList.remove("hidden");
+}
+
 
 for(let i=0;i<currentRound.scores.length;i++){
 const diff = currentRound.scores[i] - currentRound.pars[i];
@@ -1085,7 +1118,7 @@ const sortedOpps = Object.entries(opponents)
 if(!sortedOpps.length){
 oppBox.innerHTML = "<p>No opponents yet</p>";
 }else{
-sortedOpps.forEach(([name,count])=>{
+sortedOpps.slice(0,5).forEach(([name,count])=>{
 const row = document.createElement("div");
 
 row.style.display = "flex";
