@@ -851,6 +851,20 @@ document.getElementById("roundLiveStats").textContent =
 updateHeader("round-play");
 }
 
+function setScore(val){
+
+const input = document.getElementById("holeScore");
+
+if(val === 8){
+input.classList.remove("hidden");
+input.focus();
+input.value = "";
+}else{
+input.value = val;
+submitHoleScore();
+}
+}
+
 window.submitHoleScore = () => {
 
 if(!currentRound) return;

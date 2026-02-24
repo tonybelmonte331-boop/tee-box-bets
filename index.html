@@ -189,7 +189,19 @@ Add Previous Round
 <input type="hidden" id="holePar" value="4">
 
 <label>Score</label>
-<input id="holeScore" type="number" inputmode="numeric">
+
+<div id="scoreButtons" class="score-buttons">
+<button onclick="setScore(1)">1</button>
+<button onclick="setScore(2)">2</button>
+<button onclick="setScore(3)">3</button>
+<button onclick="setScore(4)">4</button>
+<button onclick="setScore(5)">5</button>
+<button onclick="setScore(6)">6</button>
+<button onclick="setScore(7)">7</button>
+<button onclick="setScore(8)">8+</button>
+</div>
+
+<input id="holeScore" type="number" inputmode="numeric" class="hidden">
 
 <h4 id="roundLiveStats"></h4>
 

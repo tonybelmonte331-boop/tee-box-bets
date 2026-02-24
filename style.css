@@ -192,6 +192,10 @@ max-width:360px;
 box-shadow:0 12px 30px rgba(0,0,0,.5);
 }
 
+.modal{
+    z-index: 5000;
+}
+
 /* ================= FLOATING SIDE BET ================= */
 
 #sideBetBtn{
@@ -244,4 +248,26 @@ transition:opacity .18s ease, transform .18s ease;
 .title-swap{
 opacity:0;
 transform:translateY(-6px);
+}
+
+.score-buttons{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:12px;
+}
+
+.score-buttons button{
+flex:1 1 22%;
+padding:14px;
+border-radius:14px;
+font-size:18px;
+font-weight:600;
+background:#1f6f4a;
+color:white;
+border:none;
+}
+
+.score-buttons button:active{
+transform:scale(.96);
 }
