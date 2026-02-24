@@ -198,7 +198,7 @@ skinsGame.applyBonus("eagle");
 }
 }
 
-function setPar(value){
+function setPar(value, el){
 
 document.getElementById("holePar").value = value;
 
@@ -206,8 +206,7 @@ document.querySelectorAll(".par-btn").forEach(b=>{
 b.classList.remove("active");
 });
 
-event.target.classList.add("active");
-
+el.classList.add("active");
 }
 
 ["firToggle","girToggle"].forEach(id=>{
@@ -944,7 +943,12 @@ rating: currentRound.rating,
 slope: currentRound.slope,
 toPar,
 holes: currentRound.holes,
-differential
+differential,
+
+putts: currentRound.putts,
+penalties: currentRound.penalties,
+gir: currentRound.gir,
+fir: currentRound.fir
 });
 
 updateHandicap();
@@ -970,9 +974,7 @@ if(!currentRound) return;
 
 let html = `
 <table style="width:100%;border-collapse:collapse;text-align:center">
-<tr style="border-bottom:1px solid rgba(255,255,255,.15);height:44px;">
-height: 48px;
-line-height: 44px;">
+<tr style="border-bottom:1px solid rgba(255,255,255,.15);height:48px;line-height:44px;">
 <th>Hole</th>
 <th>Par</th>
 <th>Score</th>
@@ -1231,7 +1233,7 @@ oppBox.appendChild(row);
 const table = document.getElementById("roundHistoryTable");
 table.innerHTML = "";
 
-[...userProfile.rounds].reverse().forEach(r=>{
+[...userProfile.rounds].reverse().forEach((r, index) =>{
 
 const d = new Date(r.date);
 const date = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
@@ -1240,6 +1242,7 @@ const par = r.holes === 9 ? 36 : 72;
 const diff = r.strokes - par;
 
 const row = document.createElement("tr");
+row.onclick = () => openRoundDetails(index);
 
 row.innerHTML = `
 <td>${date}</td>
@@ -1248,6 +1251,9 @@ row.innerHTML = `
 <td>${r.strokes}</td>
 <td>${diff>=0?"+":""}${diff}</td>
 <td>${r.differential ?? "-"}</td>
+<td>
+<button onclick="deleteRound(${index})" style="color:#ff6b6b;">✕</button>
+</td>
 `;
 
 table.appendChild(row);
@@ -1255,6 +1261,34 @@ table.appendChild(row);
 
 /* Default tab */
 showProfileTab("summaryTab");
+}
+
+function openRoundDetails(index){
+
+const r = [...userProfile.rounds].reverse()[index];
+
+const totalPutts = (r.putts || []).reduce((a,b)=>a+b,0);
+const penalties = (r.penalties || []).reduce((a,b)=>a+b,0);
+
+const girArr = r.gir || [];
+const firArr = r.fir || [];
+
+const girPct = girArr.length
+? Math.round((girArr.filter(x=>x).length / girArr.length) * 100)
+: 0;
+
+const firPct = firArr.length
+? Math.round((firArr.filter(x=>x).length / firArr.length) * 100)
+: 0;
+
+alert(
+`Advanced Stats
+
+Putts: ${totalPutts}
+Penalties: ${penalties}
+GIR: ${girPct}%
+FIR: ${firPct}%`
+);
 }
 
 window.editProfile = () => {
