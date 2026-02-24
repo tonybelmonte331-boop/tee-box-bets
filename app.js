@@ -946,13 +946,9 @@ window.openScorecard = () => {
 
 if(!currentRound) return;
 
-function openScorecard(){
-
-if(!currentRound) return;
-
 let html = `
 <table style="width:100%;border-collapse:collapse;text-align:center">
-<tr style="border-bottom:1px solid rgba(255,255,255,.4)">
+<tr style="border-bottom:2px solid rgba(255,255,255,.4)">
 <th>Hole</th>
 <th>Par</th>
 <th>Score</th>
@@ -960,38 +956,75 @@ let html = `
 </tr>
 `;
 
+let frontTotal = 0;
+let backTotal = 0;
+
 for(let i=0;i<currentRound.scores.length;i++){
 
-const diff = currentRound.scores[i] - currentRound.pars[i];
+const score = currentRound.scores[i];
+const par = currentRound.pars[i];
+const diff = score - par;
+
+if(i < 9) frontTotal += score;
+else backTotal += score;
+
+let scoreStyle = "color:#fff;font-weight:700;";
+let scoreWrapStart = "";
+let scoreWrapEnd = "";
+
+/* 🟢 EAGLE OR BETTER — GOLD DOUBLE CIRCLE */
+if(diff <= -2){
+scoreStyle = "color:#ffd700;font-weight:800;";
+scoreWrapStart = `<span style="border:2px solid #ffd700;border-radius:50%;padding:4px 10px;box-shadow:0 0 0 2px #ffd700 inset;">`;
+scoreWrapEnd = `</span>`;
+}
+
+/* 🔴 BIRDIE — RED CIRCLE */
+else if(diff === -1){
+scoreStyle = "color:#ff4d4d;font-weight:800;";
+scoreWrapStart = `<span style="border:2px solid #ff4d4d;border-radius:50%;padding:4px 10px;">`;
+scoreWrapEnd = `</span>`;
+}
+
+/* ⬛ BOGEY OR WORSE — BOX */
+else if(diff >= 1){
+scoreWrapStart = `<span style="border:2px solid #ffffff;padding:4px 10px;">`;
+scoreWrapEnd = `</span>`;
+}
 
 html += `
 <tr style="border-bottom:1px solid rgba(255,255,255,.15)">
 <td>${i+1}</td>
-<td>${currentRound.pars[i]}</td>
-<td>${currentRound.scores[i]}</td>
+<td>${par}</td>
+<td style="${scoreStyle}">
+${scoreWrapStart}${score}${scoreWrapEnd}
+</td>
 <td>${diff>=0?"+":""}${diff}</td>
+</tr>
+`;
+
+if(i === 8){
+html += `
+<tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.4)">
+<td colspan="2">Front 9</td>
+<td colspan="2">${frontTotal}</td>
+</tr>
+`;
+}
+
+}
+
+if(currentRound.scores.length > 9){
+html += `
+<tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.4)">
+<td colspan="2">Back 9</td>
+<td colspan="2">${backTotal}</td>
 </tr>
 `;
 }
 
 html += "</table>";
 
-document.getElementById("scorecardTable").innerHTML = html;
-document.getElementById("scorecardModal").classList.remove("hidden");
-}
-
-
-for(let i=0;i<currentRound.scores.length;i++){
-const diff = currentRound.scores[i] - currentRound.pars[i];
-html += `<tr>
-<td>${i+1}</td>
-<td>${currentRound.pars[i]}</td>
-<td>${currentRound.scores[i]}</td>
-<td>${diff>=0?"+":""}${diff}</td>
-</tr>`;
-}
-
-html += "</table>";
 document.getElementById("scorecardTable").innerHTML = html;
 document.getElementById("scorecardModal").classList.remove("hidden");
 };
