@@ -210,6 +210,14 @@ event.target.classList.add("active");
 
 }
 
+["firToggle","girToggle"].forEach(id=>{
+const btn = document.getElementById(id);
+
+btn.onclick = ()=>{
+btn.classList.toggle("active");
+};
+});
+
 window.toggleManualRound = () => {
 document.getElementById("manualRoundBox")
 .classList.toggle("hidden");
@@ -818,6 +826,10 @@ holes: +document.getElementById("roundHoles").value,
 currentHole: 1,
 scores: [],
 pars: [],
+putts: [],
+penalties: [],
+gir: [],
+fir: [],
 totalStrokes: 0,
 totalPar: 0
 };
@@ -877,10 +889,20 @@ roundHistory.push(JSON.parse(JSON.stringify(currentRound)));
 
 currentRound.scores.push(score);
 currentRound.pars.push(par);
+currentRound.putts.push(+document.getElementById("holePutts").value || 0);
+currentRound.penalties.push(+document.getElementById("holePenalties").value || 0);
+
+currentRound.gir.push(document.getElementById("girToggle").checked);
+currentRound.fir.push(document.getElementById("firToggle").checked);
 currentRound.totalStrokes += score;
 currentRound.totalPar += par;
 
 document.getElementById("holeScore").value = "";
+document.getElementById("holePutts").value = "";
+document.getElementById("holePenalties").value = "";
+
+document.getElementById("firToggle").classList.remove("active");
+document.getElementById("girToggle").classList.remove("active");
 
 if(currentRound.currentHole >= currentRound.holes){
 finishTrackedRound();
@@ -948,7 +970,7 @@ if(!currentRound) return;
 
 let html = `
 <table style="width:100%;border-collapse:collapse;text-align:center">
-<tr style="border-bottom:1px solid rgba(255,255,255,.15);
+<tr style="border-bottom:1px solid rgba(255,255,255,.15);height:44px;">
 height: 48px;
 line-height: 44px;">
 <th>Hole</th>
@@ -958,8 +980,14 @@ line-height: 44px;">
 </tr>
 `;
 
-let frontTotal = 0;
-let backTotal = 0;
+let frontScore = 0;
+let backScore = 0;
+
+let frontPar = 0;
+let backPar = 0;
+
+let frontDiff = 0;
+let backDiff = 0;
 
 for(let i=0;i<currentRound.scores.length;i++){
 
@@ -967,8 +995,15 @@ const score = currentRound.scores[i];
 const par = currentRound.pars[i];
 const diff = score - par;
 
-if(i < 9) frontTotal += score;
-else backTotal += score;
+if(i < 9){
+frontScore += score;
+frontPar += par;
+frontDiff += diff;
+}else{
+backScore += score;
+backPar += par;
+backDiff += diff;
+}
 
 let scoreStyle = "color:#fff;font-weight:700;";
 let scoreWrapStart = "";
@@ -998,7 +1033,7 @@ html += `
 <tr style="border-bottom:1px solid rgba(255,255,255,.15)">
 <td>${i+1}</td>
 <td>${par}</td>
-<td style="${scoreStyle};display:flex;justify-content:center;align-items:center;">
+<td style="${scoreStyle};padding:10px 0;">
 ${scoreWrapStart}${score}${scoreWrapEnd}
 </td>
 <td>${diff>=0?"+":""}${diff}</td>
@@ -1008,8 +1043,10 @@ ${scoreWrapStart}${score}${scoreWrapEnd}
 if(i === 8){
 html += `
 <tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.4)">
-<td colspan="2">Front 9</td>
-<td colspan="2">${frontTotal}</td>
+<td>Front 9</td>
+<td>${frontPar}</td>
+<td>${frontScore}</td>
+<td>${frontDiff>=0?"+":""}${frontDiff}</td>
 </tr>
 `;
 }
@@ -1019,8 +1056,10 @@ html += `
 if(currentRound.scores.length > 9){
 html += `
 <tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.4)">
-<td colspan="2">Back 9</td>
-<td colspan="2">${backTotal}</td>
+<td>Back 9</td>
+<td>${backPar}</td>
+<td>${backScore}</td>
+<td>${backDiff>=0?"+":""}${backDiff}</td>
 </tr>
 `;
 }

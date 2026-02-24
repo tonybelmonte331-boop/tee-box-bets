@@ -271,3 +271,24 @@ border:none;
 .score-buttons button:active{
 transform:scale(.96);
 }
+
+.stat-toggle{
+flex:1;
+background:rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.25);
+border-radius:14px;
+padding:12px;
+font-weight:700;
+color:white;
+}
+
+.stat-toggle.active{
+background:#1faa59;
+box-shadow:0 0 0 2px rgba(31,170,89,.6);
+}
+
+#holePutts,
+#holePenalties{
+flex:1;
+text-align:center;
+}
