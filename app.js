@@ -948,7 +948,9 @@ if(!currentRound) return;
 
 let html = `
 <table style="width:100%;border-collapse:collapse;text-align:center">
-<tr style="border-bottom:2px solid rgba(255,255,255,.4)">
+<tr style="border-bottom:1px solid rgba(255,255,255,.15);
+height: 48px;
+line-height: 44px;">
 <th>Hole</th>
 <th>Par</th>
 <th>Score</th>
@@ -996,7 +998,7 @@ html += `
 <tr style="border-bottom:1px solid rgba(255,255,255,.15)">
 <td>${i+1}</td>
 <td>${par}</td>
-<td style="${scoreStyle}">
+<td style="${scoreStyle};display:flex;justify-content:center;align-items:center;">
 ${scoreWrapStart}${score}${scoreWrapEnd}
 </td>
 <td>${diff>=0?"+":""}${diff}</td>
