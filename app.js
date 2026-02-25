@@ -891,8 +891,13 @@ currentRound.pars.push(par);
 currentRound.putts.push(+document.getElementById("holePutts").value || 0);
 currentRound.penalties.push(+document.getElementById("holePenalties").value || 0);
 
-currentRound.gir.push(document.getElementById("girToggle").checked);
-currentRound.fir.push(document.getElementById("firToggle").checked);
+currentRound.gir.push(
+document.getElementById("girToggle").classList.contains("active")
+);
+
+currentRound.fir.push(
+document.getElementById("firToggle").classList.contains("active")
+);
 currentRound.totalStrokes += score;
 currentRound.totalPar += par;
 
@@ -1244,15 +1249,23 @@ const diff = r.strokes - par;
 const row = document.createElement("tr");
 row.onclick = () => openRoundDetails(index);
 
+
 row.innerHTML = `
-<td>${date}</td>
-<td>${r.course}</td>
-<td>${par}</td>
-<td>${r.strokes}</td>
-<td>${diff>=0?"+":""}${diff}</td>
-<td>${r.differential ?? "-"}</td>
-<td>
-<button onclick="deleteRound(${index})" style="color:#ff6b6b;">✕</button>
+<td style="padding:8px 10px;">${date}</td>
+<td style="padding:8px 10px;">${r.course}</td>
+<td style="padding:8px 10px;">${par}</td>
+<td style="padding:8px 10px;">${r.strokes}</td>
+<td style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">
+${diff>=0?"+":""}${diff}
+</td>
+<td style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">
+${r.differential ?? "-"}
+</td>
+<td style="padding:8px 10px;">
+<button onclick="deleteRound(${index})"
+style="color:#ff6b6b;background:none;border:none;font-size:16px;">
+✕
+</button>
 </td>
 `;
 
