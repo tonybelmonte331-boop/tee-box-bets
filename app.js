@@ -950,6 +950,8 @@ toPar,
 holes: currentRound.holes,
 differential,
 
+scores: currentRound.scores,
+pars: currentRound.pars,
 putts: currentRound.putts,
 penalties: currentRound.penalties,
 gir: currentRound.gir,
@@ -1261,7 +1263,7 @@ ${diff>=0?"+":""}${diff}
 <td style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">
 ${r.differential ?? "-"}
 </td>
-<td style="padding:8px 10px;">
+<td style="width:36px;text-align:center;">
 <button onclick="deleteRound(${index})"
 style="color:#ff6b6b;background:none;border:none;font-size:16px;">
 ✕
@@ -1280,45 +1282,54 @@ function openRoundDetails(index){
 
 const r = [...userProfile.rounds].reverse()[index];
 
-let holes = "";
+let html = `
+<table style="width:100%;text-align:center;border-collapse:collapse">
+<tr>
+<th>Hole</th><th>Par</th><th>Score</th><th>+/-</th>
+</tr>
+`;
 
-for(let i=0;i<r.putts.length;i++){
-holes += `
-Hole ${i+1}:
-Putts ${r.putts[i]}
-Penalties ${r.penalties[i]}
-GIR ${r.gir[i] ? " " : "—"}
-FIR ${r.fir[i] ? " " : "—"}
+for(let i=0;i<r.scores.length;i++){
 
+const score = r.scores[i];
+const par = r.pars[i];
+const diff = score - par;
+
+let wrapStart="", wrapEnd="";
+
+if(diff <= -2){
+wrapStart=`<span style="border:2px solid gold;border-radius:50%;padding:4px 10px;">`;
+wrapEnd="</span>";
+}
+else if(diff === -1){
+wrapStart=`<span style="border:2px solid red;border-radius:50%;padding:4px 10px;">`;
+wrapEnd="</span>";
+}
+else if(diff >= 1){
+wrapStart=`<span style="border:2px solid white;padding:4px 10px;">`;
+wrapEnd="</span>";
+}
+
+html += `
+<tr>
+<td>${i+1}</td>
+<td>${par}</td>
+<td>${wrapStart}${score}${wrapEnd}</td>
+<td>${diff>=0?"+":""}${diff}</td>
+</tr>
+<tr style="font-size:12px;color:#ccc">
+<td colspan="4">
+Putts ${r.putts[i]} | Pen ${r.penalties[i]} |
+GIR ${r.gir[i]?"✔":""} | FIR ${r.fir[i]?"✔":""}
+</td>
+</tr>
 `;
 }
 
-const totalPutts = (r.putts || []).reduce((a,b)=>a+b,0);
-const penalties = (r.penalties || []).reduce((a,b)=>a+b,0);
+html += "</table>";
 
-const girArr = r.gir || [];
-const firArr = r.fir || [];
-
-const girPct = girArr.length
-? Math.round((girArr.filter(x=>x).length / girArr.length) * 100)
-: 0;
-
-const firPct = firArr.length
-? Math.round((firArr.filter(x=>x).length / firArr.length) * 100)
-: 0;
-
-alert(
-`Advanced Stats
-
-TOTALS
-Putts: ${totalPutts}
-Penalties: ${penalties}
-GIR: ${girPct}%
-FIR: ${firPct}%
-
-PER HOLE
-${holes}`
-);
+document.getElementById("roundDetailContent").innerHTML = html;
+document.getElementById("roundDetailModal").classList.remove("hidden");
 }
 
 window.editProfile = () => {
@@ -1415,4 +1426,8 @@ userProfile.bettingStats.opponents[p] =
 });
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
+}
+
+function closeRoundDetail(){
+document.getElementById("roundDetailModal").classList.add("hidden");
 }
