@@ -1263,8 +1263,17 @@ ${diff>=0?"+":""}${diff}
 <td style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">
 ${r.differential ?? "-"}
 </td>
-<td style="padding:8px 6px;text-align:center;">
-<button class="delete-round-btn" onclick="deleteRound(${index})">✕</button>
+<td style="padding:8px 6px;text-align:center;width:32px;">
+<button
+onclick="deleteRound(${index})"
+style="
+color:#ff6b6b;
+background:none;
+border:none;
+font-size:18px;
+line-height:1;
+padding:4px;
+">✕</button>
 </td>
 `;
 

@@ -87,6 +87,17 @@ align-items:center;
 overflow:hidden;
 }
 
+/* allow scrolling when modal open */
+.modal{
+pointer-events:auto;
+}
+
+.modal-box{
+max-height:85vh;
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
+}
+
 section{
 width:100%;
 max-width:420px;
@@ -335,4 +346,30 @@ transform:scale(.9);
 .modal-box{
 overflow-y:auto;
 -webkit-overflow-scrolling:touch;
+}
+
+/* ===== KEEP ROUND HISTORY TABLE INSIDE SCREEN ===== */
+
+.profile-card table{
+table-layout:fixed;
+width:100%;
+}
+
+.profile-card th,
+.profile-card td{
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+}
+
+/* lock delete column narrow */
+.profile-card td:last-child{
+width:36px;
+text-align:center;
+}
+
+.profile-card td button{
+display:flex;
+align-items:center;
+justify-content:center;
 }

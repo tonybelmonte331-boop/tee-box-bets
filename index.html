@@ -78,10 +78,12 @@ Reset Betting Stats
 <th style="padding:8px 10px;">Par</th>
 <th style="padding:8px 10px;">Score</th>
 <th style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">+/-</th>
-<th style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">Diff</th>
-<th style="padding:8px 10px;">
-Diffℹ️
-<span class="diff-info" onclick="alert('Differential measures how your score compares to course difficulty. Lower is better. It’s used to calculate your handicap.')">ℹ️</span>
+<th style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);white-space:nowrap;">
+Diff
+<span
+style="margin-left:6px;opacity:.7;font-size:14px;cursor:pointer"
+onclick="alert('Differential measures how your score compares to course difficulty. Lower is better. It’s used to calculate your handicap.')"
+>ℹ️</span>
 </th>
 </tr>
 
@@ -390,16 +392,16 @@ End Round
 
 <!-- ===== MODALS ===== -->
 
-<div id="scorecardModal" class="modal hidden">
-<div class="modal-box">
+<div id="scorecardModal" class="modal hidden" onclick="closeScorecard()">
+<div class="modal-box" onclick="event.stopPropagation()">
 <h3>Scorecard</h3>
 <div id="scorecardTable"></div>
 <button onclick="closeScorecard()">Close</button>
 </div>
 </div>
 
-<div id="roundDetailModal" class="modal hidden">
-<div class="modal-box">
+<div id="roundDetailModal" class="modal hidden" onclick="closeRoundDetail()">
+<div class="modal-box" onclick="event.stopPropagation()">
 <div id="roundDetailContent"></div>
 <button onclick="closeRoundDetail()">Close</button>
 </div>
