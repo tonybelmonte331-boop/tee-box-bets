@@ -71,20 +71,17 @@ Reset Betting Stats
 <div class="profile-card">
 <h3>Round History</h3>
 
-<table style="width:100%;font-size:14px">
-<tr>
-<th style="padding:8px 10px;">Date</th>
-<th style="padding:8px 10px;">Course</th>
-<th style="padding:8px 10px;">Par</th>
-<th style="padding:8px 10px;">Score</th>
-<th style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">+/-</th>
-<th style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);white-space:nowrap;">
-Diff
-<span
-style="margin-left:6px;opacity:.7;font-size:14px;cursor:pointer"
-onclick="alert('Differential measures how your score compares to course difficulty. Lower is better. It’s used to calculate your handicap.')"
->ℹ️</span>
+<table style="width:100%;font-size:14px;table-layout:fixed">
+<tr style="white-space:nowrap">
+<th style="padding:8px 6px;width:22%">Date</th>
+<th style="padding:8px 6px;width:26%">Course</th>
+<th style="padding:8px 6px;width:10%">Par</th>
+<th style="padding:8px 6px;width:12%">Score</th>
+<th style="padding:8px 6px;width:12%;border-left:1px solid rgba(255,255,255,.15);">+/-</th>
+<th style="padding:8px 6px;width:12%;border-left:1px solid rgba(255,255,255,.15);">
+Diff <span class="diff-info" onclick="alert('Differential measures how your score compares to course difficulty. Lower is better. It’s used to calculate your handicap.')">ℹ️</span>
 </th>
+<th style="width:6%"></th>
 </tr>
 
 <tbody id="roundHistoryTable"></tbody>

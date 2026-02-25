@@ -1264,18 +1264,13 @@ ${diff>=0?"+":""}${diff}
 ${r.differential ?? "-"}
 </td>
 <td style="padding:8px 6px;text-align:center;width:32px;">
-<button
-onclick="deleteRound(${index})"
-style="
-color:#ff6b6b;
-background:none;
-border:none;
-font-size:18px;
-line-height:1;
-padding:4px;
-">✕</button>
+<button class="delete-round-btn"
+onclick="event.stopPropagation(); deleteRound(${index})">
+✕
+</button>
 </td>
 `;
+
 
 table.appendChild(row);
 });

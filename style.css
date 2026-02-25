@@ -373,3 +373,9 @@ display:flex;
 align-items:center;
 justify-content:center;
 }
+
+#roundHistoryTable td{
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
