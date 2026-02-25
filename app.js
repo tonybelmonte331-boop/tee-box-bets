@@ -1073,7 +1073,33 @@ html += `
 `;
 }
 
-html += "</table>";
+const totalPutts = currentRound.putts.reduce((a,b)=>a+b,0);
+const totalPens = currentRound.penalties.reduce((a,b)=>a+b,0);
+
+const girMade = currentRound.gir.filter(x=>x).length;
+const firMade = currentRound.fir.filter(x=>x).length;
+
+const girTotal = currentRound.gir.length;
+const firTotal = currentRound.fir.length;
+
+html += `
+</table>
+
+<div style="margin-top:16px;text-align:left;font-size:15px;line-height:1.6">
+
+<strong>Totals</strong><br>
+Par: ${currentRound.totalPar}<br>
+Score: ${currentRound.totalStrokes}<br>
++/-: ${currentRound.totalStrokes - currentRound.totalPar}<br><br>
+
+GIR: ${girMade}/${girTotal} (${Math.round(girMade/girTotal*100)}%)<br>
+FIR: ${firMade}/${firTotal} (${Math.round(firMade/firTotal*100)}%)<br><br>
+
+Putts: ${totalPutts}<br>
+Penalty Strokes: ${totalPens}
+
+</div>
+`;
 
 document.getElementById("scorecardTable").innerHTML = html;
 document.getElementById("scorecardModal").classList.remove("hidden");
