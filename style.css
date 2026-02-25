@@ -293,25 +293,6 @@ flex:1;
 text-align:center;
 }
 
-.modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.65);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:999;
-}
-
-.modal-box{
-background:#111;
-padding:16px;
-border-radius:14px;
-max-width:95%;
-max-height:85vh;
-overflow:auto;
-}
-
 .modal-box table{
 width:100%;
 border-collapse:collapse;
@@ -321,4 +302,37 @@ border-collapse:collapse;
 .modal-box td{
 padding:6px;
 border-bottom:1px solid rgba(255,255,255,.15);
+}
+
+.delete-round-btn{
+background:#a83232;
+color:white;
+border:none;
+border-radius:10px;
+width:34px;
+height:34px;
+font-size:18px;
+line-height:34px;
+padding:0;
+box-shadow:0 3px 6px rgba(0,0,0,.35);
+}
+
+.delete-round-btn:active{
+transform:scale(.9);
+}
+
+.diff-info{
+margin-left:4px;
+cursor:pointer;
+opacity:.85;
+}
+
+.diff-info:active{
+opacity:1;
+transform:scale(.9);
+}
+
+.modal-box{
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
 }
