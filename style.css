@@ -396,10 +396,19 @@ overflow:hidden;
 text-overflow:ellipsis;
 }
 
-.round-history-table th:nth-child(1){width:20%;}
-.round-history-table th:nth-child(2){width:26%;}
-.round-history-table th:nth-child(3){width:12%;}
+.round-history-table th span.diff-info{
+white-space:normal;
+overflow:visible;
+text-overflow:unset;
+display:inline-block;
+margin-left:4px;
+}
+
+.round-history-table th:nth-child(1){width:18%;}
+.round-history-table th:nth-child(2){width:24%;}
+.round-history-table th:nth-child(3){width:10%;}
 .round-history-table th:nth-child(4){width:12%;}
-.round-history-table th:nth-child(5){width:12%;}
-.round-history-table th:nth-child(6){width:12%;}
-.round-history-table th:nth-child(7){width:6%;}
+.round-history-table th:nth-child(5){width:10%;}
+.round-history-table th:nth-child(6){width:14%;}
+.round-history-table th:nth-child(7){width:12%;}
+

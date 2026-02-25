@@ -1252,8 +1252,18 @@ row.style.borderRadius = "10px";
 row.style.background = "rgba(255,255,255,.08)";
 
 row.innerHTML = `
-<span>${name}</span>
-<span>${count} games</span>
+<td>${date}</td>
+<td>${r.course}</td>
+<td>${par}</td>
+<td>${r.strokes}</td>
+<td>${diff>=0?"+":""}${diff}</td>
+<td>${r.differential ?? "-"}</td>
+<td>
+<button class="delete-round-btn"
+onclick="event.stopPropagation(); deleteRound(${index})">
+✕
+</button>
+</td>
 `;
 
 oppBox.appendChild(row);
@@ -1353,7 +1363,34 @@ GIR ${r.gir[i]?"✔":""} | FIR ${r.fir[i]?"✔":""}
 `;
 }
 
-html += "</table>";
+const totalPutts = r.putts.reduce((a,b)=>a+b,0);
+const totalPens = r.penalties.reduce((a,b)=>a+b,0);
+
+const girMade = r.gir.filter(x=>x).length;
+const firMade = r.fir.filter(x=>x).length;
+
+const girTotal = r.gir.length;
+const firTotal = r.fir.length;
+
+html += `
+</table>
+
+<div style="margin-top:18px;text-align:left;font-size:15px;line-height:1.7">
+
+<strong>Round Summary</strong><br>
+
+Par: ${r.pars.reduce((a,b)=>a+b,0)}<br>
+Score: ${r.strokes}<br>
++/-: ${r.toPar>=0?"+":""}${r.toPar}<br><br>
+
+GIR: ${girMade}/${girTotal} (${girTotal?Math.round(girMade/girTotal*100):0}%)<br>
+FIR: ${firMade}/${firTotal} (${firTotal?Math.round(firMade/firTotal*100):0}%)<br><br>
+
+Putts: ${totalPutts}<br>
+Penalty Strokes: ${totalPens}
+
+</div>
+`;
 
 document.getElementById("roundDetailContent").innerHTML = html;
 document.getElementById("roundDetailModal").classList.remove("hidden");
@@ -1403,16 +1440,17 @@ goHomeClean(); // 👈 THIS is the important part
 
 function deleteRound(displayIndex){
 
-if(!confirm("Delete this round permanently?")) return;
+event.stopPropagation();
 
-// Correct index from reversed display
+const confirmed = confirm("Delete this round permanently?");
+if(!confirmed) return;
+
 const realIndex = userProfile.rounds.length - 1 - displayIndex;
 
 if(realIndex < 0 || realIndex >= userProfile.rounds.length) return;
 
 userProfile.rounds.splice(realIndex,1);
 
-// Recalculate handicap safely
 updateHandicap();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
