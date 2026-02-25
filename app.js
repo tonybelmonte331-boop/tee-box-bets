@@ -1267,6 +1267,19 @@ function openRoundDetails(index){
 
 const r = [...userProfile.rounds].reverse()[index];
 
+let holes = "";
+
+for(let i=0;i<r.putts.length;i++){
+holes += `
+Hole ${i+1}:
+Putts ${r.putts[i]}
+Penalties ${r.penalties[i]}
+GIR ${r.gir[i] ? " " : "—"}
+FIR ${r.fir[i] ? " " : "—"}
+
+`;
+}
+
 const totalPutts = (r.putts || []).reduce((a,b)=>a+b,0);
 const penalties = (r.penalties || []).reduce((a,b)=>a+b,0);
 
@@ -1284,10 +1297,14 @@ const firPct = firArr.length
 alert(
 `Advanced Stats
 
+TOTALS
 Putts: ${totalPutts}
 Penalties: ${penalties}
 GIR: ${girPct}%
-FIR: ${firPct}%`
+FIR: ${firPct}%
+
+PER HOLE
+${holes}`
 );
 }
 
