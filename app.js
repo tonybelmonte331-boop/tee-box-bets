@@ -1267,78 +1267,63 @@ row.style.marginBottom = "6px";
 row.style.borderRadius = "10px";
 row.style.background = "rgba(255,255,255,.08)";
 
-row.innerHTML = `
-<td colspan="7" style="padding:12px 14px;text-align:left;">
 
-<div style="display:flex;justify-content:space-between;align-items:center;">
-
-<div>
-<div style="font-weight:600;">
-${date} – ${r.course}
-</div>
-
-<div style="font-size:13px;opacity:.8;margin-top:4px;">
-Par ${par} | Score ${r.strokes} | ${diff>=0?"+":""}${diff} | Diff ${r.differential ?? "-"}
-</div>
-</div>
-
-<button class="delete-round-btn"
-onclick="event.stopPropagation(); deleteRound(${index})">
-✕
-</button>
-
-</div>
-
-</td>
-`;
 
 oppBox.appendChild(row);
 });
 }
 
 
-/* ===== ROUND HISTORY TABLE ===== */
+/* ===== PREMIUM ROUND HISTORY ===== */
 
-const table = document.getElementById("roundHistoryTable");
-table.innerHTML = "";
+const container = document.getElementById("roundHistoryTable");
+container.innerHTML = "";
+
+if(!userProfile.rounds.length){
+container.innerHTML = `<div style="opacity:.6;padding:12px 0;">No rounds yet</div>`;
+}else{
 
 [...userProfile.rounds].reverse().forEach((r, index) =>{
 
 const d = new Date(r.date);
-const date = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+const shortDate = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
 
 const par = r.holes === 9 ? 36 : 72;
 const diff = r.strokes - par;
 
-const row = document.createElement("tr");
-row.onclick = () => openRoundDetails(index);
+const card = document.createElement("div");
+card.className = "round-card";
+card.onclick = () => openRoundDetails(index);
 
+card.innerHTML = `
+<div class="round-card-left">
 
-row.innerHTML = `
-<td style="padding:8px 10px;">${date}</td>
-<td style="padding:8px 10px;">${r.course}</td>
-<td style="padding:8px 10px;">${par}</td>
-<td style="padding:8px 10px;">${r.strokes}</td>
-<td style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">
+<div class="round-card-title">
+${shortDate} – ${r.course}
+</div>
+
+<div class="round-card-sub">
+Par ${par} • Score ${r.strokes} • 
+<span class="${diff<0?'score-under':diff>0?'score-over':'score-even'}">
 ${diff>=0?"+":""}${diff}
-</td>
-<td style="padding:8px 10px;border-left:1px solid rgba(255,255,255,.15);">
-${r.differential ?? "-"}
-</td>
-<td style="padding:8px 6px;text-align:center;width:32px;">
+</span>
+${r.differential !== undefined ? `• Diff ${r.differential}` : ""}
+</div>
+
+</div>
+
 <button class="delete-round-btn"
 onclick="event.stopPropagation(); deleteRound(${index})">
 ✕
 </button>
-</td>
 `;
 
+container.appendChild(card);
 
-table.appendChild(row);
 });
 
-/* Default tab */
-showProfileTab("summaryTab");
+}
+
 }
 
 function openRoundDetails(index){
