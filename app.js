@@ -1077,10 +1077,18 @@ const totalPutts = currentRound.putts.reduce((a,b)=>a+b,0);
 const totalPens = currentRound.penalties.reduce((a,b)=>a+b,0);
 
 const girMade = currentRound.gir.filter(x=>x).length;
-const firMade = currentRound.fir.filter(x=>x).length;
-
 const girTotal = currentRound.gir.length;
-const firTotal = currentRound.fir.length;
+
+let firMade = 0;
+let firTotal = 0;
+
+for(let i=0;i<r.fir.length;i++){
+    if(r.pars[i] !== 3){
+        firTotal++;
+        if(r.fir[i]) firMade++;
+    }
+}
+
 
 html += `
 </table>
@@ -1367,10 +1375,17 @@ const totalPutts = r.putts.reduce((a,b)=>a+b,0);
 const totalPens = r.penalties.reduce((a,b)=>a+b,0);
 
 const girMade = r.gir.filter(x=>x).length;
-const firMade = r.fir.filter(x=>x).length;
-
 const girTotal = r.gir.length;
-const firTotal = r.fir.length;
+
+let firMade = 0;
+let firTotal = 0;
+
+for(let i=0;i<r.fir.length;i++){
+    if(r.pars[i] !== 3){
+        firTotal++;
+        if(r.fir[i]) firMade++;
+    }
+}
 
 html += `
 </table>

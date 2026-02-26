@@ -383,7 +383,6 @@ text-overflow:ellipsis;
 .round-history-table{
 width:100%;
 border-collapse:collapse;
-table-layout:fixed;
 font-size:14px;
 }
 
@@ -392,8 +391,10 @@ font-size:14px;
 padding:8px 6px;
 text-align:center;
 white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
+}
+.round-history-table th{
+overflow:visible;
+text-overflow:unset;
 }
 
 .round-history-table th span.diff-info{
@@ -404,11 +405,8 @@ display:inline-block;
 margin-left:4px;
 }
 
-.round-history-table th:nth-child(1){width:18%;}
-.round-history-table th:nth-child(2){width:24%;}
-.round-history-table th:nth-child(3){width:10%;}
-.round-history-table th:nth-child(4){width:12%;}
-.round-history-table th:nth-child(5){width:10%;}
-.round-history-table th:nth-child(6){width:14%;}
-.round-history-table th:nth-child(7){width:12%;}
+.round-history-table td:last-child {
+    width: 60px;
+    text-align: center;
+}
 
