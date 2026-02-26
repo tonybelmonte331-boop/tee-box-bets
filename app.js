@@ -1339,11 +1339,19 @@ const d = new Date(r.date);
 const shortDate = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
 
 let html = `
-<div style="text-align:left;margin-bottom:12px;font-size:14px;opacity:.85;">
-<strong>${shortDate}</strong><br>
-${r.course}
+<div style="text-align:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.15);">
+<strong style="font-size:15px;">${shortDate}</strong><br>
+<span style="opacity:.85;">${r.course}</span>
 </div>
-` + html;
+
+<table style="width:100%;text-align:center;border-collapse:collapse">
+<tr>
+<th>Hole</th>
+<th>Par</th>
+<th>Score</th>
+<th>+/-</th>
+</tr>
+`;
 
 for(let i=0;i<r.scores.length;i++){
 
