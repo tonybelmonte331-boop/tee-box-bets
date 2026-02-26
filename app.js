@@ -16,7 +16,7 @@ let historyStack=[];
 let currentRound = null;
 
 /* ================= HAPTIC ================= */
-function haptic(){
+function tapHaptic(){
     if (navigator.vibrate){
         navigator.vibrate(10);
     }
@@ -214,7 +214,7 @@ el.classList.add("active");
 ["firToggle","girToggle"].forEach(id=>{
 
     tapHaptic();
-    
+
 const btn = document.getElementById(id);
 
 btn.onclick = ()=>{
