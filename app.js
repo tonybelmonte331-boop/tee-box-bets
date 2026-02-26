@@ -862,7 +862,7 @@ document.getElementById("roundLiveStats").textContent =
 updateHeader("round-play");
 }
 
-function setScore(val){
+function setScore(val, el){
 
 const input = document.getElementById("holeScore");
 
@@ -875,12 +875,13 @@ return;
 
 input.value = val;
 
-// visually highlight selected score
-document.querySelectorAll("#scoreButtons button").forEach(b=>{
-b.classList.remove("active");
+/* Remove active from all buttons */
+document.querySelectorAll("#scoreButtons button").forEach(btn=>{
+btn.classList.remove("active");
 });
 
-event.target.classList.add("active");
+/* Add active to selected */
+el.classList.add("active");
 }
 
 
@@ -910,6 +911,9 @@ currentRound.totalStrokes += score;
 currentRound.totalPar += par;
 
 document.getElementById("holeScore").value = "";
+document.querySelectorAll("#scoreButtons button").forEach(btn=>{
+btn.classList.remove("active");
+});
 document.getElementById("holePutts").value = "";
 document.getElementById("holePenalties").value = "";
 

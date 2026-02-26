@@ -279,6 +279,11 @@ color:white;
 border:none;
 }
 
+.score-buttons button.active{
+background:#0f5132;
+box-shadow:0 0 0 2px rgba(31,170,89,.6);
+}
+
 .score-buttons button:active{
 transform:scale(.96);
 }
