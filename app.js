@@ -200,6 +200,8 @@ skinsGame.applyBonus("eagle");
 
 function setPar(value, el){
 
+    tapHaptic();
+
 document.getElementById("holePar").value = value;
 
 document.querySelectorAll(".par-btn").forEach(b=>{
@@ -210,6 +212,9 @@ el.classList.add("active");
 }
 
 ["firToggle","girToggle"].forEach(id=>{
+
+    tapHaptic();
+    
 const btn = document.getElementById(id);
 
 btn.onclick = ()=>{
@@ -863,6 +868,8 @@ updateHeader("round-play");
 }
 
 function setScore(val, el){
+
+    tapHaptic();
 
 const input = document.getElementById("holeScore");
 
