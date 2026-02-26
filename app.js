@@ -286,7 +286,7 @@ title.classList.remove("title-swap");
 let screenHistory = [];
 
 function show(id){
-haptic();
+tapHaptic();
 
 const current = document.querySelector("section:not(.hidden)");
 
@@ -328,7 +328,7 @@ btn.style.display = screenHistory.length ? "flex" : "none";
 }
 
 window.goBack = () => {
- haptic();
+ tapHaptic();
 
  if (!screenHistory.length) return;
 
