@@ -1335,12 +1335,15 @@ function openRoundDetails(index){
 
 const r = [...userProfile.rounds].reverse()[index];
 
+const d = new Date(r.date);
+const shortDate = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
+
 let html = `
-<table style="width:100%;text-align:center;border-collapse:collapse">
-<tr>
-<th>Hole</th><th>Par</th><th>Score</th><th>+/-</th>
-</tr>
-`;
+<div style="text-align:left;margin-bottom:12px;font-size:14px;opacity:.85;">
+<strong>${shortDate}</strong><br>
+${r.course}
+</div>
+` + html;
 
 for(let i=0;i<r.scores.length;i++){
 
