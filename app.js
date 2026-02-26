@@ -870,11 +870,19 @@ if(val === 8){
 input.classList.remove("hidden");
 input.focus();
 input.value = "";
-}else{
+return;
+}
+
 input.value = val;
-submitHoleScore();
+
+// visually highlight selected score
+document.querySelectorAll("#scoreButtons button").forEach(b=>{
+b.classList.remove("active");
+});
+
+event.target.classList.add("active");
 }
-}
+
 
 window.submitHoleScore = () => {
 
