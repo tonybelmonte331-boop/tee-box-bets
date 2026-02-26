@@ -1082,10 +1082,10 @@ const girTotal = currentRound.gir.length;
 let firMade = 0;
 let firTotal = 0;
 
-for(let i=0;i<r.fir.length;i++){
-    if(r.pars[i] !== 3){
+for(let i=0;i<currentRound.fir.length;i++){
+    if(currentRound.pars[i] !== 3){
         firTotal++;
-        if(r.fir[i]) firMade++;
+        if(currentRound.fir[i]) firMade++;
     }
 }
 
