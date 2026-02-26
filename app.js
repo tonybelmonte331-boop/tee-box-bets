@@ -1268,17 +1268,27 @@ row.style.borderRadius = "10px";
 row.style.background = "rgba(255,255,255,.08)";
 
 row.innerHTML = `
-<td>${date}</td>
-<td>${r.course}</td>
-<td>${par}</td>
-<td>${r.strokes}</td>
-<td>${diff>=0?"+":""}${diff}</td>
-<td>${r.differential ?? "-"}</td>
-<td>
+<td colspan="7" style="padding:12px 14px;text-align:left;">
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
+
+<div>
+<div style="font-weight:600;">
+${date} – ${r.course}
+</div>
+
+<div style="font-size:13px;opacity:.8;margin-top:4px;">
+Par ${par} | Score ${r.strokes} | ${diff>=0?"+":""}${diff} | Diff ${r.differential ?? "-"}
+</div>
+</div>
+
 <button class="delete-round-btn"
 onclick="event.stopPropagation(); deleteRound(${index})">
 ✕
 </button>
+
+</div>
+
 </td>
 `;
 
