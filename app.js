@@ -78,16 +78,21 @@ function tapHaptic(){
 
 /* ================= AUTO DECIMAL ================= */
 function autoDecimal(el){
-el.addEventListener("input",()=>{
-let v = el.value.replace(/\D/g,"");
 
-if(v.length <= 2){
-el.value = v;
-return;
+el.addEventListener("input", (e)=>{
+
+let raw = e.target.value.replace(/[^\d.]/g, "");
+
+// allow only one decimal
+const parts = raw.split(".");
+if(parts.length > 2){
+raw = parts[0] + "." + parts.slice(1).join("");
 }
 
-el.value = v.slice(0,2) + "." + v.slice(2,4);
+e.target.value = raw;
+
 });
+
 }
 
 function numericOnly(el){
@@ -978,10 +983,17 @@ document.getElementById("roundHoleDisplay").textContent =
 
 }
 
-document.getElementById("roundCourseInfo").textContent =
-`${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}`;
+let totalParDisplay = "";
 
-const toPar = currentRound.totalStrokes - currentRound.totalPar;
+if(currentRound.loadedPars && currentRound.loadedPars.length){
+
+const totalPar = currentRound.loadedPars.reduce((a,b)=>a+b,0);
+totalParDisplay = ` | Par ${totalPar}`;
+
+}
+
+document.getElementById("roundCourseInfo").textContent =
+`${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}${totalParDisplay}`;
 
 const courseHandicap = Math.round(
 (userProfile.currentHandicap * currentRound.slope) / 113
