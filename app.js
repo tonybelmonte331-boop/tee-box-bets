@@ -79,19 +79,23 @@ function tapHaptic(){
 /* ================= AUTO DECIMAL ================= */
 function autoDecimal(el){
 
-el.addEventListener("input", (e)=>{
-
-let start = el.selectionStart;
-let raw = el.value.replace(/[^\d.]/g,"");
-
-// Only allow one decimal
-const parts = raw.split(".");
-if(parts.length > 2){
-raw = parts[0] + "." + parts.slice(1).join("");
+el.addEventListener("beforeinput", (e)=>{
+// Prevent second decimal
+if(e.data === "." && el.value.includes(".")){
+e.preventDefault();
 }
+});
 
-el.value = raw;
-el.setSelectionRange(start, start);
+el.addEventListener("input", ()=>{
+
+// Remove invalid characters
+el.value = el.value.replace(/[^\d.]/g,"");
+
+// Ensure only one decimal exists
+const parts = el.value.split(".");
+if(parts.length > 2){
+el.value = parts[0] + "." + parts[1];
+}
 
 });
 
