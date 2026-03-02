@@ -15,6 +15,40 @@ let historyStack=[];
 
 let currentRound = null;
 
+/* ================= COURSE STORAGE ================= */
+
+let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
+
+/*
+Course Structure:
+
+{
+name: "Pine Valley",
+pars: [4,4,3,5,4,4,3,4,5, 4,5,3,4,4,5,3,4,4],
+}
+*/
+
+window.saveCourse = () => {
+
+const name = document.getElementById("newCourseName").value.trim();
+if(!name) return alert("Enter course name");
+
+let pars = [];
+
+for(let i=1;i<=18;i++){
+const val = +document.getElementById(`par${i}`).value;
+if(!val) return alert("Enter all 18 pars");
+pars.push(val);
+}
+
+savedCourses.push({ name, pars });
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+alert("Course Saved!");
+location.reload();
+};
+
 /* ================= HAPTIC ================= */
 function tapHaptic(){
     if (navigator.vibrate){
@@ -397,6 +431,33 @@ sideBetBtn.classList.add("hidden");
 
 document.getElementById("manualSaveBtn").onclick = addManualRound;
 });
+
+const courseSelect = document.getElementById("courseSelect");
+if(courseSelect){
+
+courseSelect.innerHTML = `<option value="">Manual Entry</option>`;
+
+savedCourses.forEach(c=>{
+const opt = document.createElement("option");
+opt.value = c.name;
+opt.textContent = c.name;
+courseSelect.appendChild(opt);
+});
+
+}
+
+const roundHoles = document.getElementById("roundHoles");
+const nineType = document.getElementById("nineType");
+
+if(roundHoles && nineType){
+roundHoles.addEventListener("change", ()=>{
+if(roundHoles.value === "18"){
+nineType.classList.add("hidden");
+}else{
+nineType.classList.remove("hidden");
+}
+});
+}
 
 
 /* ================= GAME SELECT ================= */
@@ -822,11 +883,36 @@ let roundHistory = [];
 
 window.startRoundTracking = () => {
 
+const selectedCourseName = document.getElementById("courseSelect")?.value;
+const holesSelected = +document.getElementById("roundHoles").value;
+const nineType = document.getElementById("nineType")?.value; // front/back
+
+let selectedCourse = savedCourses.find(c => c.name === selectedCourseName);
+
+let parArray = [];
+
+if(selectedCourse){
+
+if(holesSelected === 18){
+parArray = selectedCourse.pars;
+}
+else{
+if(nineType === "back"){
+parArray = selectedCourse.pars.slice(9,18);
+}else{
+parArray = selectedCourse.pars.slice(0,9);
+}
+}
+
+}else{
+parArray = []; // manual mode
+}
+
 currentRound = {
-course: document.getElementById("courseName").value || "Unknown Course",
+course: selectedCourseName || document.getElementById("courseName").value || "Unknown Course",
 rating: +document.getElementById("courseRating").value || 72,
 slope: +document.getElementById("courseSlope").value || 113,
-holes: +document.getElementById("roundHoles").value,
+holes: holesSelected,
 currentHole: 1,
 scores: [],
 pars: [],
@@ -835,7 +921,8 @@ penalties: [],
 gir: [],
 fir: [],
 totalStrokes: 0,
-totalPar: 0
+totalPar: 0,
+loadedPars: parArray
 };
 
 roundHistory = [];
@@ -846,6 +933,17 @@ show("round-play");
 function updateRoundUI(){
 
 if(!currentRound) return;
+
+const parButtonContainer = document.getElementById("parButtonContainer");
+
+if(currentRound.loadedPars && currentRound.loadedPars.length){
+parButtonContainer?.classList.add("hidden");
+
+document.getElementById("roundHoleDisplay").textContent =
+`Hole ${currentRound.currentHole} (Par ${currentRound.loadedPars[currentRound.currentHole - 1]}) of ${currentRound.holes}`;
+}else{
+parButtonContainer?.classList.remove("hidden");
+}
 
 document.getElementById("roundHoleDisplay").textContent =
 `Hole ${currentRound.currentHole} of ${currentRound.holes}`;
@@ -897,7 +995,13 @@ window.submitHoleScore = () => {
 if(!currentRound) return;
 
 const score = +document.getElementById("holeScore").value;
-const par = +document.getElementById("holePar").value;
+let par;
+
+if(currentRound.loadedPars && currentRound.loadedPars.length){
+par = currentRound.loadedPars[currentRound.currentHole - 1];
+}else{
+par = +document.getElementById("holePar").value;
+}
 if(!score) return;
 
 roundHistory.push(JSON.parse(JSON.stringify(currentRound)));
