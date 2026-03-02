@@ -81,15 +81,17 @@ function autoDecimal(el){
 
 el.addEventListener("input", (e)=>{
 
-let raw = e.target.value.replace(/[^\d.]/g, "");
+let start = el.selectionStart;
+let raw = el.value.replace(/[^\d.]/g,"");
 
-// allow only one decimal
+// Only allow one decimal
 const parts = raw.split(".");
 if(parts.length > 2){
 raw = parts[0] + "." + parts.slice(1).join("");
 }
 
-e.target.value = raw;
+el.value = raw;
+el.setSelectionRange(start, start);
 
 });
 
@@ -994,6 +996,8 @@ totalParDisplay = ` | Par ${totalPar}`;
 
 document.getElementById("roundCourseInfo").textContent =
 `${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}${totalParDisplay}`;
+
+const toPar = currentRound.totalStrokes - currentRound.totalPar;
 
 const courseHandicap = Math.round(
 (userProfile.currentHandicap * currentRound.slope) / 113
