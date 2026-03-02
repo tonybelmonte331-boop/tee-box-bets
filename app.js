@@ -430,12 +430,12 @@ show("profile-setup");
 sideBetBtn.classList.add("hidden");
 
 document.getElementById("manualSaveBtn").onclick = addManualRound;
-});
 
 const courseSelect = document.getElementById("courseSelect");
+
 if(courseSelect){
 
-courseSelect.innerHTML = `<option value="">Manual Entry</option>`;
+courseSelect.innerHTML = `<option value="">Select Saved Course</option>`;
 
 savedCourses.forEach(c=>{
 const opt = document.createElement("option");
@@ -450,15 +450,19 @@ const roundHoles = document.getElementById("roundHoles");
 const nineType = document.getElementById("nineType");
 
 if(roundHoles && nineType){
+
 roundHoles.addEventListener("change", ()=>{
+
 if(roundHoles.value === "18"){
 nineType.classList.add("hidden");
 }else{
 nineType.classList.remove("hidden");
 }
-});
-}
 
+});
+
+}
+});
 
 /* ================= GAME SELECT ================= */
 
@@ -890,17 +894,21 @@ const nineType = document.getElementById("nineType")?.value; // front/back
 let selectedCourse = savedCourses.find(c => c.name === selectedCourseName);
 
 let parArray = [];
+let holeOffset = 0;
 
 if(selectedCourse){
 
 if(holesSelected === 18){
 parArray = selectedCourse.pars;
+holeOffset = 0;
 }
 else{
 if(nineType === "back"){
 parArray = selectedCourse.pars.slice(9,18);
+holeOffset = 9; // 🔥 THIS FIXES BACK 9
 }else{
 parArray = selectedCourse.pars.slice(0,9);
+holeOffset = 0;
 }
 }
 
@@ -922,7 +930,8 @@ gir: [],
 fir: [],
 totalStrokes: 0,
 totalPar: 0,
-loadedPars: parArray
+loadedPars: parArray,
+holeOffset,
 };
 
 roundHistory = [];
@@ -936,17 +945,24 @@ if(!currentRound) return;
 
 const parButtonContainer = document.getElementById("parButtonContainer");
 
+const actualHoleNumber =
+currentRound.currentHole + (currentRound.holeOffset || 0);
+
 if(currentRound.loadedPars && currentRound.loadedPars.length){
+
 parButtonContainer?.classList.add("hidden");
 
 document.getElementById("roundHoleDisplay").textContent =
-`Hole ${currentRound.currentHole} (Par ${currentRound.loadedPars[currentRound.currentHole - 1]}) of ${currentRound.holes}`;
+`Hole ${actualHoleNumber} (Par ${currentRound.loadedPars[currentRound.currentHole - 1]})`;
+
 }else{
+
 parButtonContainer?.classList.remove("hidden");
-}
 
 document.getElementById("roundHoleDisplay").textContent =
-`Hole ${currentRound.currentHole} of ${currentRound.holes}`;
+`Hole ${actualHoleNumber} of ${currentRound.holes}`;
+
+}
 
 document.getElementById("roundCourseInfo").textContent =
 `${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}`;
