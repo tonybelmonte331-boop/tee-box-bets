@@ -88,14 +88,20 @@ e.preventDefault();
 
 el.addEventListener("input", ()=>{
 
-// Remove invalid characters
-el.value = el.value.replace(/[^\d.]/g,"");
+let val = el.value.replace(/[^\d.]/g,"");
 
-// Ensure only one decimal exists
-const parts = el.value.split(".");
-if(parts.length > 2){
-el.value = parts[0] + "." + parts[1];
+// Auto insert decimal after 2 digits if none exists
+if(!val.includes(".") && val.length > 2){
+val = val.slice(0,2) + "." + val.slice(2);
 }
+
+// Ensure only one decimal
+const parts = val.split(".");
+if(parts.length > 2){
+val = parts[0] + "." + parts[1];
+}
+
+el.value = val;
 
 });
 
