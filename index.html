@@ -103,6 +103,10 @@ Reset Betting Stats
 <label>Select Course</label>
 <select id="courseSelect"></select>
 
+<button onclick="openCourseModal()" style="margin-top:10px">
+Add Course
+</button>
+
 <label>Or Enter Course Name</label>
 <input id="courseName" type="text" placeholder="Manual Entry">
 
@@ -416,6 +420,43 @@ End Round
 </select>
 <div id="sideWinners"></div>
 <button onclick="sideBetModal.classList.add('hidden')">Cancel</button>
+</div>
+</div>
+
+<div id="courseModal" class="modal hidden" onclick="closeCourseModal()">
+<div class="modal-box" onclick="event.stopPropagation()">
+
+<h3>Add Course</h3>
+
+<input id="newCourseName" placeholder="Course Name">
+
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px">
+<input id="par1" inputmode="numeric">
+<input id="par2" inputmode="numeric">
+<input id="par3" inputmode="numeric">
+<input id="par4" inputmode="numeric">
+<input id="par5" inputmode="numeric">
+<input id="par6" inputmode="numeric">
+<input id="par7" inputmode="numeric">
+<input id="par8" inputmode="numeric">
+<input id="par9" inputmode="numeric">
+<input id="par10" inputmode="numeric">
+<input id="par11" inputmode="numeric">
+<input id="par12" inputmode="numeric">
+<input id="par13" inputmode="numeric">
+<input id="par14" inputmode="numeric">
+<input id="par15" inputmode="numeric">
+<input id="par16" inputmode="numeric">
+<input id="par17" inputmode="numeric">
+<input id="par18" inputmode="numeric">
+</div>
+
+<button onclick="saveCourse()" style="margin-top:12px">
+Save Course
+</button>
+
+<button onclick="closeCourseModal()">Cancel</button>
+
 </div>
 </div>
 

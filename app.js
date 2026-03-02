@@ -19,6 +19,22 @@ let currentRound = null;
 
 let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
 
+function refreshCourseDropdown(){
+
+const courseSelect = document.getElementById("courseSelect");
+if(!courseSelect) return;
+
+courseSelect.innerHTML = `<option value="">Select Saved Course</option>`;
+
+savedCourses.forEach(c=>{
+const opt = document.createElement("option");
+opt.value = c.name;
+opt.textContent = c.name;
+courseSelect.appendChild(opt);
+});
+
+}
+
 /*
 Course Structure:
 
@@ -33,6 +49,10 @@ window.saveCourse = () => {
 const name = document.getElementById("newCourseName").value.trim();
 if(!name) return alert("Enter course name");
 
+if(savedCourses.some(c => c.name.toLowerCase() === name.toLowerCase())){
+return alert("Course already exists");
+}
+
 let pars = [];
 
 for(let i=1;i<=18;i++){
@@ -45,8 +65,8 @@ savedCourses.push({ name, pars });
 
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
-alert("Course Saved!");
-location.reload();
+closeCourseModal();
+refreshCourseDropdown();
 };
 
 /* ================= HAPTIC ================= */
@@ -408,6 +428,14 @@ window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
 window.showRules = () => show("rules-screen");
 
+window.openCourseModal = () =>{
+document.getElementById("courseModal").classList.remove("hidden");
+};
+
+window.closeCourseModal = () =>{
+document.getElementById("courseModal").classList.add("hidden");
+};
+
 /* ================= PROFILE CHECK ================= */
 
 
@@ -431,21 +459,6 @@ sideBetBtn.classList.add("hidden");
 
 document.getElementById("manualSaveBtn").onclick = addManualRound;
 
-const courseSelect = document.getElementById("courseSelect");
-
-if(courseSelect){
-
-courseSelect.innerHTML = `<option value="">Select Saved Course</option>`;
-
-savedCourses.forEach(c=>{
-const opt = document.createElement("option");
-opt.value = c.name;
-opt.textContent = c.name;
-courseSelect.appendChild(opt);
-});
-
-}
-
 const roundHoles = document.getElementById("roundHoles");
 const nineType = document.getElementById("nineType");
 
@@ -462,6 +475,7 @@ nineType.classList.remove("hidden");
 });
 
 }
+refreshCourseDropdown();
 });
 
 /* ================= GAME SELECT ================= */
@@ -1179,7 +1193,7 @@ scoreWrapEnd = `</span>`;
 
 html += `
 <tr style="border-bottom:1px solid rgba(255,255,255,.15)">
-<td>${i+1}</td>
+<td>${i + 1 + (currentRound.holeOffset || 0)}</td>
 <td>${par}</td>
 <td style="${scoreStyle};padding:10px 0;">
 ${scoreWrapStart}${score}${scoreWrapEnd}
