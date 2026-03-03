@@ -110,8 +110,8 @@ savedCourses.push({
 name,
 tees: {
 [teeName]: {
-rating: +document.getElementById("courseRating").value || 72,
-slope: +document.getElementById("courseSlope").value || 113,
+rating: +document.getElementById("newTeeRating").value || 72,
+slope: +document.getElementById("newTeeSlope").value || 113,
 pars
 }
 }
@@ -588,8 +588,14 @@ e.stopPropagation();
 if(!confirm(`Delete ${course.name}?`)) return;
 
 savedCourses = savedCourses.filter(c=>c.name !== course.name);
-
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+// 🔥 Clear selection if this course was selected
+if(search.value === course.name){
+search.value = "";
+document.getElementById("teeSelect").innerHTML =
+`<option value="Default">Default</option>`;
+}
 
 refreshCourseDropdown();
 search.dispatchEvent(new Event("input"));
