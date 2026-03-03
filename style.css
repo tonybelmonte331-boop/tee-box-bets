@@ -551,3 +551,27 @@ border-bottom:1px solid rgba(255,255,255,.06);
 .course-dropdown div:hover{
 background:rgba(255,255,255,.08);
 }
+
+.course-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.course-row span:first-child{
+cursor:pointer;
+flex:1;
+}
+
+.course-delete{
+opacity:.5;
+cursor:pointer;
+padding-left:10px;
+}
+
+.course-delete:hover{
+opacity:1;
+color:#ff6b6b;
+}

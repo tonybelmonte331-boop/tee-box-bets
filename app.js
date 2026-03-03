@@ -29,15 +29,39 @@ if(!dropdown || !search) return;
 dropdown.innerHTML = "";
 
 savedCourses.forEach(course=>{
-const option = document.createElement("div");
-option.textContent = course.name;
 
-option.onclick = ()=>{
+const row = document.createElement("div");
+row.className = "course-row";
+
+const name = document.createElement("span");
+name.textContent = course.name;
+
+name.onclick = ()=>{
 search.value = course.name;
 dropdown.classList.add("hidden");
 };
 
-dropdown.appendChild(option);
+const del = document.createElement("span");
+del.textContent = "✕";
+del.className = "course-delete";
+
+del.onclick = (e)=>{
+e.stopPropagation();
+
+if(!confirm(`Delete ${course.name}?`)) return;
+
+savedCourses = savedCourses.filter(c=>c.name !== course.name);
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+refreshCourseDropdown();
+};
+
+row.appendChild(name);
+row.appendChild(del);
+
+dropdown.appendChild(row);
+
 });
 
 }
@@ -520,13 +544,37 @@ savedCourses
 .filter(c=>c.name.toLowerCase().includes(term))
 .forEach(course=>{
 
-const option = document.createElement("div");
-option.textContent = course.name;
+const row = document.createElement("div");
+row.className = "course-row";
 
-option.onclick = ()=>{
+const name = document.createElement("span");
+name.textContent = course.name;
+
+name.onclick = ()=>{
 search.value = course.name;
 dropdown.classList.add("hidden");
 };
+
+const del = document.createElement("span");
+del.textContent = "✕";
+del.className = "course-delete";
+
+del.onclick = (e)=>{
+e.stopPropagation();
+
+if(!confirm(`Delete ${course.name}?`)) return;
+
+savedCourses = savedCourses.filter(c=>c.name !== course.name);
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+refreshCourseDropdown();
+search.dispatchEvent(new Event("input"));
+};
+
+row.appendChild(name);
+row.appendChild(del);
+dropdown.appendChild(row);
 
 dropdown.appendChild(option);
 
