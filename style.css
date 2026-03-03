@@ -521,3 +521,33 @@ margin-top:2px;
     margin-bottom: 14px;
     border-bottom: 1px solid rgba(255,255,255,.12);
 }
+
+.course-select-wrapper{
+position:relative;
+}
+
+#courseSearch{
+width:100%;
+}
+
+.course-dropdown{
+position:absolute;
+width:100%;
+background:#0f3f2e;
+border-radius:12px;
+margin-top:6px;
+max-height:220px;
+overflow-y:auto;
+z-index:50;
+box-shadow:0 8px 20px rgba(0,0,0,.4);
+}
+
+.course-dropdown div{
+padding:12px;
+cursor:pointer;
+border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.course-dropdown div:hover{
+background:rgba(255,255,255,.08);
+}

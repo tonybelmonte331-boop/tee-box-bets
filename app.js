@@ -21,16 +21,23 @@ let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
 
 function refreshCourseDropdown(){
 
-const courseSelect = document.getElementById("courseSelect");
-if(!courseSelect) return;
+const dropdown = document.getElementById("courseDropdown");
+const search = document.getElementById("courseSearch");
 
-courseSelect.innerHTML = `<option value="">Select Saved Course</option>`;
+if(!dropdown || !search) return;
 
-savedCourses.forEach(c=>{
-const opt = document.createElement("option");
-opt.value = c.name;
-opt.textContent = c.name;
-courseSelect.appendChild(opt);
+dropdown.innerHTML = "";
+
+savedCourses.forEach(course=>{
+const option = document.createElement("div");
+option.textContent = course.name;
+
+option.onclick = ()=>{
+search.value = course.name;
+dropdown.classList.add("hidden");
+};
+
+dropdown.appendChild(option);
 });
 
 }
@@ -493,6 +500,48 @@ nineType.classList.remove("hidden");
 
 }
 refreshCourseDropdown();
+
+const search = document.getElementById("courseSearch");
+const dropdown = document.getElementById("courseDropdown");
+
+if(search && dropdown){
+
+search.addEventListener("focus", ()=>{
+dropdown.classList.remove("hidden");
+});
+
+search.addEventListener("input", ()=>{
+
+const term = search.value.toLowerCase();
+
+dropdown.innerHTML = "";
+
+savedCourses
+.filter(c=>c.name.toLowerCase().includes(term))
+.forEach(course=>{
+
+const option = document.createElement("div");
+option.textContent = course.name;
+
+option.onclick = ()=>{
+search.value = course.name;
+dropdown.classList.add("hidden");
+};
+
+dropdown.appendChild(option);
+
+});
+
+});
+
+document.addEventListener("click",(e)=>{
+if(!e.target.closest(".course-select-wrapper")){
+dropdown.classList.add("hidden");
+}
+});
+
+}
+
 });
 
 /* ================= GAME SELECT ================= */
@@ -918,7 +967,7 @@ let roundHistory = [];
 
 window.startRoundTracking = () => {
 
-const selectedCourseName = document.getElementById("courseSelect")?.value;
+const selectedCourseName = document.getElementById("courseSearch")?.value;
 const holesSelected = +document.getElementById("roundHoles").value;
 const nineType = document.getElementById("nineType")?.value; // front/back
 

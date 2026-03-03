@@ -101,7 +101,10 @@ Reset Betting Stats
 <!-- ===== NEW ROUND ===== -->
 
 <label>Select Course</label>
-<select id="courseSelect"></select>
+<div class="course-select-wrapper">
+<input id="courseSearch" placeholder="Search or select course" autocomplete="off">
+<div id="courseDropdown" class="course-dropdown hidden"></div>
+</div>
 
 <button onclick="openCourseModal()" style="margin-top:10px">
 Add Course
