@@ -1008,8 +1008,8 @@ const totalPar =currentRound.loadedPars && currentRound.loadedPars.length
 ? currentRound.loadedPars.reduce((a,b)=>a+b,0)
 : currentRound.totalPar || "";
 
-document.getElementById("roundCourseMain").textContent =
-`${currentRound.course}${totalPar ? ` — Par ${totalPar}` : ""}`;
+document.getElementById("roundCourseMain").innerHTML =
+`${currentRound.course}${totalPar ? ` <span style="opacity:.75;font-weight:600;"> — Par ${totalPar}</span>` : ""}`;
 
 document.getElementById("roundCourseSub").textContent =
 `Rating ${currentRound.rating} • Slope ${currentRound.slope}`;

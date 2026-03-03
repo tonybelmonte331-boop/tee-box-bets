@@ -515,3 +515,9 @@ font-size:14px;
 opacity:.75;
 margin-top:2px;
 }
+
+#roundCourseHeader{
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+}
