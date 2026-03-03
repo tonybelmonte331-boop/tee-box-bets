@@ -39,6 +39,18 @@ name.textContent = course.name;
 name.onclick = ()=>{
 search.value = course.name;
 dropdown.classList.add("hidden");
+
+const teeSelect = document.getElementById("teeSelect");
+teeSelect.innerHTML = "";
+
+const tees = course.tees || { Default: { rating:72, slope:113, pars:course.pars } };
+
+Object.keys(tees).forEach(t=>{
+const opt = document.createElement("option");
+opt.value = t;
+opt.textContent = t;
+teeSelect.appendChild(opt);
+});
 };
 
 const del = document.createElement("span");
@@ -92,7 +104,16 @@ if(!val) return alert("Enter all 18 pars");
 pars.push(val);
 }
 
-savedCourses.push({ name, pars });
+savedCourses.push({
+name,
+tees: {
+Default: {
+rating: 72,
+slope: 113,
+pars
+}
+}
+});
 
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
@@ -1023,19 +1044,25 @@ let selectedCourse = savedCourses.find(c => c.name === selectedCourseName);
 
 let parArray = [];
 let holeOffset = 0;
+let rating = +document.getElementById("courseRating").value || 72;
+let slope = +document.getElementById("courseSlope").value || 113;
 
 if(selectedCourse){
 
-if(holesSelected === 18){
-parArray = selectedCourse.pars;
-holeOffset = 0;
-}
-else{
-if(nineType === "back"){
-parArray = selectedCourse.pars.slice(9,18);
-holeOffset = 9; // 🔥 THIS FIXES BACK 9
-}else{
-parArray = selectedCourse.pars.slice(0,9);
+ const teeName = document.getElementById("teeSelect")?.value || "Default";
+ const tee = selectedCourse.tees?.[teeName];
+
+ if(tee){
+ rating = tee.rating;
+ slope = tee.slope;
+
+ if(holesSelected === 18){
+ parArray = tee.pars;
+ }else if(nineType === "back"){
+ parArray = tee.pars.slice(9,18);
+ holeOffset = 9;
+ }else{
+ parArray = tee.pars.slice(0,9);
 holeOffset = 0;
 }
 }
@@ -1046,8 +1073,8 @@ parArray = []; // manual mode
 
 currentRound = {
 course: selectedCourseName || document.getElementById("courseName").value || "Unknown Course",
-rating: +document.getElementById("courseRating").value || 72,
-slope: +document.getElementById("courseSlope").value || 113,
+rating,
+slope,
 holes: holesSelected,
 currentHole: 1,
 scores: [],
