@@ -1004,8 +1004,15 @@ totalParDisplay = ` | Par ${totalPar}`;
 
 }
 
-document.getElementById("roundCourseInfo").textContent =
-`${currentRound.course} | Rating ${currentRound.rating} | Slope ${currentRound.slope}${totalParDisplay}`;
+const totalPar =currentRound.loadedPars && currentRound.loadedPars.length
+? currentRound.loadedPars.reduce((a,b)=>a+b,0)
+: currentRound.totalPar || "";
+
+document.getElementById("roundCourseMain").textContent =
+`${currentRound.course}${totalPar ? ` — Par ${totalPar}` : ""}`;
+
+document.getElementById("roundCourseSub").textContent =
+`Rating ${currentRound.rating} • Slope ${currentRound.slope}`;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
 

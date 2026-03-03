@@ -503,3 +503,15 @@ button{
 button:active {
     transform: scale(.96);
 }
+
+.round-course-main{
+font-size:18px;
+font-weight:700;
+margin-top:4px;
+}
+
+.round-course-sub{
+font-size:14px;
+opacity:.75;
+margin-top:2px;
+}
