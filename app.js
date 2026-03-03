@@ -104,12 +104,14 @@ if(!val) return alert("Enter all 18 pars");
 pars.push(val);
 }
 
+const teeName = document.getElementById("newTeeName").value.trim() || "Default";
+
 savedCourses.push({
 name,
 tees: {
-Default: {
-rating: 72,
-slope: 113,
+[teeName]: {
+rating: +document.getElementById("courseRating").value || 72,
+slope: +document.getElementById("courseSlope").value || 113,
 pars
 }
 }
