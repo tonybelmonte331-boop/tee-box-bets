@@ -453,6 +453,11 @@ tapHaptic();
 
 const current = document.querySelector("section:not(.hidden)");
 
+/* 🔥 Reset round setup if leaving it */
+if(current && current.id === "round-setup" && id !== "round-setup"){
+resetRoundSetup();
+}
+
 if (current && current.id !== id) {
 screenHistory.push(current.id);
 }
