@@ -66,6 +66,20 @@ savedCourses = savedCourses.filter(c=>c.name !== course.name);
 
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
+/* 🔥 CLEAR SELECTION IF THIS COURSE WAS SELECTED */
+const search = document.getElementById("courseSearch");
+
+if(search && search.value === course.name){
+search.value = "";
+
+const teeSelect = document.getElementById("teeSelect");
+
+if(teeSelect){
+teeSelect.innerHTML = `<option value="Default">Default</option>`;
+teeSelect.value = "Default";
+}
+}
+
 refreshCourseDropdown();
 };
 
@@ -120,8 +134,32 @@ pars
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
 closeCourseModal();
+
+resetAddCourseModal();
+
 refreshCourseDropdown();
 };
+
+function resetAddCourseModal(){
+
+const name = document.getElementById("newCourseName");
+if(name) name.value = "";
+
+const tee = document.getElementById("newTeeName");
+if(tee) tee.value = "";
+
+const rating = document.getElementById("newTeeRating");
+if(rating) rating.value = "";
+
+const slope = document.getElementById("newTeeSlope");
+if(slope) slope.value = "";
+
+for(let i=1;i<=18;i++){
+const par = document.getElementById(`par${i}`);
+if(par) par.value = "";
+}
+
+}
 
 /* ================= HAPTIC ================= */
 function tapHaptic(){
@@ -469,8 +507,36 @@ window.goBack = () => {
  updateHeader(prev);
 };
 
+function resetRoundSetup(){
+
+const search = document.getElementById("courseSearch");
+if(search) search.value = "";
+
+const teeSelect = document.getElementById("teeSelect");
+
+if(teeSelect){
+teeSelect.innerHTML = `<option value="Default">Default</option>`;
+teeSelect.value = "Default";
+}
+
+const rating = document.getElementById("courseRating");
+if(rating) rating.value = "";
+
+const slope = document.getElementById("courseSlope");
+if(slope) slope.value = "";
+
+const holes = document.getElementById("roundHoles");
+if(holes) holes.value = "9";
+
+const nineType = document.getElementById("nineType");
+if(nineType) nineType.value = "front";
+
+}
+
 function goHomeClean(){
 screenHistory = [];
+
+resetRoundSetup();
 
 document.querySelectorAll("section").forEach(s =>
 s.classList.add("hidden")
@@ -478,7 +544,7 @@ s.classList.add("hidden")
 
 document.getElementById("step-home").classList.remove("hidden");
 
-updateHeader("step-home"); // ✅ reset title
+updateHeader("step-home");
 syncBackButton();
 }
 
@@ -505,6 +571,7 @@ document.getElementById("courseModal").classList.remove("hidden");
 
 window.closeCourseModal = () =>{
 document.getElementById("courseModal").classList.add("hidden");
+resetAddCourseModal();
 };
 
 /* ================= PROFILE CHECK ================= */
@@ -516,12 +583,16 @@ const ratingInput = document.getElementById("courseRating");
 const slopeInput = document.getElementById("courseSlope");
 const manualRating = document.getElementById("manualRating");
 const manualSlope = document.getElementById("manualSlope");
+const newTeeRating = document.getElementById("newTeeRating");
+const newTeeSlope = document.getElementById("newTeeSlope");
 
 if(ratingInput) autoDecimal(ratingInput);
 if(manualRating) autoDecimal(manualRating);
+if(newTeeRating) autoDecimal(newTeeRating);
 
 if(slopeInput) numericOnly(slopeInput);
 if(manualSlope) numericOnly(manualSlope);
+if(newTeeSlope) numericOnly(newTeeSlope);
 
 if(!userProfile){
 show("profile-setup");
@@ -590,15 +661,25 @@ if(!confirm(`Delete ${course.name}?`)) return;
 savedCourses = savedCourses.filter(c=>c.name !== course.name);
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
-// 🔥 Clear selection if this course was selected
+/* CLEAR COURSE + TEE IF ACTIVE */
 if(search.value === course.name){
+
 search.value = "";
-document.getElementById("teeSelect").innerHTML =
-`<option value="Default">Default</option>`;
+
+const teeSelect = document.getElementById("teeSelect");
+
+if(teeSelect){
+teeSelect.innerHTML = `<option value="Default">Default</option>`;
+teeSelect.value = "Default";
+}
+
 }
 
 refreshCourseDropdown();
+
+/* REBUILD DROPDOWN */
 search.dispatchEvent(new Event("input"));
+
 };
 
 row.appendChild(name);
