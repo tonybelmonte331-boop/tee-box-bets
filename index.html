@@ -111,6 +111,8 @@ Reset Betting Stats
 <option value="Default">Default</option>
 </select>
 
+<button onclick="openTeeManager()" class="secondary-btn">Manage Tees</button>
+
 <button onclick="openCourseModal()" style="margin-top:10px">
 Add Course
 </button>
@@ -477,6 +479,31 @@ Save Course
 </div>
 </div>
 
+<div id="teeManagerModal" class="modal hidden">
+
+<div class="modal-content">
+
+<h3>Manage Tees</h3>
+
+<div id="teeList"></div>
+
+<hr>
+
+<h4>Add Tee</h4>
+
+<input id="teeNameInput" placeholder="Tee Name (Blue, White etc)">
+
+<input id="teeRatingInput" placeholder="Rating">
+
+<input id="teeSlopeInput" placeholder="Slope">
+
+<button onclick="addTeeToCourse()">Add Tee</button>
+
+<button onclick="closeTeeManager()">Close</button>
+
+</div>
+
+</div>
 
 </main>
 

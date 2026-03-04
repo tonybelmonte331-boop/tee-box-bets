@@ -17,6 +17,7 @@ let currentRound = null;
 
 /* ================= COURSE STORAGE ================= */
 
+
 let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
 
 function refreshCourseDropdown(){
@@ -158,6 +159,113 @@ for(let i=1;i<=18;i++){
 const par = document.getElementById(`par${i}`);
 if(par) par.value = "";
 }
+
+}
+
+/* ================= TEE MANAGER ================= */
+function openTeeManager(){
+
+const courseName = document.getElementById("courseSearch").value;
+
+const course = savedCourses.find(c => c.name === courseName);
+
+if(!course){
+alert("Select a course first");
+return;
+}
+
+const teeList = document.getElementById("teeList");
+teeList.innerHTML = "";
+
+Object.keys(course.tees).forEach(name=>{
+
+const tee = course.tees[name];
+
+const row = document.createElement("div");
+row.className = "tee-row";
+
+row.innerHTML = `
+<strong>${name}</strong>
+Rating: ${tee.rating}
+Slope: ${tee.slope}
+<button onclick="deleteTee('${course.name}','${name}')">✕</button>
+`;
+
+teeList.appendChild(row);
+
+});
+
+document.getElementById("teeManagerModal").classList.remove("hidden");
+
+}
+
+function closeTeeManager(){
+document.getElementById("teeManagerModal").classList.add("hidden");
+}
+
+function addTeeToCourse(){
+
+const courseName = document.getElementById("courseSearch").value;
+
+const course = savedCourses.find(c => c.name === courseName);
+
+if(!course){
+alert("Select course first");
+return;
+}
+
+const name = document.getElementById("teeNameInput").value.trim();
+const rating = +document.getElementById("teeRatingInput").value || 72;
+const slope = +document.getElementById("teeSlopeInput").value || 113;
+
+if(!name){
+alert("Enter tee name");
+return;
+}
+
+if(course.tees[name]){
+alert("Tee already exists");
+return;
+}
+
+const basePars = Object.values(course.tees)[0].pars;
+
+course.tees[name] = {
+rating,
+slope,
+pars: [...basePars]
+};
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+refreshCourseDropdown();
+openTeeManager();
+
+document.getElementById("teeNameInput").value = "";
+document.getElementById("teeRatingInput").value = "";
+document.getElementById("teeSlopeInput").value = "";
+
+}
+
+function deleteTee(courseName, teeName){
+
+const course = savedCourses.find(c => c.name === courseName);
+
+if(!course) return;
+
+if(Object.keys(course.tees).length <= 1){
+alert("Cannot delete the last tee");
+return;
+}
+
+if(!confirm(`Delete ${teeName} tee?`)) return;
+
+delete course.tees[teeName];
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+refreshCourseDropdown();
+openTeeManager();
 
 }
 
