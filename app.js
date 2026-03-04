@@ -500,11 +500,18 @@ window.goBack = () => {
 
  if (!screenHistory.length) return;
 
- const prev = screenHistory.pop();
+const prev = screenHistory.pop();
 
- document.querySelectorAll("section").forEach(s =>
- s.classList.add("hidden")
- );
+/* If leaving round setup, reset the fields */
+const current = document.querySelector("section:not(.hidden)");
+
+if(current && current.id === "round-setup"){
+resetRoundSetup();
+}
+
+document.querySelectorAll("section").forEach(s =>
+s.classList.add("hidden")
+);
 
  document.getElementById(prev).classList.remove("hidden");
 
