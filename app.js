@@ -185,10 +185,27 @@ const row = document.createElement("div");
 row.className = "tee-row";
 
 row.innerHTML = `
+
+<div>
+
 <strong>${name}</strong>
-Rating: ${tee.rating}
-Slope: ${tee.slope}
+
+<div style="font-size:12px;opacity:.8">
+Rating
+<input value="${tee.rating}"
+class="tee-edit-rating"
+onchange="editTee('${course.name}','${name}','rating',this.value)">
+
+Slope
+<input value="${tee.slope}"
+class="tee-edit-slope"
+onchange="editTee('${course.name}','${name}','slope',this.value)">
+</div>
+
+</div>
+
 <button onclick="deleteTee('${course.name}','${name}')">✕</button>
+
 `;
 
 teeList.appendChild(row);
@@ -266,6 +283,26 @@ localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
 refreshCourseDropdown();
 openTeeManager();
+
+}
+
+function editTee(courseName, teeName, field, value){
+
+const course = savedCourses.find(c=>c.name===courseName);
+
+if(!course) return;
+
+if(field === "rating"){
+course.tees[teeName].rating = +value;
+}
+
+if(field === "slope"){
+course.tees[teeName].slope = +value;
+}
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+refreshCourseDropdown();
 
 }
 
@@ -705,14 +742,18 @@ const manualRating = document.getElementById("manualRating");
 const manualSlope = document.getElementById("manualSlope");
 const newTeeRating = document.getElementById("newTeeRating");
 const newTeeSlope = document.getElementById("newTeeSlope");
+const teeRatingInput = document.getElementById("teeRatingInput");
+const teeSlopeInput = document.getElementById("teeSlopeInput");
 
 if(ratingInput) autoDecimal(ratingInput);
 if(manualRating) autoDecimal(manualRating);
+if(teeRatingInput) autoDecimal(teeRatingInput);
 if(newTeeRating) autoDecimal(newTeeRating);
 
 if(slopeInput) numericOnly(slopeInput);
 if(manualSlope) numericOnly(manualSlope);
 if(newTeeSlope) numericOnly(newTeeSlope);
+if(teeSlopeInput) numericOnly(teeSlopeInput);
 
 if(!userProfile){
 show("profile-setup");

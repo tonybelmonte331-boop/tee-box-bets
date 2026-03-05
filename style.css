@@ -208,7 +208,7 @@ background:#06281d;
 padding:20px;
 border-radius:18px;
 width:90%;
-max-width:360px;
+max-width:420px;
 box-shadow:0 12px 30px rgba(0,0,0,.5);
 }
 
@@ -574,4 +574,56 @@ padding-left:10px;
 .course-delete:hover{
 opacity:1;
 color:#ff6b6b;
+}
+
+/* ==== TEE MANAGER ==== */
+
+.tee-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,.06);
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.tee-row strong{
+    display: block;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.tee-row button{
+    background: #a83232;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    width: auto;
+    margin-left: 8px;
+}
+
+/* editable tee inputs */
+
+.tee-edit-rating,
+.tee-edit-slope{
+    width: 60px;
+    border: none;
+    border-radius: 6px;
+    padding: 4px;
+    margin-left: 6px;
+    text-align: center;
+    background: #e6f5ee;
+    color: black;
+    font-size: 13px;
+}
+
+#teelist{
+    margin-bottom: 12px;
+}
+
+#teeManagerModal input{
+    margin: 6px 0;
 }
