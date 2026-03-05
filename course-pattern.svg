@@ -1,9 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
-<g stroke="#ffffff" stroke-opacity="0.05" stroke-width="2" fill="none">
-<path d="M10 350 C150 200 250 200 390 50"/>
-<path d="M30 370 C180 230 260 210 380 80"/>
-<circle cx="320" cy="80" r="6"/>
-<circle cx="260" cy="200" r="4"/>
-<circle cx="150" cy="260" r="5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+
+<style>
+@keyframes drift {
+0% { transform: translate(0px,0px); }
+50% { transform: translate(-40px,-30px); }
+100% { transform: translate(0px,0px); }
+}
+
+.group{
+animation: drift 40s ease-in-out infinite;
+}
+</style>
+
+<g class="group" opacity="0.10">
+
+<!-- fairway -->
+<ellipse cx="200" cy="200" rx="180" ry="70" fill="#6bcf7a"/>
+
+<!-- green -->
+<ellipse cx="350" cy="220" rx="40" ry="30" fill="#8ee89b"/>
+
+<!-- bunker -->
+<ellipse cx="380" cy="190" rx="20" ry="10" fill="#e8e2b6"/>
+
+<!-- water -->
+<ellipse cx="120" cy="260" rx="60" ry="35" fill="#5bb7e8"/>
+
 </g>
+
+<g class="group" opacity="0.08">
+
+<ellipse cx="600" cy="450" rx="200" ry="80" fill="#6bcf7a"/>
+<ellipse cx="730" cy="470" rx="35" ry="28" fill="#8ee89b"/>
+<ellipse cx="680" cy="420" rx="18" ry="10" fill="#e8e2b6"/>
+<ellipse cx="520" cy="520" rx="70" ry="40" fill="#5bb7e8"/>
+
+</g>
+
+<g class="group" opacity="0.07">
+
+<ellipse cx="300" cy="650" rx="220" ry="90" fill="#6bcf7a"/>
+<ellipse cx="470" cy="680" rx="35" ry="28" fill="#8ee89b"/>
+<ellipse cx="250" cy="610" rx="60" ry="35" fill="#5bb7e8"/>
+
+</g>
+
 </svg>

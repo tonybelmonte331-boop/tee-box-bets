@@ -9,17 +9,23 @@ html {
 }
 
 html,body{
+
 width:100%;
 height:100%;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
-background:
-linear-gradient(rgba(11,61,46,.88), rgba(11,61,46,.92)),
-url("course-pattern.svg");
 
-background-size:cover;
-background-position:center;
-background-blend-mode:overlay;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
+
+background-color:#0b3d2e;
+
+background-image:url("course-pattern.svg");
+
+background-size:600px;
+background-repeat:repeat;
+
+opacity:1;
+
 color:white;
+
 overflow-x:hidden;
 }
 
@@ -807,6 +813,26 @@ flex-direction:column;
 align-items:center;
 justify-content:flex-start;
 gap:16px;
+min-height: calc(100vh - 60px);
+}
+
+.home-dashboard{
+margin-top:auto;
+margin-bottom:40px;
+
+width:100%;
+max-width:360px;
+
+padding:18px;
+
+background:rgba(255,255,255,.10);
+border-radius:20px;
+
+backdrop-filter:blur(12px);
+
+border:1px solid rgba(255,255,255,.18);
+
+box-shadow:0 12px 28px rgba(0,0,0,.35);
 }
 
 #step-home button{
