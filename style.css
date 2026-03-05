@@ -109,7 +109,7 @@ flex-direction:column;
 align-items:center;
 justify-content:flex-start;
 
-overflow-y:auto;
+overflow:hidden;
 }
 
 /* allow scrolling when modal open */
@@ -127,7 +127,7 @@ section{
 width:100%;
 max-width:420px;
 
-padding:20px;
+padding:16px 20px;
 
 margin-top:0;
 
@@ -142,11 +142,11 @@ display:none !important;
 
 input,select,button{
 width:100%;
-padding:16px;
-margin:12px 0;
+padding:14px;
+margin:8px 0;
 border-radius:18px;
 border:none;
-font-size:17px;
+font-size:16px;
 }
 
 input[type="date"]{
@@ -875,7 +875,10 @@ box-shadow:0 12px 28px rgba(0,0,0,.35);
 }
 
 #step-home button{
+width: 100%;
 max-width:320px;
+margin-left: auto;
+margin-right: auto;
 }
 
 body::before{
