@@ -240,8 +240,17 @@ document.getElementById("teeManagerModal").classList.remove("hidden");
 }
 
 function closeTeeManager(){
-document.body.classList.remove("modal-open");    
+
+document.body.classList.remove("modal-open");
+
 document.getElementById("teeManagerModal").classList.add("hidden");
+
+/* clear add tee inputs */
+
+document.getElementById("teeNameInput").value = "";
+document.getElementById("teeRatingInput").value = "";
+document.getElementById("teeSlopeInput").value = "";
+
 }
 
 function addTeeToCourse(){
@@ -870,8 +879,6 @@ search.dispatchEvent(new Event("input"));
 row.appendChild(name);
 row.appendChild(del);
 dropdown.appendChild(row);
-
-dropdown.appendChild(option);
 
 });
 

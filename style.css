@@ -13,10 +13,12 @@ width:100%;
 height:100%;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
 background:
-linear-gradient(rgba(11,61,46,.96), rgba(11,61,46,.96)),
+linear-gradient(rgba(11,61,46,.88), rgba(11,61,46,.92)),
 url("course-pattern.svg");
+
 background-size:cover;
 background-position:center;
+background-blend-mode:overlay;
 color:white;
 overflow-x:hidden;
 }
@@ -728,12 +730,19 @@ margin-top:4px;
 }
 
 .tee-row input{
-    width: 70px;
-    margin-left: 6px;
-    border-radius: 6px;
-    border: none;
-    padding: 4px;
-    text-align: center;
+width:70px !important;
+flex:none;
+
+margin-left:6px;
+
+border-radius:6px;
+border:none;
+padding:4px;
+
+text-align:center;
+
+background:#e6f5ee;
+color:black;
 }
 
 body.modal-open{
@@ -749,13 +758,28 @@ body.modal-open main{
 /* ===== HOME DASHBOARD ===== */
 
 .home-dashboard{
-margin-top:30px;
-padding:16px;
 
-background:rgba(255,255,255,.08);
-backdrop-filter:blur(8px);
+width:100%;
+max-width:360px;
 
-border-radius:18px;
+margin-top:40px;
+
+padding:18px;
+
+background:rgba(255,255,255,.10);
+
+border-radius:20px;
+
+backdrop-filter:blur(10px);
+
+border:1px solid rgba(255,255,255,.18);
+
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+}
+
+#step-home{
+padding-bottom:80px;
 }
 
 .home-dashboard h3{
@@ -773,4 +797,18 @@ border-bottom:1px solid rgba(255,255,255,.1);
 
 .dash-row:last-child{
 border-bottom:none;
+}
+
+/* ===== HOME SCREEN LAYOUT ===== */
+
+#step-home{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:flex-start;
+gap:16px;
+}
+
+#step-home button{
+max-width:320px;
 }
