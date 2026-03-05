@@ -627,3 +627,11 @@ color:#ff6b6b;
 #teeManagerModal input{
     margin: 6px 0;
 }
+
+#teeManagerModal button{
+    width: 100%;
+}
+
+#teeManagerModal button:last-child{
+    background: #555;
+}
