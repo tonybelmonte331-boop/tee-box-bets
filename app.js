@@ -215,11 +215,13 @@ row.innerHTML = `
 Rating
 <input value="${tee.rating}"
 class="tee-edit-rating"
+inputmode="decimal"
 onchange="editTee('${course.name}','${name}','rating',this.value)">
 
 Slope
 <input value="${tee.slope}"
 class="tee-edit-slope"
+inputmode="numeric"
 onchange="editTee('${course.name}','${name}','slope',this.value)">
 </div>
 

@@ -84,8 +84,8 @@ padding-top:60px;
 min-height:100vh;
 display:flex;
 justify-content:center;
-align-items:center;
-overflow:hidden;
+align-items:flex-start;
+overflow-y:auto;
 }
 
 /* allow scrolling when modal open */
@@ -731,4 +731,14 @@ margin-top:4px;
     border: none;
     padding: 4px;
     text-align: center;
+}
+
+body.modal-open{
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+body.modal-open main{
+    overflow: hidden;
 }
