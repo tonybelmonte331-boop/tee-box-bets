@@ -9,24 +9,34 @@ html {
 }
 
 html,body{
-
 width:100%;
 height:100%;
-
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
 
-background-color:#0b3d2e;
-
-background-image:url("course-pattern.svg");
-
-background-size:600px;
-background-repeat:repeat;
-
-opacity:1;
+background-image:url("assets/course-bg.png");
+background-size:cover;
+background-position:center;
+background-repeat:no-repeat;
 
 color:white;
-
 overflow-x:hidden;
+}
+
+/* ================= BACKGROUND OVERLAY ================= */
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+
+background:linear-gradient(
+to bottom,
+rgba(0,0,0,.35),
+rgba(0,0,0,.55)
+);
+
+pointer-events:none;
+z-index:-1;
 }
 
 /* ================= HEADER ================= */
@@ -94,9 +104,11 @@ main{
 padding-top:60px;
 min-height:100vh;
 display:flex;
-justify-content:center;
-align-items:flex-start;
-overflow-y:auto;
+flex-direction: column;
+align-items: center;
+justify-content:flex-start;
+
+overflow:hidden;
 }
 
 /* allow scrolling when modal open */
@@ -114,6 +126,7 @@ section{
 width:100%;
 max-width:420px;
 padding:20px;
+margin-top: 120px;
 animation:slideIn .25s ease;
 }
 
@@ -125,11 +138,11 @@ display:none !important;
 
 input,select,button{
 width:100%;
-padding:14px;
-margin:10px 0;
-border-radius:14px;
+padding:16px;
+margin:12px 0;
+border-radius:18px;
 border:none;
-font-size:16px;
+font-size:17px;
 }
 
 input[type="date"]{
@@ -144,11 +157,27 @@ color:black;
 }
 
 button{
-background:#1faa59;
+
+background:rgba(60,180,100,.85);
+
 color:white;
+
 font-weight:600;
+
 cursor:pointer;
-box-shadow:0 3px 8px rgba(0,0,0,.25);
+
+border-radius:18px;
+
+border:1px solid rgba(255,255,255,.25);
+
+backdrop-filter:blur(8px);
+
+box-shadow:
+0 8px 20px rgba(0,0,0,.35),
+inset 0 1px 0 rgba(255,255,255,.15);
+
+transition:all .15s ease;
+
 }
 
 button{
@@ -156,8 +185,13 @@ transition:transform .08s ease, box-shadow .08s ease;
 }
 
 button:active{
-transform:scale(.94);
-box-shadow:0 2px 4px rgba(0,0,0,.4);
+
+transform:scale(.96);
+
+box-shadow:
+0 4px 10px rgba(0,0,0,.45),
+inset 0 2px 6px rgba(0,0,0,.4);
+
 }
 
 
@@ -811,8 +845,8 @@ border-bottom:none;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:flex-start;
-gap:16px;
+padding-top: 90px;
+gap:18px;
 min-height: calc(100vh - 60px);
 }
 
@@ -837,4 +871,41 @@ box-shadow:0 12px 28px rgba(0,0,0,.35);
 
 #step-home button{
 max-width:320px;
+}
+
+body::before{
+
+content:"";
+
+position:fixed;
+inset:0;
+
+background:radial-gradient(
+circle at 30% 20%,
+rgba(255,255,255,.08),
+transparent 60%
+);
+
+pointer-events:none;
+
+}
+
+/* ================= BACKGROUND BLUR ================= */
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+
+backdrop-filter:blur(2px);
+
+pointer-events:none;
+}
+
+button:hover{
+
+box-shadow:
+0 10px 26px rgba(0,0,0,.45),
+0 0 18px rgba(80,200,120,.35);
+
 }
