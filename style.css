@@ -12,10 +12,13 @@ html,body{
 width:100%;
 height:100%;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
-background:#0b3d2e;
+background:
+linear-gradient(rgba(11,61,46,.96), rgba(11,61,46,.96)),
+url("course-pattern.svg");
+background-size:cover;
+background-position:center;
 color:white;
 overflow-x:hidden;
-overflow-y: auto;
 }
 
 /* ================= HEADER ================= */
@@ -741,4 +744,33 @@ body.modal-open{
 
 body.modal-open main{
     overflow: hidden;
+}
+
+/* ===== HOME DASHBOARD ===== */
+
+.home-dashboard{
+margin-top:30px;
+padding:16px;
+
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(8px);
+
+border-radius:18px;
+}
+
+.home-dashboard h3{
+margin-bottom:12px;
+font-size:16px;
+font-weight:600;
+}
+
+.dash-row{
+display:flex;
+justify-content:space-between;
+padding:8px 0;
+border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.dash-row:last-child{
+border-bottom:none;
 }
