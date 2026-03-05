@@ -19,10 +19,10 @@ background-position:center;
 background-repeat:no-repeat;
 
 color:white;
-overflow-x:hidden;
+overflow:hidden;
 }
 
-/* ================= BACKGROUND OVERLAY ================= */
+/* background darkening layer */
 
 body::before{
 content:"";
@@ -36,7 +36,7 @@ rgba(0,0,0,.55)
 );
 
 pointer-events:none;
-z-index:-1;
+z-index:0;
 }
 
 /* ================= HEADER ================= */
@@ -102,10 +102,11 @@ background:rgba(255,255,255,.22);
 
 main{
 padding-top:60px;
-min-height:100vh;
+height:calc(100vh - 60px);
+
 display:flex;
-flex-direction: column;
-align-items: center;
+flex-direction:column;
+align-items:center;
 justify-content:flex-start;
 
 overflow:hidden;
@@ -125,8 +126,11 @@ overflow-y:auto;
 section{
 width:100%;
 max-width:420px;
+
 padding:20px;
-margin-top: 120px;
+
+margin-top:80px;
+
 animation:slideIn .25s ease;
 }
 
@@ -890,16 +894,19 @@ pointer-events:none;
 
 }
 
-/* ================= BACKGROUND BLUR ================= */
-
 body::after{
 content:"";
 position:fixed;
 inset:0;
 
-backdrop-filter:blur(2px);
+background:radial-gradient(
+circle at 30% 20%,
+rgba(255,255,255,.08),
+transparent 60%
+);
 
 pointer-events:none;
+z-index:0;
 }
 
 button:hover{
