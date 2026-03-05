@@ -35,7 +35,8 @@ const row = document.createElement("div");
 row.className = "course-row";
 
 const name = document.createElement("span");
-name.textContent = course.name;
+
+name.textContent = (course.favorite ? "⭐ " : "") + course.name;
 
 name.onclick = ()=>{
 search.value = course.name;
@@ -84,8 +85,25 @@ teeSelect.value = "Default";
 refreshCourseDropdown();
 };
 
+const star = document.createElement("span");
+star.textContent = "⭐";
+star.style.cursor = "pointer";
+
+star.onclick = (e)=>{
+
+e.stopPropagation();
+
+course.favorite = !course.favorite;
+
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+refreshCourseDropdown();
+
+};
+
 row.appendChild(name);
 row.appendChild(del);
+row.appendChild(star);
 
 dropdown.appendChild(row);
 
@@ -123,6 +141,7 @@ const teeName = document.getElementById("newTeeName").value.trim() || "Default";
 
 savedCourses.push({
 name,
+favorite:false,
 tees: {
 [teeName]: {
 rating: +document.getElementById("newTeeRating").value || 72,
@@ -164,6 +183,8 @@ if(par) par.value = "";
 
 /* ================= TEE MANAGER ================= */
 function openTeeManager(){
+
+document.body.classList.add("modal-open");
 
 const courseName = document.getElementById("courseSearch").value;
 
@@ -217,6 +238,7 @@ document.getElementById("teeManagerModal").classList.remove("hidden");
 }
 
 function closeTeeManager(){
+document.body.classList.remove("modal-open");    
 document.getElementById("teeManagerModal").classList.add("hidden");
 }
 
