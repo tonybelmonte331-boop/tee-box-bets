@@ -526,8 +526,18 @@ margin-top:2px;
 position:relative;
 }
 
+.course-select-wrapper::before{
+content:"🔍";
+position:absolute;
+left:12px;
+top:50%;
+transform:translateY(-50%);
+opacity:.6;
+}
+
 #courseSearch{
 width:100%;
+padding-left:34px;
 }
 
 .course-dropdown{
@@ -546,6 +556,10 @@ box-shadow:0 8px 20px rgba(0,0,0,.4);
 padding:12px;
 cursor:pointer;
 border-bottom:1px solid rgba(255,255,255,.06);
+font-size: 15px;
+display: flex;
+justify-content: space-between;
+align-items: center;
 }
 
 .course-dropdown div:hover{
@@ -634,4 +648,19 @@ color:#ff6b6b;
 
 #teeManagerModal button:last-child{
     background: #555;
+}
+
+.course-dropdown{
+animation:fadeDrop .18s ease;
+}
+
+@keyframes fadeDrop{
+from{
+opacity:0;
+transform:translateY(-6px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
