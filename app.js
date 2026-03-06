@@ -898,6 +898,8 @@ dropdown.classList.add("hidden");
 
 function updateHomeDashboard(){
 
+userProfile = JSON.parse(localStorage.getItem("userProfile"));
+
 if(!userProfile) return;
 
 const rounds = userProfile.rounds?.length || 0;
@@ -915,6 +917,7 @@ document.getElementById("dashBetting").textContent =
 `${net>=0?"+":""}$${net.toFixed(2)}`;
 
 }
+
 
 /* ===== HOME DASHBOARD ===== */
 
