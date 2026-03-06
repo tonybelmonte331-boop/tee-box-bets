@@ -191,16 +191,19 @@ border-radius:18px;
 
 button{
 position: relative;
-background:rgba(60,180,100,.85);
+width:100%;
+max-width:340px;
 
+padding:16px;
+font-size:16px;
+
+background: rgba(60,180,100,.85);
 color:white;
 
 font-weight:600;
-
 cursor:pointer;
 
 border-radius:18px;
-
 border:1px solid rgba(255,255,255,.25);
 
 backdrop-filter:blur(8px);
@@ -209,15 +212,14 @@ box-shadow:
 0 8px 20px rgba(0,0,0,.35),
 inset 0 1px 0 rgba(255,255,255,.15);
 
-transition:all .15s ease;
-
+transition:
+transform .08s ease,
+box-shadow .08s ease;
 }
 
-button{
-transition:transform .08s ease, box-shadow .08s ease;
-padding:14px;
-min-height:52px;
-}
+
+
+
 
 button:active{
 
@@ -416,10 +418,6 @@ background:#1faa59;
 box-shadow:0 0 0 2px rgba(0,0,0,.35);
 }
 
-#skinsBox input[type="checkbox"],
-#vegasBox input[type="checkbox"]{
-    accent-color:#1faa59;
-}
 
 #holePutts,
 #holePenalties{

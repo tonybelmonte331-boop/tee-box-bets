@@ -726,7 +726,7 @@ if(nineType) nineType.value = "front";
 function goHomeClean(){
 
     userProfile = JSON.parse(localStorage.getItem("userProfile"));
-    
+
 screenHistory = [];
 
 resetRoundSetup();
@@ -739,8 +739,6 @@ document.getElementById("step-home").classList.remove("hidden");
 
 updateHeader("step-home");
 syncBackButton();
-
-updateHomeDashboard();
 
 }
 
@@ -895,28 +893,6 @@ if(!e.target.closest(".course-select-wrapper")){
 dropdown.classList.add("hidden");
 }
 });
-
-}
-
-function updateHomeDashboard(){
-
-userProfile = JSON.parse(localStorage.getItem("userProfile"));
-
-if(!userProfile) return;
-
-const rounds = userProfile.rounds?.length || 0;
-
-document.getElementById("dashRounds").textContent = rounds;
-
-document.getElementById("dashHandicap").textContent =
-(userProfile.currentHandicap ?? 0).toFixed(1);
-
-const net =
-(userProfile.bettingStats?.totalWon || 0) -
-(userProfile.bettingStats?.totalLost || 0);
-
-document.getElementById("dashBetting").textContent =
-`${net>=0?"+":""}$${net.toFixed(2)}`;
 
 }
 
