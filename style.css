@@ -28,6 +28,7 @@ body::before{
 content:"";
 position:fixed;
 inset:0;
+z-index:-1;
 
 background:
 linear-gradient(
@@ -160,7 +161,7 @@ display:none !important;
 
 input,select,button{
 width:100%;
-max-width:320px;
+max-width:360px;
 padding:14px;
 margin:8px auto;
 border-radius:18px;
@@ -305,6 +306,11 @@ z-index:1500;
     margin-bottom:80px;
 }
 
+#game-screen{
+    overflow-y:auto;
+    padding-bottom:120px;
+}
+
 /* ================= PAR BUTTONS ================= */
 .par-btn{
 flex:1;
@@ -381,6 +387,13 @@ border-radius:14px;
 padding:12px;
 font-weight:700;
 color:white;
+}
+
+.stat-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
 }
 
 .stat-toggle.active{
@@ -600,6 +613,9 @@ margin-top:2px;
 
 .course-select-wrapper{
 position:relative;
+width:100%;
+max-width:320px;
+margin:auto;
 }
 
 .course-select-wrapper::before{
@@ -903,13 +919,12 @@ box-shadow:0 12px 28px rgba(0,0,0,.35);
 
 #step-home button{
 width: 100%;
-max-width:320px;
-margin-left: auto;
-margin-right: auto;
+max-width:360px;
+margin:0 auto;
 }
 
 button:hover{
-
+transform:translateY(-1px);
 box-shadow:
 0 10px 26px rgba(0,0,0,.45),
 0 0 18px rgba(80,200,120,.35);
