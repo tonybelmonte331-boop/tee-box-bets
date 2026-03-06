@@ -191,6 +191,7 @@ border-radius:18px;
 
 button{
 position: relative;
+z-index: 1;
 width:100%;
 max-width:340px;
 
@@ -607,6 +608,10 @@ button:active {
     transform: scale(.96);
 }
 
+section button{
+margin-top:10px;
+}
+
 .round-course-main{
 font-size:18px;
 font-weight:700;
@@ -943,10 +948,13 @@ border:1px solid rgba(255,255,255,.18);
 box-shadow:0 12px 28px rgba(0,0,0,.35);
 }
 
-#step-home button{
-width: 100%;
-max-width:320px;
-margin:0 auto;
+.home-menu{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 340px;
 }
 
 button:hover{
@@ -965,6 +973,7 @@ border-radius:18px;
 background:linear-gradient(to bottom, rgba(255,255,255,.25), transparent 60%);
 opacity:.35;
 pointer-events:none;
+z-index: -1;
 }
 
 #step-home{

@@ -730,6 +730,10 @@ function goHomeClean(){
 screenHistory = [];
 
 resetRoundSetup();
+document.getElementById("baseWager").value = "";
+document.getElementById("frontWager").value = "";
+document.getElementById("backWager").value = "";
+document.getElementById("totalWager").value = "";
 
 document.querySelectorAll("section").forEach(s =>
 s.classList.add("hidden")
@@ -1873,6 +1877,7 @@ if(!sortedOpps.length){
 oppBox.innerHTML = "<p>No opponents yet</p>";
 }else{
 sortedOpps.slice(0,5).forEach(([name,count])=>{
+
 const row = document.createElement("div");
 
 row.style.display = "flex";
@@ -1882,9 +1887,13 @@ row.style.marginBottom = "6px";
 row.style.borderRadius = "10px";
 row.style.background = "rgba(255,255,255,.08)";
 
-
+row.innerHTML = `
+<span>${name}</span>
+<span>${count}</span>
+`;
 
 oppBox.appendChild(row);
+
 });
 }
 
