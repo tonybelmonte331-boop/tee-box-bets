@@ -724,6 +724,7 @@ if(nineType) nineType.value = "front";
 }
 
 function goHomeClean(){
+updateHomeDashboard();
 screenHistory = [];
 
 resetRoundSetup();
@@ -889,6 +890,26 @@ if(!e.target.closest(".course-select-wrapper")){
 dropdown.classList.add("hidden");
 }
 });
+
+}
+
+function updateHomeDashboard(){
+
+if(!userProfile) return;
+
+const rounds = userProfile.rounds?.length || 0;
+
+document.getElementById("dashRounds").textContent = rounds;
+
+document.getElementById("dashHandicap").textContent =
+(userProfile.currentHandicap ?? 0).toFixed(1);
+
+const net =
+(userProfile.bettingStats?.totalWon || 0) -
+(userProfile.bettingStats?.totalLost || 0);
+
+document.getElementById("dashBetting").textContent =
+`${net>=0?"+":""}$${net.toFixed(2)}`;
 
 }
 
@@ -1325,6 +1346,8 @@ updateBettingStats();
 trackOpponents();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+updateHomeDashboard();
 
 leaderboardModal.classList.add("hidden");
 goHomeClean();

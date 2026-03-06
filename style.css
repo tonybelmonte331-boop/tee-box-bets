@@ -22,17 +22,30 @@ color:white;
 overflow:hidden;
 }
 
-/* background darkening layer */
+/* ===== COURSE LIGHTING OVERLAY ===== */
 
 body::before{
 content:"";
 position:fixed;
 inset:0;
 
-background:linear-gradient(
+background:
+linear-gradient(
 to bottom,
 rgba(0,0,0,.35),
 rgba(0,0,0,.55)
+),
+
+radial-gradient(
+circle at 25% 20%,
+rgba(255,255,255,.10),
+transparent 60%
+),
+
+radial-gradient(
+circle at 75% 70%,
+rgba(255,255,255,.06),
+transparent 60%
 );
 
 pointer-events:none;
@@ -108,10 +121,15 @@ display:flex;
 flex-direction:column;
 align-items:center;
 justify-content:flex-start;
-
+/* default = no scroll */
 overflow:hidden;
 }
 
+#round-setup,
+#profile-screen{
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+}
 /* allow scrolling when modal open */
 .modal{
 pointer-events:auto;
@@ -142,11 +160,13 @@ display:none !important;
 
 input,select,button{
 width:100%;
+max-width:320px;
 padding:14px;
-margin:8px 0;
+margin:8px auto;
 border-radius:18px;
 border:none;
 font-size:16px;
+display:block;
 }
 
 input[type="date"]{
@@ -277,6 +297,12 @@ padding:8px 18px;
 border-radius:22px;
 font-size:14px;
 z-index:1500;
+}
+
+/* ================ PREVENT LEADERBAORD CUTOFF =================== */
+
+#leaderboard{
+    margin-bottom:80px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -849,15 +875,16 @@ border-bottom:none;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content: center;
+
 gap:18px;
-min-height: calc(100vh - 60px);
-padding: 20px 20px 120px;
+padding-top:90px;
+padding-bottom:50px;
+overflow:hidden;
 }
 
 .home-dashboard{
-margin-top:auto;
-margin-bottom:80px;
+margin-top:30px;;
+margin-bottom:30px;
 
 width:100%;
 max-width:360px;
@@ -881,38 +908,6 @@ margin-left: auto;
 margin-right: auto;
 }
 
-body::before{
-
-content:"";
-
-position:fixed;
-inset:0;
-
-background:radial-gradient(
-circle at 30% 20%,
-rgba(255,255,255,.08),
-transparent 60%
-);
-
-pointer-events:none;
-
-}
-
-body::after{
-content:"";
-position:fixed;
-inset:0;
-
-background:radial-gradient(
-circle at 30% 20%,
-rgba(255,255,255,.08),
-transparent 60%
-);
-
-pointer-events:none;
-z-index:0;
-}
-
 button:hover{
 
 box-shadow:
@@ -931,4 +926,8 @@ border-radius:18px;
 background:linear-gradient(to bottom, rgba(255,255,255,.25), transparent 60%);
 opacity:.35;
 pointer-events:none;
+}
+
+#step-home{
+overflow:hidden;
 }
