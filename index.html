@@ -130,6 +130,7 @@ Reset Betting Stats
 
 <!-- ===== NEW ROUND ===== -->
 
+<div class="round-setup-card">
 <label>Select Course</label>
 <div class="course-select-wrapper">
 <input id="courseSearch" placeholder="Search or select course" autocomplete="off">
@@ -147,14 +148,7 @@ Reset Betting Stats
 Add Course
 </button>
 
-<label>Or Enter Course Name</label>
-<input id="courseName" type="text" placeholder="Manual Entry">
-
-<label>Course Rating</label>
-<input id="courseRating" inputmode="decimal">
-
-<label>Slope Rating</label>
-<input id="courseSlope" type="number" inputmode="numeric">
+</div>
 
 <label>Holes</label>
 <select id="roundHoles">
@@ -419,16 +413,16 @@ This game is played with two teams of 2
 <button onclick="finishVegasHole()">Finish Hole</button>
 </div>
 
+<button id="sideBetBtn" class="hidden">Side Bet</button>
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
+
 <button
 style="background:#b83232;margin-top:20px"
 onclick="endRoundNow()">
 End Round
 </button>
-<button id="sideBetBtn" class="hidden">Side Bet</button>
-<h3>Leaderboard</h3>
-<div id="leaderboard"></div>
 </section>
-
 <!-- ===== MODALS ===== -->
 
 <div id="scorecardModal" class="modal hidden" onclick="closeScorecard()">

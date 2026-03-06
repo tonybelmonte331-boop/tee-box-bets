@@ -554,11 +554,11 @@ el.classList.add("active");
 
 ["firToggle","girToggle"].forEach(id=>{
 
-    tapHaptic();
 
 const btn = document.getElementById(id);
 
 btn.onclick = ()=>{
+    tapHaptic();
 btn.classList.toggle("active");
 };
 });
@@ -1358,7 +1358,6 @@ leaderboardModal.classList.add("hidden");
 
 setTimeout(()=>{
 goHomeClean();
-updateHomeDashboard();
 },50);
 
 }
@@ -1377,8 +1376,8 @@ let selectedCourse = savedCourses.find(c => c.name === selectedCourseName);
 
 let parArray = [];
 let holeOffset = 0;
-let rating = +document.getElementById("courseRating").value || 72;
-let slope = +document.getElementById("courseSlope").value || 113;
+let rating = 72;
+let slope = 113;
 
 if(selectedCourse){
 

@@ -120,7 +120,7 @@ height:calc(100vh - 60px);
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:flex-start;
+justify-content:center;
 /* default = no scroll */
 overflow:hidden;
 }
@@ -151,6 +151,10 @@ margin:0 auto;
 display:flex;
 flex-direction:column;
 align-items:center;
+justify-content:center;
+
+min-height:calc(100vh - 60px);
+gap:14px;
 }
 
 .hidden{
@@ -159,7 +163,7 @@ display:none !important;
 
 /* ================= INPUTS ================= */
 
-input,select,button{
+input,select{
 width:100%;
 max-width:300px;
 padding:14px;
@@ -168,6 +172,17 @@ border-radius:18px;
 border:none;
 font-size:16px;
 display:block;
+}
+
+button{
+    width:100%;
+    max-width:360px;
+    padding:14px;
+    margin:8px auto;
+    border-radius:18px;
+    border:none;
+    font-size:16px;
+    display:block;
 }
 
 input[type="date"]{
@@ -311,7 +326,7 @@ z-index:1500;
 
 #game-screen{
     overflow-y:auto;
-    padding-bottom:260px;
+    padding-bottom:120px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -384,7 +399,7 @@ transform:scale(.96);
 
 .stat-toggle{
 flex:1;
-min-width:160px;
+min-width:0;
 
 display:flex;
 align-items:center;
@@ -409,11 +424,34 @@ background:#1faa59;
 box-shadow:0 0 0 2px rgba(0,0,0,.35);
 }
 
-#skinsBox input[type="checkbox"]{
+#skinsBox input[type="checkbox"],
+#vegasBox input[type="checkbox"]{
     width:auto;
     height:18px;
     margin-right:8px;
     accent-color:#1faa59;
+}
+
+#skinsBox label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-top:6px;
+}
+
+#skinsBox input[type="checkbox"]:checked{
+    transform:scale(1.15);
+}
+
+#vegasBox label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-top:6px;
+}
+
+#vegasBox input[type="checkbox"]:checked{
+    transform:scale(1.15);
 }
 
 #holePutts,
@@ -850,6 +888,18 @@ body.modal-open{
 
 body.modal-open main{
     overflow: hidden;
+}
+
+/* ========== ROUND SETUP CARD ============ */
+
+.round-setup-card{
+    background:rgba(255,255,255,.08);
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:18px;
+    backdrop-filter:blur(6px);
+    width:100%;
+    max-width:360px;
 }
 
 /* ===== HOME DASHBOARD ===== */
