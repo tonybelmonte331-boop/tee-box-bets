@@ -724,7 +724,7 @@ if(nineType) nineType.value = "front";
 }
 
 function goHomeClean(){
-updateHomeDashboard();
+
 screenHistory = [];
 
 resetRoundSetup();
@@ -737,6 +737,9 @@ document.getElementById("step-home").classList.remove("hidden");
 
 updateHeader("step-home");
 syncBackButton();
+
+updateHomeDashboard();
+
 }
 
 window.toggleManualRound = () => {
@@ -1300,6 +1303,9 @@ const value = ledger[p];
 const row = document.createElement("div");
 
 row.style.display = "flex";
+row.style.background = "rgba(255,255,255,.008)";
+row.style.backdropFilter = "blur(6px)";
+row.style.border = "1px solid rgba(255,255,255,.12)";
 row.style.justifyContent = "space-between";
 row.style.padding = "8px 12px";
 row.style.marginBottom = "6px";
@@ -1308,6 +1314,7 @@ row.style.fontWeight = "600";
 
 if(i === 0){
 row.style.background = "#0f5132"; // leader highlight
+row.classList.add("leader-flash");
 }
 
 if(value > 0){
