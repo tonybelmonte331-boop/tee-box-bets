@@ -215,6 +215,8 @@ transition:all .15s ease;
 
 button{
 transition:transform .08s ease, box-shadow .08s ease;
+padding:14px;
+min-height:52px;
 }
 
 button:active{
@@ -416,32 +418,7 @@ box-shadow:0 0 0 2px rgba(0,0,0,.35);
 
 #skinsBox input[type="checkbox"],
 #vegasBox input[type="checkbox"]{
-    width:22px;
-    height:22px;
-    margin-right:8px;
     accent-color:#1faa59;
-}
-
-#skinsBox label{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    margin-top:6px;
-}
-
-#skinsBox input[type="checkbox"]:checked{
-    transform:scale(1.15);
-}
-
-#vegasBox label{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    margin-top:6px;
-}
-
-#vegasBox input[type="checkbox"]:checked{
-    transform:scale(1.15);
 }
 
 #holePutts,

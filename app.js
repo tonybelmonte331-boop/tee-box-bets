@@ -725,6 +725,8 @@ if(nineType) nineType.value = "front";
 
 function goHomeClean(){
 
+    userProfile = JSON.parse(localStorage.getItem("userProfile"));
+    
 screenHistory = [];
 
 resetRoundSetup();
