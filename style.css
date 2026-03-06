@@ -311,7 +311,7 @@ z-index:1500;
 
 #game-screen{
     overflow-y:auto;
-    padding-bottom:200px;
+    padding-bottom:260px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -384,30 +384,36 @@ transform:scale(.96);
 
 .stat-toggle{
 flex:1;
+min-width:160px;
+
 display:flex;
 align-items:center;
 justify-content:center;
+gap:6px;
 
 background:rgba(255,255,255,.12);
 border:1px solid rgba(255,255,255,.25);
 border-radius:14px;
+
 padding: 14px;
+
 font-weight:700;
 font-size:15px;
+
 color:white;
 cursor:pointer;
-}
-
-.stat-toggle{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
 }
 
 .stat-toggle.active{
 background:#1faa59;
 box-shadow:0 0 0 2px rgba(0,0,0,.35);
+}
+
+#skinsBox input[type="checkbox"]{
+    width:auto;
+    height:18px;
+    margin-right:8px;
+    accent-color:#1faa59;
 }
 
 #holePutts,
@@ -924,7 +930,7 @@ box-shadow:0 12px 28px rgba(0,0,0,.35);
 
 #step-home button{
 width: 100%;
-max-width:240px;
+max-width:320px;
 margin:0 auto;
 }
 

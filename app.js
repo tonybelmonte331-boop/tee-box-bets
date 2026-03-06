@@ -1347,19 +1347,21 @@ historyStack = [];
 goHomeClean();
 };
 
-document.getElementById("leaderboardFinishBtn").onclick = () => {
+leaderboardFinishBtn.onclick = () => {
 
 updateBettingStats();
 trackOpponents();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
-updateHomeDashboard();
-
 leaderboardModal.classList.add("hidden");
-goHomeClean();
 
-};
+setTimeout(()=>{
+goHomeClean();
+updateHomeDashboard();
+},50);
+
+}
 
 /* ================= ROUND TRACKING ================= */
 
