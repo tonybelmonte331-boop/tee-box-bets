@@ -148,9 +148,10 @@ max-width:420px;
 
 padding:16px 20px;
 
-margin-top:0;
-
-animation:slideIn .25s ease;
+margin:0 auto;
+display:flex;
+flex-direction:column;
+align-items:center;
 }
 
 .hidden{
@@ -161,7 +162,7 @@ display:none !important;
 
 input,select,button{
 width:100%;
-max-width:360px;
+max-width:320px;
 padding:14px;
 margin:8px auto;
 border-radius:18px;
@@ -179,6 +180,9 @@ input[type="date"]{
 input,select{
 background:#e6f5ee;
 color:black;
+appearance:none;
+-webkit-appearance:none;
+border-radius:18px;
 }
 
 button{
@@ -919,7 +923,7 @@ box-shadow:0 12px 28px rgba(0,0,0,.35);
 
 #step-home button{
 width: 100%;
-max-width:360px;
+max-width:260px;
 margin:0 auto;
 }
 

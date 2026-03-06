@@ -1340,7 +1340,7 @@ historyStack = [];
 goHomeClean();
 };
 
-leaderboardFinishBtn.onclick = () => {
+document.getElementById("leaderboardFinishBtn").onclick = () => {
 
 updateBettingStats();
 trackOpponents();
