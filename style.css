@@ -341,7 +341,8 @@ z-index:1500;
 #game-screen{
     overflow-y:auto;
     padding-bottom:40px;
-    padding-top:20px;
+    padding-top:28px;
+    gap:10px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -1022,10 +1023,32 @@ width:100%;
 max-width:320px;
 }
 
+#skinsBox{
+margin-bottom:8px;
+}
+
 #vegasBox button{
     margin-top:12px;
 }
 
 #leaderboard{
-    margin-top:18px;
+    margin-top:16px;
+}
+
+.hole-actions{
+display:flex;
+gap:10px;
+width:100%;
+max-width:320px;
+}
+
+.hole-actions button{
+flex:1;
+padding:12px;
+background:#0f5132;
+}
+
+#tieBtn,
+.hole-actions button{
+background:#0f5132;
 }
