@@ -1098,6 +1098,7 @@ teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
 if(currentGame==="nassau") buildNassauButtons();
 
 buildWinnerButtons();
+document.querySelectorAll("#game-screen input").forEach(i => i.value = "");
 updateUI();
 document.getElementById("leaderboardWrapper").classList.add("collapsed");
 show("game-screen");

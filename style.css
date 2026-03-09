@@ -335,7 +335,7 @@ z-index:1500;
 /* ================ PREVENT LEADERBAORD CUTOFF =================== */
 
 #leaderboard div{
-    transform:all .25 ease;
+transition:all .25 ease;
 }
 
 #game-screen{
@@ -872,25 +872,25 @@ color:black;
 }
 
 body.modal-open{
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
+overflow: hidden;
+position: fixed;
+width: 100%;
 }
 
 body.modal-open main{
-    overflow: hidden;
+overflow: hidden;
 }
 
 /* ========== ROUND SETUP CARD ============ */
 
 .round-setup-card{
-    background:rgba(255,255,255,.08);
-    border-radius:16px;
-    padding:16px;
-    margin-bottom:18px;
-    backdrop-filter:blur(6px);
-    width:100%;
-    max-width:360px;
+background:rgba(255,255,255,.08);
+border-radius:16px;
+padding:16px;
+margin-bottom:18px;
+backdrop-filter:blur(6px);
+width:100%;
+max-width:360px;
 }
 
 /* ===== HOME DASHBOARD ===== */
@@ -970,12 +970,12 @@ box-shadow:0 12px 28px rgba(0,0,0,.35);
 }
 
 .home-menu{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    max-width: 340px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 16px;
+width: 100%;
+max-width: 340px;
 }
 
 button:hover{
@@ -1012,7 +1012,7 @@ overflow:hidden;
 }
 
 .leader-flash{
-    animation:winFlash .4s ease;
+animation:winFlash .4s ease;
 }
 
 /* iOS style toggles */
@@ -1032,11 +1032,11 @@ margin-bottom:8px;
 }
 
 #vegasBox button{
-    margin-top:12px;
+margin-top:12px;
 }
 
 #leaderboard{
-    margin-top:16px;
+margin-top:16px;
 }
 
 .hole-actions{
@@ -1073,7 +1073,7 @@ text-align:center;
 }
 
 #nassauBox button{
-    max-width:320px;
+max-width:320px;
 }
 
 #nassauTieBtn{
@@ -1081,11 +1081,11 @@ background:#0f5132;
 }
 
 .hole-actions button:last-child{
-    background:#0f5132;
+background:#0f5132;
 }
 
 #leaderboardWrapper{
-max-height:260px;
+max-height:360px;
 overflow:hidden;
 transition:max-height .25s ease;
 }
@@ -1107,5 +1107,5 @@ flex-wrap:nowrap;
 
 .tie-undo-row button{
 flex:1;
-max-width:16px;
+max-width:160px;
 }
