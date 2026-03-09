@@ -13,6 +13,9 @@ width:100%;
 height:100%;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
 
+overscroll-behavior: none;
+-webkit-overflow-scrolling: touch;
+
 background-image:url("assets/course-bg.png");
 background-size:cover;
 background-position:center;
@@ -115,14 +118,22 @@ background:rgba(255,255,255,.22);
 
 main{
 padding-top:60px;
-height:calc(100vh - 60px);
+height:calc(100dvh - 60px);
 
 display:flex;
 flex-direction:column;
 align-items:center;
 justify-content:flex-start;
 /* default = no scroll */
+overflow-y:auto;
+}
+
+section{
 overflow:hidden;
+}
+
+#game-screen{
+overflow-y:auto;
 }
 
 #round-setup{
@@ -222,6 +233,7 @@ color:white;
 
 font-weight:600;
 cursor:pointer;
+-webkit-tap-highlight-color: transparent;
 
 border-radius:18px;
 border:1px solid rgba(255,255,255,.25);
@@ -304,6 +316,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 z-index:100;
+touch-action:none;
 }
 
 .modal-box{
@@ -335,14 +348,14 @@ z-index:1500;
 /* ================ PREVENT LEADERBAORD CUTOFF =================== */
 
 #leaderboard div{
-transition:all .25 ease;
+animation:slideIn .18s ease;
 }
 
 #game-screen{
-    overflow:hidden;
-    padding-top:26px;
-    padding-bottom:60px;
-    gap:12px;
+overflow-y:auto;
+padding-top:26px;
+padding-bottom:80px;
+gap:12px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -1078,6 +1091,20 @@ margin-left:auto;
 margin-right:auto;
 }
 
+#nassauWinners{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:12px;
+width:100%;
+}
+
+#nassauWinners button{
+width:100%;
+max-width:320px;
+margin:0 auto;
+}
+
 #nassauTieBtn{
 background:#0f5132;
 }
@@ -1087,13 +1114,14 @@ background:#0f5132;
 }
 
 #leaderboardWrapper{
-max-height:520px;
 overflow:hidden;
-transition:max-height .25s ease;
+transform-origin:top;
+transition:transform .22s ease, opacity .18s ease;
 }
 
 #leaderboardWrapper.collapsed{
-max-height:0;
+transform:scaleY(0);
+opacity:0;
 }
 
 #leaderboardHeader{

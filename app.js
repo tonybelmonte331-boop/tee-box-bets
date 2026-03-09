@@ -1064,6 +1064,11 @@ updateUI();
 window.startRound=()=>{
 players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 historyStack=[];
+document.getElementById("a1").value="";
+document.getElementById("a2").value="";
+document.getElementById("b1").value="";
+document.getElementById("b2").value="";
+document.getElementById("birdieFlip").checked=false;
 
 document.querySelectorAll("#teamAInputs input").forEach(i=>{
 players.push(i.value);
@@ -1283,8 +1288,8 @@ wrap.classList.toggle("collapsed");
 
 header.textContent =
 wrap.classList.contains("collapsed")
-? "▼ Leaderboard"
-: "▲ Leaderboard";
+? "▲ Leaderboard"
+: "▼ Leaderboard";
 
 }
 
