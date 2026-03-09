@@ -1180,7 +1180,10 @@ function buildNassauButtons(){
 nassauWinners.innerHTML="";
 ["A","B"].forEach(t=>{
 const btn=document.createElement("button");
-btn.textContent=t==="A"?teamAName:teamBName;
+btn.textContent = 
+t==="A"
+? `${teamAName}: ${teams.A.join(" & ")}`
+: `${teamBName}: ${teams.B.join(" & ")}`;
 btn.onclick=()=>winNassauHole(t);
 nassauWinners.appendChild(btn);
 });

@@ -339,10 +339,10 @@ z-index:1500;
 }
 
 #game-screen{
-    overflow-y:auto;
-    padding-bottom:40px;
-    padding-top:28px;
-    gap:10px;
+    overflow:hidden;
+    padding-top:26px;
+    padding-bottom:20px;
+    gap:12px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -1051,4 +1051,23 @@ background:#0f5132;
 #tieBtn,
 .hole-actions button{
 background:#0f5132;
+}
+
+#sideBetModal .modal-box button{
+margin-top:10px;
+}
+
+#sideBetModal .modal-box button:last-child{
+background:#b83232;
+}
+
+#skinsBox button{
+text-align:center;
+white-space:normal;
+}
+
+#nassauTieBtn{
+background:#0f5132;
+padding:12px;
+max-width:320px;
 }
