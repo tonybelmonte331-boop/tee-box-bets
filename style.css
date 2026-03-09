@@ -341,6 +341,7 @@ z-index:1500;
 #game-screen{
     overflow-y:auto;
     padding-bottom:40px;
+    padding-top:20px;
 }
 
 /* ================= PAR BUTTONS ================= */
@@ -1019,4 +1020,12 @@ label{display:flex;align-items:center;gap:10px;margin-top:6px;}
 #skinsBox label{
 width:100%;
 max-width:320px;
+}
+
+#vegasBox button{
+    margin-top:12px;
+}
+
+#leaderboard{
+    margin-top:18px;
 }
