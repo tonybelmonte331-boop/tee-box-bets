@@ -348,7 +348,7 @@ z-index:1500;
 /* ================ PREVENT LEADERBAORD CUTOFF =================== */
 
 #leaderboard div{
-animation:slideIn .18s ease;
+animation:slideIn .22s cubic-bezier(.22,.8,.25,1);
 }
 
 #game-screen{
@@ -1117,7 +1117,8 @@ background:#0f5132;
 #leaderboardWrapper{
 overflow:visible;
 transform-origin:top;
-transition:transform .22s ease, opacity .18s ease;
+will-change:transform;
+transition:transform .28s cubic-bezier(.22,.8,.25,1), opacity .18s ease;
 }
 
 #leaderboardWrapper.collapsed{
