@@ -365,7 +365,7 @@ This game is played with two teams of 2
 
 <div class="hole-actions">
 <button id="tieBtn">Tie</button>
-<button onclick="undoHole()">Undo</button>
+<button class="undo-btn" onclick="undoHole()">Undo</button>
 </div>
 
 <div style="margin-top:10px">
@@ -376,8 +376,10 @@ This game is played with two teams of 2
 
 <div id="nassauBox" class="hidden">
 <div id="nassauWinners"></div>
+<div class="hole-actions">
 <button id="nassauTieBtn">Tie Hole</button>
-<button onclick="undoHole()">Undo</button>
+<button class="undo-btn" onclick="undoHole()">Undo</button>
+</div>
 </div>
 
 
@@ -390,13 +392,18 @@ This game is played with two teams of 2
 <input id="b1" type="number" inputmode="numeric">
 <input id="b2" type="number" inputmode="numeric">
 <label><input type="checkbox" id="birdieFlip"> Birdie Flip</label>
-<button onclick="undoHole()">Undo</button>
+<button class="undo-btn" onclick="undoHole()">Undo</button>
 <button onclick="finishVegasHole()">Finish Hole</button>
 </div>
 
 <button id="sideBetBtn" class="hidden">Side Bet</button>
-<h3>Leaderboard</h3>
+<h3 id="leaderboardHeader" onclick="toggleLeaderboard()">
+▼ Leaderboard
+</h3>
+<div id="leaderboardWrapper">
 <div id="leaderboard"></div>
+</div>
+
 
 <button
 style="background:#b83232;margin-top:20px"
@@ -441,7 +448,7 @@ End Round
 <option value="team">Per Team</option>
 </select>
 <div id="sideWinners"></div>
-<button onclick="sideBetModal.classList.add('hidden')">Cancel</button>
+<button class="cancel-btn" onclick="sideBetModal.classList.add('hidden')">Cancel</button>
 </div>
 </div>
 

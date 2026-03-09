@@ -341,7 +341,7 @@ z-index:1500;
 #game-screen{
     overflow:hidden;
     padding-top:26px;
-    padding-bottom:20px;
+    padding-bottom:60px;
     gap:12px;
 }
 
@@ -984,6 +984,10 @@ box-shadow:
 0 0 14px rgba(80,200,120,.25);
 }
 
+.undo-btn{
+background:rgba(30,90,60,.9);
+}
+
 /* ===== PREMIUM BUTTON LIGHTING ===== */
 
 button::after{
@@ -1057,17 +1061,51 @@ background:#0f5132;
 margin-top:10px;
 }
 
-#sideBetModal .modal-box button:last-child{
+#sideBetModal .modal-box button.cancel-btn{
 background:#b83232;
 }
 
 #skinsBox button{
+display:flex;    
+align-items:center;
+justify-content:center;
 text-align:center;
-white-space:normal;
+}
+
+#nassauBox button{
+    max-width:320px;
 }
 
 #nassauTieBtn{
 background:#0f5132;
-padding:12px;
-max-width:320px;
+}
+
+.hole-actions button:last-child{
+    background:#0f5132;
+}
+
+#leaderboardWrapper{
+max-height:260px;
+overflow:hidden;
+transition:max-height .25s ease;
+}
+
+#leaderboardWrapper.collapsed{
+max-height:0;
+}
+
+#leaderboardHeader{
+cursor:pointer;
+}
+
+.tie-undo-row{
+display:flex;
+gap:12px;
+justify-content:center;
+flex-wrap:nowrap;    
+}
+
+.tie-undo-row button{
+flex:1;
+max-width:16px;
 }

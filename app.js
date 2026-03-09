@@ -1099,6 +1099,7 @@ if(currentGame==="nassau") buildNassauButtons();
 
 buildWinnerButtons();
 updateUI();
+document.getElementById("leaderboardWrapper").classList.add("collapsed");
 show("game-screen");
 };
 
@@ -1268,7 +1269,22 @@ leaderboardModal.classList.remove("hidden");
 return;
 }
 hole++;
+document.getElementById("leaderboardWrapper").classList.remove("collapsed");
 updateUI();
+}
+
+function toggleLeaderboard(){
+
+const wrap = document.getElementById("leaderboardWrapper");
+const header = document.getElementById("leaderboardHeader");
+
+wrap.classList.toggle("collapsed");
+
+header.textContent =
+wrap.classList.contains("collapsed")
+? "▼ Leaderboard"
+: "▲ Leaderboard";
+
 }
 
 function updateUI(){
