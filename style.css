@@ -1050,6 +1050,7 @@ margin-top:12px;
 
 #leaderboard{
 margin-top:16px;
+min-height:40px;
 }
 
 .hole-actions{
@@ -1114,7 +1115,7 @@ background:#0f5132;
 }
 
 #leaderboardWrapper{
-overflow:hidden;
+overflow:visible;
 transform-origin:top;
 transition:transform .22s ease, opacity .18s ease;
 }
