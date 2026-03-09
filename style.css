@@ -1074,6 +1074,8 @@ text-align:center;
 
 #nassauBox button{
 max-width:320px;
+margin-left:auto;
+margin-right:auto;
 }
 
 #nassauTieBtn{
@@ -1085,7 +1087,7 @@ background:#0f5132;
 }
 
 #leaderboardWrapper{
-max-height:360px;
+max-height:520px;
 overflow:hidden;
 transition:max-height .25s ease;
 }
