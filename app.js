@@ -31,7 +31,7 @@ try{
 
 const response = await fetch(url,{
 headers:{
-"Authorization": `Bearer ${CONFIG.API_KEY}`
+"X-API-Key": CONFIG.API_KEY
 }
 });
 
@@ -864,8 +864,6 @@ search.addEventListener("focus", ()=>{
 dropdown.classList.remove("hidden");
 });
 
-let searchTimer;
-
 search.addEventListener("input", ()=>{
 
 clearTimeout(searchTimer);
@@ -985,24 +983,40 @@ dropdown.classList.add("hidden");
 
 if(userProfile){
 
-const rounds = userProfile.rounds?.length || 0;
+/* DASH ROUNDS */
 
-document.getElementById("dashRounds").textContent = rounds;
+const dashRounds = document.getElementById("dashRounds");
+if(dashRounds){
+const rounds = userProfile.rounds ? userProfile.rounds.length : 0;
+dashRounds.textContent = rounds;
+}
 
-document.getElementById("dashHandicap").textContent =
-(userProfile.currentHandicap ?? 0).toFixed(1);
+/* DASH HANDICAP */
 
-const net =
-(userProfile.bettingStats?.totalWon || 0) -
-(userProfile.bettingStats?.totalLost || 0);
+const dashHandicap = document.getElementById("dashHandicap");
+if(dashHandicap){
+const handicap = userProfile.currentHandicap || 0;
+dashHandicap.textContent = handicap.toFixed(1);
+}
 
-document.getElementById("dashBetting").textContent =
-`${net>=0?"+":""}$${net.toFixed(2)}`;
+/* DASH BETTING */
+
+const dashBetting = document.getElementById("dashBetting");
+if(dashBetting){
+
+const totalWon = userProfile.bettingStats ? userProfile.bettingStats.totalWon : 0;
+const totalLost = userProfile.bettingStats ? userProfile.bettingStats.totalLost : 0;
+
+const net = totalWon - totalLost;
+
+dashBetting.textContent =
+(net >= 0 ? "+" : "") + "$" + net.toFixed(2);
+
+}
 
 }
 
 });
-
 /* ================= GAME SELECT ================= */
 
 window.selectGame=game=>{
