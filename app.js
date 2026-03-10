@@ -20,6 +20,35 @@ let currentRound = null;
 
 let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
 
+async function searchCoursesAPI(query){
+
+if(query.length < 3) return [];
+
+const url = `https://golf-course-api.p.rapidapi.com/courses?search=${encodeURIComponent(query)}`;
+
+try{
+
+const response = await fetch(url,{
+method:"GET",
+headers:{
+"X-RapidAPI-Key":"d0e43488ddmsh389b740780e3ac5p1be982jsne86ec7533e19",
+"X-RapidAPI-Host":"golf-course-api.p.rapidapi.com"
+}
+});
+
+const data = await response.json();
+
+return data.courses || [];
+
+}catch(err){
+
+console.log("Course API error",err);
+return [];
+
+}
+
+}
+
 function refreshCourseDropdown(){
 
 const dropdown = document.getElementById("courseDropdown");
@@ -830,11 +859,51 @@ search.addEventListener("focus", ()=>{
 dropdown.classList.remove("hidden");
 });
 
-search.addEventListener("input", ()=>{
 
-const term = search.value.toLowerCase();
+search.addEventListener("input", async ()=>{
+
+const term = search.value.trim().toLowerCase();
 
 dropdown.innerHTML = "";
+
+/* ===== API COURSES ===== */
+
+const apiCourses = await searchCoursesAPI(term);
+
+apiCourses.forEach(course=>{
+
+const row = document.createElement("div");
+row.className = "course-row";
+
+row.textContent = course.name;
+
+row.onclick = ()=>{
+
+search.value = course.name;
+dropdown.classList.add("hidden");
+
+const teeSelect = document.getElementById("teeSelect");
+teeSelect.innerHTML = "";
+
+if(course.tees){
+course.tees.forEach(t=>{
+
+const opt = document.createElement("option");
+opt.value = t.name;
+opt.textContent = `${t.name} (${t.rating}/${t.slope})`;
+teeSelect.appendChild(opt);
+
+});
+}
+
+};
+
+dropdown.appendChild(row);
+
+});
+
+
+/* ===== SAVED COURSES (your existing ones) ===== */
 
 savedCourses
 .filter(c=>c.name.toLowerCase().includes(term))
@@ -863,7 +932,6 @@ if(!confirm(`Delete ${course.name}?`)) return;
 savedCourses = savedCourses.filter(c=>c.name !== course.name);
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
-/* CLEAR COURSE + TEE IF ACTIVE */
 if(search.value === course.name){
 
 search.value = "";
@@ -878,19 +946,19 @@ teeSelect.value = "Default";
 }
 
 refreshCourseDropdown();
-
-/* REBUILD DROPDOWN */
 search.dispatchEvent(new Event("input"));
 
 };
 
 row.appendChild(name);
 row.appendChild(del);
+
 dropdown.appendChild(row);
 
 });
 
 });
+
 
 document.addEventListener("click",(e)=>{
 if(!e.target.closest(".course-select-wrapper")){
