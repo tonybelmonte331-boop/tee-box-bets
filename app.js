@@ -24,7 +24,7 @@ async function searchCoursesAPI(query){
 
 if(query.length < 3) return [];
 
-const url = `https://golf-course-api.p.rapidapi.com/search?name=${encodeURIComponent(query)}`;
+const url = `https://golf-course-api.p.rapidapi.com/courses?name=${encodeURIComponent(query)}`;
 
 try{
 
@@ -852,6 +852,7 @@ refreshCourseDropdown();
 
 const search = document.getElementById("courseSearch");
 const dropdown = document.getElementById("courseDropdown");
+let searchTimer;
 
 if(search && dropdown){
 
@@ -860,7 +861,11 @@ dropdown.classList.remove("hidden");
 });
 
 
-search.addEventListener("input", async ()=>{
+search.addEventListener("input", ()=>{
+
+clearTimeout(searchTimer);
+
+searchTimer = setTimeout(async ()=>{
 
 const term = search.value.trim().toLowerCase();
 
@@ -875,7 +880,7 @@ apiCourses.forEach(course=>{
 const row = document.createElement("div");
 row.className = "course-row";
 
-row.textContent = course.name;
+row.textContent = course.name || course.courseName;
 
 row.onclick = ()=>{
 
@@ -899,6 +904,8 @@ teeSelect.appendChild(opt);
 };
 
 dropdown.appendChild(row);
+
+},400);
 
 });
 
