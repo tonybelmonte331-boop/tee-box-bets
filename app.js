@@ -24,7 +24,7 @@ async function searchCoursesAPI(query){
 
 if(query.length < 3) return [];
 
-const url = `https://golf-course-api.p.rapidapi.com/courses?search=${encodeURIComponent(query)}`;
+const url = `https://golf-course-api.p.rapidapi.com/search?name=${encodeURIComponent(query)}`;
 
 try{
 
@@ -38,7 +38,7 @@ headers:{
 
 const data = await response.json();
 
-return data.courses || [];
+return data.data || [];
 
 }catch(err){
 
