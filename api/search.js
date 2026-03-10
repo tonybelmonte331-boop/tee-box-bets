@@ -7,7 +7,7 @@ return res.status(200).json({ courses: [] });
 }
 
 const url =
-`https://tee-box-bets.vercel.app/api/search?q=${encodeURIComponent(query)}`;
+`https://api.golfcourseapi.com/v1/search?name=${encodeURIComponent(query)}`;
 
 const response = await fetch(url, {
 headers: {

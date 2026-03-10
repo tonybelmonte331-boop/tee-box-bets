@@ -25,15 +25,11 @@ async function searchCoursesAPI(query){
 if(query.length < 3) return [];
 
 const url =
-`https://api.golfcourseapi.com/v1/search?name=${encodeURIComponent(query)}`;
+`https://tee-box-betsv1.vercel.app/api/search?q=${encodeURIComponent(query)}`;
 
 try{
 
-const response = await fetch(url,{
-headers:{
-"X-API-Key": CONFIG.API_KEY
-}
-});
+const response = await fetch(url);
 
 if(!response.ok){
 console.log("API error",response.status);
