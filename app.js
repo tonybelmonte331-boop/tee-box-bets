@@ -24,21 +24,25 @@ async function searchCoursesAPI(query){
 
 if(query.length < 3) return [];
 
-const url = `https://golf-course-api.p.rapidapi.com/courses?name=${encodeURIComponent(query)}`;
+const url =
+`https://api.golfcourseapi.com/v1/search?name=${encodeURIComponent(query)}`;
 
 try{
 
 const response = await fetch(url,{
-method:"GET",
 headers:{
-"X-RapidAPI-Key":"d0e43488ddmsh389b740780e3ac5p1be982jsne86ec7533e19",
-"X-RapidAPI-Host":"golf-course-api.p.rapidapi.com"
+"Authorization": `Bearer ${CONFIG.API_KEY}`
 }
 });
 
+if(!response.ok){
+console.log("API error",response.status);
+return [];
+}
+
 const data = await response.json();
 
-return data.data || [];
+return data.courses || [];
 
 }catch(err){
 
@@ -860,6 +864,7 @@ search.addEventListener("focus", ()=>{
 dropdown.classList.remove("hidden");
 });
 
+let searchTimer;
 
 search.addEventListener("input", ()=>{
 
@@ -884,33 +889,33 @@ row.textContent = course.name || course.courseName;
 
 row.onclick = ()=>{
 
-search.value = course.name;
+search.value = course.name || course.courseName;
 dropdown.classList.add("hidden");
 
 const teeSelect = document.getElementById("teeSelect");
 teeSelect.innerHTML = "";
 
 if(course.tees){
+
 course.tees.forEach(t=>{
 
 const opt = document.createElement("option");
 opt.value = t.name;
 opt.textContent = `${t.name} (${t.rating}/${t.slope})`;
+
 teeSelect.appendChild(opt);
 
 });
+
 }
 
 };
 
 dropdown.appendChild(row);
 
-},400);
-
 });
 
-
-/* ===== SAVED COURSES (your existing ones) ===== */
+/* ===== SAVED COURSES ===== */
 
 savedCourses
 .filter(c=>c.name.toLowerCase().includes(term))
@@ -964,8 +969,9 @@ dropdown.appendChild(row);
 
 });
 
-});
+},400);
 
+});
 
 document.addEventListener("click",(e)=>{
 if(!e.target.closest(".course-select-wrapper")){
@@ -974,7 +980,6 @@ dropdown.classList.add("hidden");
 });
 
 }
-
 
 /* ===== HOME DASHBOARD ===== */
 
