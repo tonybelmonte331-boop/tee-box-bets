@@ -20,35 +20,6 @@ let currentRound = null;
 
 let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
 
-async function searchCoursesAPI(query){
-
-if(query.length < 3) return [];
-
-const url =
-`https://tee-box-betsv1.vercel.app/api/search?q=${encodeURIComponent(query)}`;
-
-try{
-
-const response = await fetch(url);
-
-if(!response.ok){
-console.log("API error",response.status);
-return [];
-}
-
-const data = await response.json();
-
-return data.courses || [];
-
-}catch(err){
-
-console.log("Course API error",err);
-return [];
-
-}
-
-}
-
 function refreshCourseDropdown(){
 
 const dropdown = document.getElementById("courseDropdown");
@@ -852,7 +823,6 @@ refreshCourseDropdown();
 
 const search = document.getElementById("courseSearch");
 const dropdown = document.getElementById("courseDropdown");
-let searchTimer;
 
 if(search && dropdown){
 
@@ -862,52 +832,9 @@ dropdown.classList.remove("hidden");
 
 search.addEventListener("input", ()=>{
 
-clearTimeout(searchTimer);
-
-searchTimer = setTimeout(async ()=>{
-
 const term = search.value.trim().toLowerCase();
 
 dropdown.innerHTML = "";
-
-/* ===== API COURSES ===== */
-
-const apiCourses = await searchCoursesAPI(term);
-
-apiCourses.forEach(course=>{
-
-const row = document.createElement("div");
-row.className = "course-row";
-
-row.textContent = course.name || course.courseName;
-
-row.onclick = ()=>{
-
-search.value = course.name || course.courseName;
-dropdown.classList.add("hidden");
-
-const teeSelect = document.getElementById("teeSelect");
-teeSelect.innerHTML = "";
-
-if(course.tees){
-
-course.tees.forEach(t=>{
-
-const opt = document.createElement("option");
-opt.value = t.name;
-opt.textContent = `${t.name} (${t.rating}/${t.slope})`;
-
-teeSelect.appendChild(opt);
-
-});
-
-}
-
-};
-
-dropdown.appendChild(row);
-
-});
 
 /* ===== SAVED COURSES ===== */
 
@@ -963,7 +890,7 @@ dropdown.appendChild(row);
 
 });
 
-},400);
+
 
 });
 
