@@ -1141,3 +1141,19 @@ flex-wrap:nowrap;
 flex:1;
 max-width:160px;
 }
+
+.course-modal-buttons{
+display:flex;
+flex-direction:column;
+gap:14px;
+margin-top:18px;
+}
+
+.course-modal-buttons button{
+width:100%;
+}
+
+.course-modal-buttons .cancel-btn{
+background:#5aa16a;
+opacity:.9;
+}

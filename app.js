@@ -3,6 +3,11 @@
 let userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
 let currentGame;
+const GAME_ENGINES = {
+skins: skinsGame,
+vegas: vegasGame,
+nassau: nassauGame
+};
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
@@ -1058,8 +1063,9 @@ function saveState(){
 historyStack.push({
 hole,
 ledger:JSON.parse(JSON.stringify(ledger)),
-skins:currentGame==="skins"?skinsGame.getState():null,
-nassau:currentGame==="nassau"?nassauGame.getState():null
+gameState: GAME_ENGINES[currentGame]?.getState
+? GAME_ENGINES[currentGame].getState()
+: null
 });
 }
 
@@ -1070,8 +1076,9 @@ const prev=historyStack.pop();
 hole=prev.hole;
 ledger=prev.ledger;
 
-if(prev.skins) skinsGame.setState(prev.skins);
-if(prev.nassau) nassauGame.setState(prev.nassau);
+if(prev.gameState && GAME_ENGINES[currentGame]?.setState){
+GAME_ENGINES[currentGame].setState(prev.gameState);
+}
 
 updateUI();
 };
@@ -1107,8 +1114,9 @@ teams.B.push(i.value);
 baseWager=+document.getElementById("baseWager").value;
 holeLimit=currentGame==="nassau"?18:+holeLimitSelect.value;
 
-if(currentGame==="skins") skinsGame.reset(baseWager);
-if(currentGame==="nassau") nassauGame.reset();
+if(GAME_ENGINES[currentGame]?.reset){
+GAME_ENGINES[currentGame].reset(baseWager);
+}
 
 skinsBox.classList.toggle("hidden",currentGame!=="skins");
 vegasBox.classList.toggle("hidden",currentGame!=="vegas");
