@@ -774,6 +774,11 @@ color:white;
 width:40px;
 height:40px;
 
+min-width:40px;
+max-width:40px;
+
+padding:0;
+
 display:flex;
 align-items:center;
 justify-content:center;
@@ -781,7 +786,7 @@ justify-content:center;
 border-radius:10px;
 font-size:18px;
 
-flex-shrink:0;
+flex:0 0 40px;
 
 }
 
