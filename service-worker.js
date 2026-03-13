@@ -1,4 +1,4 @@
-const CACHE_NAME = "tee-box-bets-v141"; // bump version anytime you change files
+const CACHE_NAME = "tee-box-bets-v142"; // bump version anytime you change files
 
 const FILES_TO_CACHE = [
 "./",

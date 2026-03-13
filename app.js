@@ -2,7 +2,7 @@
 
 let userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
-let currentGame;
+let currentGame = null;
 const GAME_ENGINES = {
 skins: skinsGame,
 vegas: vegasGame,
