@@ -978,6 +978,14 @@ dashBetting.textContent =
 window.selectGame=game=>{
 currentGame=game;
 
+if(game === "wolf"){
+document.getElementById("wolfBox").classList.remove("hidden");
+}
+
+if(game === "baseball"){
+document.getElementById("baseballBox").classList.remove("hidden");
+}
+
 if(game==="vegas" || game==="nassau"){
 lockedNotice.classList.remove("hidden");
 
