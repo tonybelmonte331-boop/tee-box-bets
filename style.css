@@ -320,7 +320,7 @@ margin-bottom:8px;
 
 margin:6px auto;
 width:100%;
-max-width:360px;
+max-width:340px;
 
 background:rgba(255,255,255,.08);
 
@@ -1206,4 +1206,47 @@ opacity:.9;
 
 .cancel-btn{
 background:#b83232 !important;
+}
+
+/* ===== GAME ICON GRID ===== */
+
+#gameCards{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:16px;
+width:100%;
+max-width:360px;
+margin-top:20px;
+}
+
+.game-card{
+background:rgba(255,255,255,.08);
+border-radius:18px;
+padding:16px;
+backdrop-filter:blur(10px);
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+cursor:pointer;
+
+transition:all .15s ease;
+}
+
+.game-card:active{
+transform:scale(.96);
+background:rgba(255,255,255,.14);
+}
+
+.game-icon{
+width:80px;
+height:80px;
+margin-bottom:10px;
+}
+
+.game-title{
+font-weight:600;
+font-size:15px;
 }

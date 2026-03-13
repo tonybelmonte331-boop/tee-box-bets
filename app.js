@@ -777,6 +777,34 @@ document.getElementById("courseModal").classList.add("hidden");
 resetAddCourseModal();
 };
 
+function startGame(game){
+
+currentGame = game;
+
+if(game === "skins"){
+document.getElementById("skinsBox").classList.remove("hidden");
+}
+
+if(game === "vegas"){
+document.getElementById("vegasBox").classList.remove("hidden");
+}
+
+if(game === "nassau"){
+document.getElementById("nassauBox").classList.remove("hidden");
+}
+
+if(game === "wolf"){
+document.getElementById("wolfBox").classList.remove("hidden");
+}
+
+if(game === "baseball"){
+document.getElementById("baseballBox").classList.remove("hidden");
+}
+
+goToScreen("game-screen");
+
+}
+
 /* ================= PROFILE CHECK ================= */
 
 
