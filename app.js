@@ -3,11 +3,18 @@
 let userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
 let currentGame = null;
-const GAME_ENGINES = {
-skins: skinsGame,
-vegas: vegasGame,
-nassau: nassauGame,
-};
+const GAME_ENGINES = {};
+
+function registerGame(name, engine){
+GAME_ENGINES[name] = engine;
+}
+/* ==== REGISTER GAMES ==== */
+registerGame("skins", skinsGame);
+registerGame("vegas", vegasGame);
+registerGame("nassau", nassauGame);
+registerGame("wolf", wolfGame);
+registerGame("baseball", baseballGame);
+
 let playStyle, playerCount;
 let teamAName="", teamBName="";
 let players=[], teams={A:[],B:[]}, ledger={};
@@ -607,6 +614,8 @@ const gameName =
 currentGame === "skins" ? "Skins" :
 currentGame === "vegas" ? "Vegas" :
 currentGame === "nassau" ? "Nassau" :
+currentGame === "wolf" ? "Wolf" :
+currentGame === "baseball" ? "Baseball" :
 "Game";
 
 title.textContent = `${gameName} – Hole ${hole}`;
@@ -1162,6 +1171,8 @@ GAME_ENGINES[currentGame].reset(baseWager);
 skinsBox.classList.toggle("hidden",currentGame!=="skins");
 vegasBox.classList.toggle("hidden",currentGame!=="vegas");
 nassauBox.classList.toggle("hidden",currentGame!=="nassau");
+document.getElementById("wolfBox").classList.toggle("hidden",cuurentGame!=="wolf");
+document.getElementById("baseballBox").classList.toggle("hidden",cuurentGame!=="baseball");
 
 teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
