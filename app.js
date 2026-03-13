@@ -6,7 +6,9 @@ let currentGame = null;
 const GAME_ENGINES = {
 skins: skinsGame,
 vegas: vegasGame,
-nassau: nassauGame
+nassau: nassauGame,
+wolf: wolfGame,
+baseball: baseballGame
 };
 let playStyle, playerCount;
 let teamAName="", teamBName="";
@@ -801,7 +803,7 @@ if(game === "baseball"){
 document.getElementById("baseballBox").classList.remove("hidden");
 }
 
-goToScreen("game-screen");
+show("game-screen");
 
 }
 
@@ -976,6 +978,11 @@ dashBetting.textContent =
 /* ================= GAME SELECT ================= */
 
 window.selectGame=game=>{
+document.getElementById("skinsBox").classList.add("hidden");
+document.getElementById("vegasBox").classList.add("hidden");
+document.getElementById("nassauBox").classList.add("hidden");
+document.getElementById("wolfBox").classList.add("hidden");
+document.getElementById("baseballBox").classList.add("hidden");
 currentGame=game;
 
 if(game === "wolf"){

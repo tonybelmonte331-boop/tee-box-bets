@@ -1213,6 +1213,7 @@ background:#b83232 !important;
 #gameCards{
 display:grid;
 grid-template-columns:repeat(2,1fr);
+justify-items:center;
 gap:14px;
 width:100%;
 max-width:340px;
@@ -1241,9 +1242,9 @@ background:rgba(255,255,255,.15);
 }
 
 .game-icon{
-width:64px;
-height:64px;
-margin-bottom:10px;
+width:84px;
+height:84px;
+margin-bottom:12px;
 }
 
 .game-title{
