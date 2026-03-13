@@ -7,8 +7,6 @@ const GAME_ENGINES = {
 skins: skinsGame,
 vegas: vegasGame,
 nassau: nassauGame,
-wolf: wolfGame,
-baseball: baseballGame
 };
 let playStyle, playerCount;
 let teamAName="", teamBName="";
