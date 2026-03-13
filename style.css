@@ -316,6 +316,29 @@ flex-direction: column;
 margin-bottom:8px;
 }
 
+.game-card{
+
+margin:6px auto;
+width:100%;
+max-width:360px;
+
+background:rgba(255,255,255,.08);
+
+border-radius:20px;
+
+padding:20px;
+
+backdrop-filter:blur(10px);
+
+border:1px solid rgba(255,255,255,.18);
+
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+display:flex;
+flex-direction:column;
+gap:12px;
+
+}
 /* ================= MODALS ================= */
 
 .modal{
@@ -359,6 +382,13 @@ z-index:1500;
 
 #leaderboard div{
 animation:slideIn .22s cubic-bezier(.22,.8,.25,1);
+}
+
+#leaderboard div{
+background:rgba(255,255,255,.08);
+border-radius:12px;
+padding:10px 14px;
+margin-bottom:6px;
 }
 
 #game-screen{
@@ -951,10 +981,17 @@ box-shadow:0 10px 25px rgba(0,0,0,.35);
 }
 
 #step-home{
+display:flex;
+flex-direction:column;
+align-items:center;
+
 flex:1;
+min-height:0;
+gap:18px;
+padding-top:90px;
+padding-bottom:80px;
 overflow-y:auto;
 -webkit-overflow-scrolling:touch;
-padding-bottom:80px;
 }
 
 .home-dashboard h3{
@@ -975,17 +1012,6 @@ border-bottom:none;
 }
 
 /* ===== HOME SCREEN LAYOUT ===== */
-
-#step-home{
-display:flex;
-flex-direction:column;
-align-items:center;
-
-gap:18px;
-padding-top:90px;
-padding-bottom:50px;
-overflow:hidden;
-}
 
 .home-dashboard{
 margin-top:30px;;
@@ -1176,4 +1202,8 @@ width:100%;
 .course-modal-buttons .cancel-btn{
 background:#5aa16a;
 opacity:.9;
+}
+
+.cancel-btn{
+background:#b83232 !important;
 }

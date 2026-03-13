@@ -359,7 +359,7 @@ This game is played with two teams of 2
 <h3 id="potDisplay"></h3>
 
 
-<div id="skinsBox">
+<div id="skinsBox" class="game-card">
 
 <div id="winnerButtons"></div>
 
@@ -374,7 +374,7 @@ This game is played with two teams of 2
 </div>
 </div>
 
-<div id="nassauBox" class="hidden">
+<div id="nassauBox" class="game-card hidden">
 <div id="nassauWinners"></div>
 <div class="hole-actions">
 <button id="nassauTieBtn">Tie Hole</button>
@@ -384,7 +384,7 @@ This game is played with two teams of 2
 
 
 
-<div id="vegasBox" class="hidden">
+<div id="vegasBox" class="game-card hidden">
 <div id="teamAPlayers"></div>
 <input id="a1" type="number" inputmode="numeric">
 <input id="a2" type="number" inputmode="numeric">
@@ -493,9 +493,7 @@ End Round
 Save Course
 </button>
 
-<button onclick="closeCourseModal()" class="cancel-btn">
-Cancel
-</button>
+<button class="cancel-btn" onclick="closeCourseModal()">Cancel</button>
 
 </div>
 
