@@ -413,17 +413,27 @@ This game is played with two teams of 2
 
 <div id="vegasBox" class="game-card hidden">
 <div id="teamAPlayers"></div>
-<input id="a1" type="number" inputmode="numeric">
-<input id="a2" type="number" inputmode="numeric">
+<input id="a1" class="score-input">
+<input id="a2" class="score-input">
 <div id="teamBPlayers"></div>
-<input id="b1" type="number" inputmode="numeric">
-<input id="b2" type="number" inputmode="numeric">
+<input id="b1" class="score-input">
+<input id="b2" class="score-input">
 <label><input type="checkbox" id="birdieFlip"> Birdie Flip</label>
 <button class="undo-btn" onclick="undoHole()">Undo</button>
 <button onclick="finishVegasHole()">Finish Hole</button>
 </div>
 
-<div id="wolfBox" class="game-card hidden"></div>
+<div id="wolfBox" class="game-card hidden">
+
+<h3 id="wolfPlayer"></h3>
+
+<div id="wolfChoices"></div>
+
+<div id="wolfScores" class="hidden"></div>
+
+<button class="undo-btn" onclick="undoHole()">Undo</button>
+
+</div>
 
 <div id="baseballBox" class="game-card hidden">
 
@@ -431,15 +441,15 @@ This game is played with two teams of 2
 
 <div id="baseballAwayLabel"></div>
 
-<input id="baseballAwayScore1" type="number" placeholder="Player 1 Score">
+<input id="baseballAwayScore1" class="score-input" placeholder="Player 1 Score">
 
-<input id="baseballAwayScore2" type="number" placeholder="Player 2 Score" class="hidden">
+<input id="baseballAwayScore2" class="score-input" placeholder="Player 2 Score" class="hidden">
 
 <div id="baseballHomeLabel"></div>
 
-<input id="baseballHomeScore1" type="number" placeholder="Player 1 Score">
+<input id="baseballHomeScore1" class="score-input" placeholder="Player 1 Score">
 
-<input id="baseballHomeScore2" type="number" placeholder="Player 2 Score" class="hidden">
+<input id="baseballHomeScore2" class="score-input" placeholder="Player 2 Score" class="hidden">
 
 <label>
 <input type="checkbox" id="baseballBirdie">

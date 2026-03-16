@@ -985,6 +985,22 @@ dashBetting.textContent =
 
 }
 
+/* ===== SCORE INPUT STANDARD ===== */
+
+document.querySelectorAll(".score-input").forEach(input=>{
+
+input.setAttribute("type","number");
+input.setAttribute("inputmode","numeric");
+input.setAttribute("pattern","[0-9]*");
+
+input.addEventListener("input",()=>{
+if(input.value.length>2){
+input.value=input.value.slice(0,2);
+}
+});
+
+});
+
 });
 /* ================= GAME SELECT ================= */
 
@@ -998,7 +1014,16 @@ currentGame=game;
 
 if(game === "wolf"){
 document.getElementById("wolfBox").classList.remove("hidden");
+
+playStyle="ffa";
+
+playStyleBox.classList.add("hidden");
+playStyleLabel.classList.add("hidden");
+
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
 }
+
 
 if(game === "baseball"){
 document.getElementById("baseballBox").classList.remove("hidden");
@@ -1032,14 +1057,18 @@ playStyleLabel.classList.remove("hidden");
 playerCountLabel.classList.remove("hidden");
 }
 
-if(game==="nassau"){
-document.getElementById("nassauWagers").classList.remove("hidden");
+if(game==="nassau" || game==="baseball"){
+
+document.getElementById("nassauWagers").classList.toggle("hidden",game!=="nassau");
+
 holeLimitSelect.classList.add("hidden");
-baseWagerWrapper.classList.add("hidden");
+
 }else{
+
 document.getElementById("nassauWagers").classList.add("hidden");
+
 holeLimitSelect.classList.remove("hidden");
-baseWagerWrapper.classList.remove("hidden");
+
 }
 
 if(game==="vegas"){
@@ -1173,7 +1202,10 @@ teams.B.push(i.value);
 });
 
 baseWager=+document.getElementById("baseWager").value;
-holeLimit=currentGame==="nassau"?18:+holeLimitSelect.value;
+holeLimit =
+currentGame==="nassau" ? 18 :
+currentGame==="baseball" ? 18 :
++holeLimitSelect.value;
 
 if(GAME_ENGINES[currentGame]?.reset){
 GAME_ENGINES[currentGame].reset(baseWager);
@@ -1184,6 +1216,10 @@ vegasBox.classList.toggle("hidden",currentGame!=="vegas");
 nassauBox.classList.toggle("hidden",currentGame!=="nassau");
 document.getElementById("wolfBox").classList.toggle("hidden",currentGame!=="wolf");
 document.getElementById("baseballBox").classList.toggle("hidden",currentGame!=="baseball");
+
+if(currentGame==="wolf"){
+buildWolfUI();
+}
 
 teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
@@ -1290,6 +1326,118 @@ teams[win].forEach(p=>ledger[p]+=swing);
 
 nextHole();
 };
+
+/* ================= WOLF ================= */
+
+function buildWolfUI(){
+
+const wolfIndex = (hole-1) % players.length;
+
+const wolf = players[wolfIndex];
+
+const nextWolf = players[(wolfIndex+1) % players.length];
+
+const rotation = players.join(" → ");
+
+const el = document.getElementById("wolfPlayer");
+
+if(el){
+
+el.innerHTML = `
+Wolf: <strong>${wolf}</strong><br>
+
+<span style="font-size:12px;opacity:.85">
+Next Wolf: ${nextWolf}
+</span>
+
+<br>
+
+<span style="font-size:11px;opacity:.65">
+Rotation: ${rotation}
+</span>
+`;
+}
+
+const choices = document.getElementById("wolfChoices");
+choices.innerHTML = "";
+
+players
+.filter(p=>p!==wolf)
+.forEach(p=>{
+
+const btn = document.createElement("button");
+btn.textContent = "Partner: " + p;
+
+btn.onclick = ()=>{
+wolfGame.choosePartner(p);
+buildWolfScoreInputs();
+};
+
+choices.appendChild(btn);
+
+});
+
+const lone = document.createElement("button");
+lone.textContent = "Lone Wolf (2x)";
+
+lone.onclick = ()=>{
+wolfGame.chooseLone();
+buildWolfScoreInputs();
+};
+
+choices.appendChild(lone);
+
+}
+
+function buildWolfScoreInputs(){
+
+const box = document.getElementById("wolfScores");
+box.classList.remove("hidden");
+box.innerHTML = "";
+
+players.forEach(p=>{
+
+const row = document.createElement("div");
+
+row.innerHTML = `
+<label>${p}</label>
+<input class="score-input" id="wolf_${p}">
+`;
+
+box.appendChild(row);
+
+});
+
+const btn = document.createElement("button");
+
+btn.textContent = "Finish Hole";
+
+btn.onclick = finishWolfHole;
+
+box.appendChild(btn);
+
+}
+
+function finishWolfHole(){
+
+saveState();
+
+const scores = {};
+
+players.forEach(p=>{
+scores[p] = +document.getElementById(`wolf_${p}`).value || 0;
+});
+
+GAME_ENGINES.wolf.resolve(
+scores,
+players,
+baseWager,
+ledger
+);
+
+nextHole();
+
+}
 
 /* ================= BASEBALL ================= */
 
@@ -1430,7 +1578,11 @@ leaderboardModalList.innerHTML=leaderboard.innerHTML;
 leaderboardModal.classList.remove("hidden");
 return;
 }
+animateMoney();
 hole++;
+if(currentGame==="wolf"){
+buildWolfUI();
+}
 document.getElementById("leaderboardWrapper").classList.remove("collapsed");
 updateUI();
 }
@@ -1525,6 +1677,7 @@ row.style.opacity  = "1";
 });
 
 updateHeader("game-screen");
+animateMoney();
 }
 
 /* ================= END ROUND ================= */
@@ -2401,3 +2554,22 @@ document.getElementById("baseballScoreboardModal")
 .classList.add("hidden");
 
 };
+
+/* ================= MONEY ANIMATION ================= */
+
+function animateMoney(){
+
+const rows = document.querySelectorAll("#leaderboard div");
+
+rows.forEach(row=>{
+
+row.style.transform = "scale(1.05)";
+row.style.transition = "transform .2s ease";
+
+setTimeout(()=>{
+row.style.transform = "scale(1)";
+},200);
+
+});
+
+}

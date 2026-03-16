@@ -1356,3 +1356,22 @@ font-size:13px;
 .mlb-row .runs{
 border-left:2px solid rgba(255,255,255,.2);
 }
+
+/* ===== MOBILE TAP SPEED BOOST ===== */
+
+button,
+.game-card,
+.stat-toggle,
+.par-btn{
+
+touch-action: manipulation;
+-webkit-tap-highlight-color: transparent;
+
+}
+
+button:active{
+
+transform:scale(.96);
+transition:transform .05s;
+
+}
