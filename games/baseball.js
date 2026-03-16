@@ -1,33 +1,71 @@
-window.baseballGame = {
+const baseballGame = {
 
-state:{
-runsA:0,
-runsB:0
-},
+awayRuns:[0,0,0,0,0,0,0,0,0],
+homeRuns:[0,0,0,0,0,0,0,0,0],
 
 reset(){
-this.state.runsA = 0;
-this.state.runsB = 0;
+this.awayRuns=[0,0,0,0,0,0,0,0,0];
+this.homeRuns=[0,0,0,0,0,0,0,0,0];
+},
+
+recordHole(hole,scoreA,scoreB,birdie,wager,teams,ledger){
+
+const inning=Math.ceil(hole/2);
+const isTop=hole%2===1;
+
+let runs=0;
+
+if(isTop){
+if(scoreA<scoreB){
+runs=scoreB-scoreA;
+}
+}else{
+if(scoreB<scoreA){
+runs=scoreA-scoreB;
+}
+}
+
+if(birdie) runs*=2;
+
+if(runs===0) return;
+
+if(isTop){
+
+this.awayRuns[inning-1]=runs;
+
+teams.B.forEach(p=>ledger[p]-=runs*wager);
+teams.A.forEach(p=>ledger[p]+=runs*wager);
+
+}else{
+
+this.homeRuns[inning-1]=runs;
+
+teams.A.forEach(p=>ledger[p]-=runs*wager);
+teams.B.forEach(p=>ledger[p]+=runs*wager);
+
+}
+
+},
+
+getScoreboard(){
+return{
+away:this.awayRuns,
+home:this.homeRuns
+};
 },
 
 getState(){
-return this.state;
+return{
+awayRuns:[...this.awayRuns],
+homeRuns:[...this.homeRuns]
+};
 },
 
-setState(s){
-this.state = s;
-},
-
-scoreRun(team, runs){
-
-if(team === "A"){
-this.state.runsA += runs;
-}
-
-if(team === "B"){
-this.state.runsB += runs;
-}
-
+setState(state){
+this.awayRuns=[...state.awayRuns];
+this.homeRuns=[...state.homeRuns];
 }
 
 };
+
+registerGame("baseball",baseballGame);

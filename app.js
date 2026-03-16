@@ -1258,6 +1258,39 @@ teams[win].forEach(p=>ledger[p]+=swing);
 nextHole();
 };
 
+/* ================= BASEBALL ================= */
+
+window.finishBaseballHole=()=>{
+
+saveState();
+
+const scoreA=+document.getElementById("baseballAwayScore").value;
+const scoreB=+document.getElementById("baseballHomeScore").value;
+
+const birdie=document.getElementById("baseballBirdie").checked;
+
+if(scoreA===0&&scoreB===0){
+alert("Enter scores");
+return;
+}
+
+GAME_ENGINES.baseball.recordHole(
+hole,
+scoreA,
+scoreB,
+birdie,
+baseWager,
+teams,
+ledger
+);
+
+document.getElementById("baseballAwayScore").value="";
+document.getElementById("baseballHomeScore").value="";
+document.getElementById("baseballBirdie").checked=false;
+
+nextHole();
+};
+
 /* ================= NASSAU ================= */
 
 function buildNassauButtons(){
@@ -1382,6 +1415,18 @@ const s=nassauGame.getStatus();
 potDisplay.textContent=`Front ${s.frontA}-${s.frontB} | Back ${s.backA}-${s.backB} | Total ${s.totalA}-${s.totalB}`;
 }
 
+if(currentGame==="baseball"){
+
+const inning=Math.ceil(hole/2);
+const isTop=hole%2===1;
+
+const txt=(isTop?"Top":"Bottom")+" of "+inning;
+
+const el=document.getElementById("baseballInning");
+if(el) el.textContent=txt;
+
+}
+
 /* ===== ENHANCED LEADERBOARD ===== */
 
 const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
@@ -1392,6 +1437,9 @@ sorted.forEach((p,i)=>{
 
 const value = ledger[p];
 const row = document.createElement("div");
+row.style.transition = "transform .25s ease, opacity .25s ease";
+row.style.transform = "translateY(10px)";
+row.style.opacity = "0";
 
 row.style.display = "flex";
 row.style.background = "rgba(255,255,255,.008)";
@@ -1423,7 +1471,15 @@ row.innerHTML = `
 
 leaderboard.appendChild(row);
 
+requestAnimationFrame(()=>{
+row.style.transform = "translateY(0)";
+row.style.opacity  = "1";
 });
+
+});
+if(currentGame==="baseball"){
+const data = GAME_ENGINES.baseball.getScoreboard();
+}
 
 updateHeader("game-screen");
 }
@@ -2255,3 +2311,45 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 function closeRoundDetail(){
 document.getElementById("roundDetailModal").classList.add("hidden");
 }
+
+/* ================= BASEBALL SCOREBOARD ================= */
+
+window.openBaseballScoreboard=()=>{
+const data=GAME_ENGINES.baseball.getScoreboard();
+
+let html=`<table style="width:100%;text-align:center">
+<tr>
+<th></th>
+<th>1</th><th>2</th><th>3</th><th>4</th>
+<th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+</tr>`;
+
+html+="<tr><td>"+teams.A.join("&")+"</td>";
+
+data.away.forEach(r=>{
+html+=`<td>${r||""}</td>`;
+});
+
+html+="</tr>";
+
+html+="<tr><td>"+teams.B.join("&")+"</td>";
+
+data.home.forEach(r=>{
+html+=`<td>${r||""}</td>`;
+});
+
+html+="</tr></table>";
+
+document.getElementById("baseballScoreboardTable").innerHTML=html;
+
+document.getElementById("baseballScoreboardModal")
+.classList.remove("hidden");
+
+};
+
+window.closeBaseballScoreboard=()=>{
+
+document.getElementById("baseballScoreboardModal")
+.classList.add("hidden");
+
+};

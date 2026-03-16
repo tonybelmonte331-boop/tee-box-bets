@@ -1284,3 +1284,30 @@ will-change: transform;
 font-size:15px;
 font-weight:600;
 }
+
+/* ================= BASEBALL SCOREBOARD ================= */
+
+#baseballScoreboardTable table{
+width:100%;
+border-collapse:collapse;
+text-align:center;
+font-weight:600;
+}
+
+#baseballScoreboardTable th,
+#baseballScoreboardTable td{
+padding:8px;
+border-bottom:1px solid rgba(255,255,255,.15);
+}
+
+#baseballScoreboardTable th{
+opacity:.8;
+}
+
+#baseballScoreboardTable tr:first-child td{
+color:#2ecc71;
+}
+
+#baseballScoreboardTable tr:last-child td{
+color:#e74c3c;
+}

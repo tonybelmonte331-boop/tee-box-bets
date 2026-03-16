@@ -425,7 +425,31 @@ This game is played with two teams of 2
 
 <div id="wolfBox" class="game-card hidden"></div>
 
-<div id="baseballBox" class="game-card hidden"></div>
+<div id="baseballBox" class="game-card hidden">
+
+<h3 id="baseballInning"></h3>
+
+<label>Away Score</label>
+<input id="baseballAwayScore" type="number" inputmode="numeric">
+
+<label>Home Score</label>
+<input id="baseballHomeScore" type="number" inputmode="numeric">
+
+<label>
+<input type="checkbox" id="baseballBirdie">
+Birdie (2x Runs)
+</label>
+
+<div class="hole-actions">
+<button onclick="finishBaseballHole()">Next Hole</button>
+<button class="undo-btn" onclick="undoHole()">Undo Hole</button>
+</div>
+
+<button onclick="openBaseballScoreboard()">
+View Scoreboard
+</button>
+
+</div>
 
 <button id="sideBetBtn" class="hidden">Side Bet</button>
 <h3 id="leaderboardHeader" onclick="toggleLeaderboard()">
@@ -464,6 +488,18 @@ End Round
 <h3>Round Results</h3>
 <div id="leaderboardModalList"></div>
 <button id="leaderboardFinishBtn">Finish Round</button>
+</div>
+</div>
+
+<div id="baseballScoreboardModal" class="modal hidden">
+<div class="modal-box">
+
+<h3>Scoreboard</h3>
+
+<div id="baseballScoreboardTable"></div>
+
+<button onclick="closeBaseballScoreboard()">Close</button>
+
 </div>
 </div>
 
