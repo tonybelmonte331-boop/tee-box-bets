@@ -1311,3 +1311,48 @@ color:#2ecc71;
 #baseballScoreboardTable tr:last-child td{
 color:#e74c3c;
 }
+
+.mlb-scoreboard{
+display:grid;
+gap:6px;
+font-size:14px;
+}
+
+.mlb-row{
+display:grid;
+grid-template-columns:120px repeat(9,1fr) 40px;
+align-items:center;
+text-align:center;
+padding:6px 0;
+border-bottom:1px solid rgba(255,255,255,.15);
+}
+
+.mlb-row.header{
+font-weight:700;
+opacity:.8;
+}
+
+.team-name{
+text-align:left;
+font-weight:600;
+padding-left:6px;
+}
+
+.runs{
+font-weight:800;
+color:#2ecc71;
+}
+
+.mlb-row div{
+padding:6px 4px;
+font-weight:600;
+}
+
+.mlb-row.header div{
+opacity:.75;
+font-size:13px;
+}
+
+.mlb-row .runs{
+border-left:2px solid rgba(255,255,255,.2);
+}

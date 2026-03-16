@@ -17,11 +17,11 @@ let runs=0;
 
 if(isTop){
 if(scoreA<scoreB){
-runs=scoreB-scoreA;
+runs=Math.abs(scoreB-scoreA);
 }
 }else{
 if(scoreB<scoreA){
-runs=scoreA-scoreB;
+runs=Math.abs(scoreA-scoreB);
 }
 }
 

@@ -1,13 +1,17 @@
+/* ================= GAME ENGINE REGISTRY ================= */
+
+window.GAME_ENGINES = {};
+
+window.registerGame = function(name, engine){
+GAME_ENGINES[name] = engine;
+};
+
 /* ================= STATE ================= */
 
 let userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
 let currentGame = null;
-const GAME_ENGINES = {};
 
-function registerGame(name, engine){
-GAME_ENGINES[name] = engine;
-}
 /* ==== REGISTER GAMES ==== */
 registerGame("skins", skinsGame);
 registerGame("vegas", vegasGame);
@@ -1038,8 +1042,15 @@ holeLimitSelect.classList.remove("hidden");
 baseWagerWrapper.classList.remove("hidden");
 }
 
-document.getElementById("wagerLabel").textContent=
-game==="vegas"?"Wager per point":"Wager per player";
+if(game==="vegas"){
+document.getElementById("wagerLabel").textContent="Wager per point";
+}
+else if(game==="baseball"){
+document.getElementById("wagerLabel").textContent="Wager per Run";
+}
+else{
+document.getElementById("wagerLabel").textContent="Wager per player";
+}
 
 show("step-style");
 };
@@ -1151,8 +1162,8 @@ teams.A.push(i.value);
 });
 
 if(playStyle === "ffa"){
-teams.A = [...players];
-teams.B = [];
+teams.A = [players[0]];
+teams.B = [players[1]];
 }
 
 document.querySelectorAll("#teamBInputs input").forEach(i=>{
@@ -1176,6 +1187,28 @@ document.getElementById("baseballBox").classList.toggle("hidden",currentGame!=="
 
 teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
+
+if(currentGame==="baseball"){
+
+document.getElementById("baseballAwayLabel")
+.textContent="Away: "+teams.A.join(" / ");
+
+document.getElementById("baseballHomeLabel")
+.textContent="Home: "+teams.B.join(" / ");
+
+if(playStyle==="teams"){
+
+document.getElementById("baseballAwayScore2").classList.remove("hidden");
+document.getElementById("baseballHomeScore2").classList.remove("hidden");
+
+}else{
+
+document.getElementById("baseballAwayScore2").classList.add("hidden");
+document.getElementById("baseballHomeScore2").classList.add("hidden");
+
+}
+
+}
 
 if(currentGame==="nassau") buildNassauButtons();
 
@@ -1264,8 +1297,19 @@ window.finishBaseballHole=()=>{
 
 saveState();
 
-const scoreA=+document.getElementById("baseballAwayScore").value;
-const scoreB=+document.getElementById("baseballHomeScore").value;
+let scoreA1=+document.getElementById("baseballAwayScore1").value||0;
+let scoreA2=+document.getElementById("baseballAwayScore2").value||0;
+
+let scoreB1=+document.getElementById("baseballHomeScore1").value||0;
+let scoreB2=+document.getElementById("baseballHomeScore2").value||0;
+
+let scoreA=scoreA1;
+let scoreB=scoreB1;
+
+if(playStyle==="teams"){
+scoreA=scoreA1+scoreA2;
+scoreB=scoreB1+scoreB2;
+}
 
 const birdie=document.getElementById("baseballBirdie").checked;
 
@@ -1284,8 +1328,10 @@ teams,
 ledger
 );
 
-document.getElementById("baseballAwayScore").value="";
-document.getElementById("baseballHomeScore").value="";
+document.getElementById("baseballAwayScore1").value="";
+document.getElementById("baseballAwayScore2").value="";
+document.getElementById("baseballHomeScore1").value="";
+document.getElementById("baseballHomeScore2").value="";
 document.getElementById("baseballBirdie").checked=false;
 
 nextHole();
@@ -1477,9 +1523,6 @@ row.style.opacity  = "1";
 });
 
 });
-if(currentGame==="baseball"){
-const data = GAME_ENGINES.baseball.getScoreboard();
-}
 
 updateHeader("game-screen");
 }
@@ -2314,33 +2357,38 @@ document.getElementById("roundDetailModal").classList.add("hidden");
 
 /* ================= BASEBALL SCOREBOARD ================= */
 
-window.openBaseballScoreboard=()=>{
-const data=GAME_ENGINES.baseball.getScoreboard();
+window.openBaseballScoreboard = () => {
 
-let html=`<table style="width:100%;text-align:center">
-<tr>
-<th></th>
-<th>1</th><th>2</th><th>3</th><th>4</th>
-<th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
-</tr>`;
+const data = GAME_ENGINES.baseball.getScoreboard();
 
-html+="<tr><td>"+teams.A.join("&")+"</td>";
+let awayTotal = data.away.reduce((a,b)=>a+b,0);
+let homeTotal = data.home.reduce((a,b)=>a+b,0);
 
-data.away.forEach(r=>{
-html+=`<td>${r||""}</td>`;
-});
+let html = `
+<div class="mlb-scoreboard">
 
-html+="</tr>";
+<div class="mlb-row header">
+<div></div>
+${[1,2,3,4,5,6,7,8,9].map(i=>`<div>${i}</div>`).join("")}
+<div>R</div>
+</div>
 
-html+="<tr><td>"+teams.B.join("&")+"</td>";
+<div class="mlb-row">
+<div class="team-name">${teams.A.join("/")}</div>
+${data.away.map(r=>`<div>${r ?? 0}</div>`).join("")}
+<div class="runs">${awayTotal}</div>
+</div>
 
-data.home.forEach(r=>{
-html+=`<td>${r||""}</td>`;
-});
+<div class="mlb-row">
+<div class="team-name">${teams.B.join("/")}</div>
+${data.home.map(r=>`<div>${r ?? 0}</div>`).join("")}
+<div class="runs">${homeTotal}</div>
+</div>
 
-html+="</tr></table>";
+</div>
+`;
 
-document.getElementById("baseballScoreboardTable").innerHTML=html;
+document.getElementById("baseballScoreboardTable").innerHTML = html;
 
 document.getElementById("baseballScoreboardModal")
 .classList.remove("hidden");

@@ -429,11 +429,17 @@ This game is played with two teams of 2
 
 <h3 id="baseballInning"></h3>
 
-<label>Away Score</label>
-<input id="baseballAwayScore" type="number" inputmode="numeric">
+<div id="baseballAwayLabel"></div>
 
-<label>Home Score</label>
-<input id="baseballHomeScore" type="number" inputmode="numeric">
+<input id="baseballAwayScore1" type="number" placeholder="Player 1 Score">
+
+<input id="baseballAwayScore2" type="number" placeholder="Player 2 Score" class="hidden">
+
+<div id="baseballHomeLabel"></div>
+
+<input id="baseballHomeScore1" type="number" placeholder="Player 1 Score">
+
+<input id="baseballHomeScore2" type="number" placeholder="Player 2 Score" class="hidden">
 
 <label>
 <input type="checkbox" id="baseballBirdie">
@@ -445,9 +451,7 @@ Birdie (2x Runs)
 <button class="undo-btn" onclick="undoHole()">Undo Hole</button>
 </div>
 
-<button onclick="openBaseballScoreboard()">
-View Scoreboard
-</button>
+<button onclick="openBaseballScoreboard()">View Scoreboard</button>
 
 </div>
 
