@@ -1171,8 +1171,8 @@ GAME_ENGINES[currentGame].reset(baseWager);
 skinsBox.classList.toggle("hidden",currentGame!=="skins");
 vegasBox.classList.toggle("hidden",currentGame!=="vegas");
 nassauBox.classList.toggle("hidden",currentGame!=="nassau");
-document.getElementById("wolfBox").classList.toggle("hidden",cuurentGame!=="wolf");
-document.getElementById("baseballBox").classList.toggle("hidden",cuurentGame!=="baseball");
+document.getElementById("wolfBox").classList.toggle("hidden",currentGame!=="wolf");
+document.getElementById("baseballBox").classList.toggle("hidden",currentGame!=="baseball");
 
 teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;

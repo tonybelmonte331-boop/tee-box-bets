@@ -1247,10 +1247,13 @@ justify-content:center;
 
 transition:all .18s ease;
 
+backface-visibility:hidden;
+transform: translateZ(0);
+
 }
 
 .game-card:active{
-transform:scale(.95);
+transform:scale(.97);
 background:rgba(255,255,255,.15);
 }
 
@@ -1272,6 +1275,9 @@ border-radius:18px;
 box-shadow:
 0 6px 14px rgba(0,0,0,.45),
 inset 0 1px 0 rgba(255,255,255,.25);
+
+transform: translateZ(0);
+will-change: transform;
 }
 
 .game-title{
