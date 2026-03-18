@@ -22,16 +22,18 @@ if(box){
 document.getElementById(box).classList.remove("hidden");
 }
 
-/* build UI */
-
-if(GAME_UI[game]?.build){
-GAME_UI[game].build();
-}
-
-/* reset engine */
 
 if(GAME_ENGINES[game]?.reset){
 GAME_ENGINES[game].reset();
+}
+
+if(GAME_UI[game]?.build){
+GAME_UI[game].build({
+players,
+teams,
+ledger,
+baseWager
+});
 }
 
 show("game-screen");

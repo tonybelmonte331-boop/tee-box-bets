@@ -12,6 +12,12 @@ window.registerGameUI = function(name, ui){
 GAME_UI[name] = ui;
 };
 
+window.GAME_RULES = {};
+
+window.registerGameRules = function(name, rules){
+GAME_RULES[name] = rules;
+};
+
 /* ================= STATE ================= */
 
 let userProfile = JSON.parse(localStorage.getItem("userProfile"));
@@ -774,7 +780,24 @@ btn.textContent = open
 
 window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
-window.showRules = () => show("rules-screen");
+
+window.showRules = () => {
+const order = ["skins","vegas","nassau","wolf","baseball"];
+const box = document.getElementById("rulesContent");
+if(box){
+box.innerHTML = order.map(key => {
+const r = GAME_RULES[key];
+if(!r) return "";
+return `
+<div class="rules-block">
+<h3>${r.icon || ""} ${r.title}</h3>
+${r.description}
+</div>
+`;
+}).join('<hr class="rules-divider">');
+}
+show("rules-screen");
+};
 
 window.openCourseModal = () =>{
 document.getElementById("courseModal").classList.remove("hidden");
@@ -1011,13 +1034,31 @@ lockedNotice.textContent = "Wolf is Free For All only";
 
 if(game === "baseball"){
 
-playStyle="teams";
+playStyle = "teams";
 
+// ✅ ONLY TEAMS (NO FFA)
+playStyleBox.innerHTML = `<option value="teams" selected>Teams</option>`;
+playStyleBox.value = "teams";
+
+// Hide playstyle completely
 playStyleBox.classList.add("hidden");
 playStyleLabel.classList.add("hidden");
 
-playerCountBox.classList.add("hidden");
-playerCountLabel.classList.add("hidden");
+// ✅ Allow 2 or 4 players
+playerCountBox.innerHTML = `
+<option value="2">2 Players (1v1)</option>
+<option value="4" selected>4 Players (2v2)</option>
+`;
+
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+
+// ✅ FORCE TEAM NAMES
+teamAName = "Away";
+teamBName = "Home";
+
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "Baseball is Home vs Away";
 
 }
 
@@ -1083,6 +1124,13 @@ show("step-style");
 /* ================= SETUP ================= */
 
 window.nextTeams=()=>{
+if(currentGame === "baseball"){
+teamAName = "Away";
+teamBName = "Home";
+buildPlayers();
+return;
+}
+
 if(currentGame === "wolf"){
 
 playStyle = "ffa";
@@ -1120,8 +1168,13 @@ function buildPlayers(){
 teamAInputs.innerHTML="";
 teamBInputs.innerHTML="";
 
+if(currentGame === "baseball"){
+teamALabel.textContent = "Away";
+teamBLabel.textContent = "Home";
+}else{
 teamALabel.textContent = playStyle==="teams" ? teamAName : "Players";
 teamBLabel.textContent = playStyle==="teams" ? teamBName : "";
+}
 
 const userName = userProfile ? userProfile.name : "";
 
@@ -1218,10 +1271,6 @@ updateUI();
 window.startRound=()=>{
 players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 historyStack=[];
-document.getElementById("a1").value="";
-document.getElementById("a2").value="";
-document.getElementById("b1").value="";
-document.getElementById("b2").value="";
 document.getElementById("birdieFlip").checked=false;
 
 document.querySelectorAll("#teamAInputs input").forEach(i=>{
@@ -1239,6 +1288,12 @@ players.push(i.value);
 ledger[i.value]=0;
 teams.B.push(i.value);
 });
+
+// ✅ BASEBALL ONLY TEAM NAMES
+if(currentGame === "baseball"){
+teamAName = "Away";
+teamBName = "Home";
+}
 
 /* Detect 1v1 automatically */
 
@@ -1276,14 +1331,28 @@ baseWager
 });
 }
 
+// 🔥 FORCE UI TO REBUILD AFTER PLAYERS ARE SET
+if(GAME_UI[currentGame]?.build){
+GAME_UI[currentGame].build({
+players,
+teams,
+ledger,
+baseWager
+});
+}
+
+// ✅ FORCE UPDATE AFTER BUILD
+if(GAME_UI[currentGame]?.update){
+GAME_UI[currentGame].update();
+}
+
+if(currentGame === "baseball"){
+teamAPlayers.textContent = `Away: ${teams.A.join(" & ")}`;
+teamBPlayers.textContent = `Home: ${teams.B.join(" & ")}`;
+}else{
 teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
-
-if(teams.A[0]) a1.placeholder = teams.A[0];
-if(teams.A[1]) a2.placeholder = teams.A[1];
-
-if(teams.B[0]) b1.placeholder = teams.B[0];
-if(teams.B[1]) b2.placeholder = teams.B[1];
+}
 
 document.querySelectorAll("#game-screen input").forEach(i => i.value = "");
 updateUI();
