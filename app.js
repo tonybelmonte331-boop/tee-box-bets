@@ -6,18 +6,17 @@ window.registerGame = function(name, engine){
 GAME_ENGINES[name] = engine;
 };
 
+window.GAME_UI = {};
+
+window.registerGameUI = function(name, ui){
+GAME_UI[name] = ui;
+};
+
 /* ================= STATE ================= */
 
 let userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
 let currentGame = null;
-
-/* ==== REGISTER GAMES ==== */
-registerGame("skins", skinsGame);
-registerGame("vegas", vegasGame);
-registerGame("nassau", nassauGame);
-registerGame("wolf", wolfGame);
-registerGame("baseball", baseballGame);
 
 let playStyle, playerCount;
 let teamAName="", teamBName="";
@@ -487,11 +486,9 @@ userProfile.bettingStats.totalPlayed += 1;
 
 /* ================= DOM ================= */
 
-const winnerButtons = document.getElementById("winnerButtons");
 const skinsBox = document.getElementById("skinsBox");
 const vegasBox = document.getElementById("vegasBox");
 const nassauBox = document.getElementById("nassauBox");
-const nassauWinners = document.getElementById("nassauWinners");
 
 const teamAInputs = document.getElementById("teamAInputs");
 const teamBInputs = document.getElementById("teamBInputs");
@@ -513,8 +510,6 @@ const leaderboardFinishBtn = document.getElementById("leaderboardFinishBtn");
 const teamAPlayers = document.getElementById("teamAPlayers");
 const teamBPlayers = document.getElementById("teamBPlayers");
 
-const tieBtn = document.getElementById("tieBtn");
-const nassauTieBtn = document.getElementById("nassauTieBtn");
 
 const sideBetBtn = document.getElementById("sideBetBtn");
 const sideBetModal = document.getElementById("sideBetModal");
@@ -791,31 +786,7 @@ resetAddCourseModal();
 };
 
 function startGame(game){
-
-currentGame = game;
-
-if(game === "skins"){
-document.getElementById("skinsBox").classList.remove("hidden");
-}
-
-if(game === "vegas"){
-document.getElementById("vegasBox").classList.remove("hidden");
-}
-
-if(game === "nassau"){
-document.getElementById("nassauBox").classList.remove("hidden");
-}
-
-if(game === "wolf"){
-document.getElementById("wolfBox").classList.remove("hidden");
-}
-
-if(game === "baseball"){
-document.getElementById("baseballBox").classList.remove("hidden");
-}
-
-show("game-screen");
-
+GameRouter.start(game);
 }
 
 /* ================= PROFILE CHECK ================= */
@@ -1008,25 +979,46 @@ window.selectGame=game=>{
 document.getElementById("skinsBox").classList.add("hidden");
 document.getElementById("vegasBox").classList.add("hidden");
 document.getElementById("nassauBox").classList.add("hidden");
-document.getElementById("wolfBox").classList.add("hidden");
-document.getElementById("baseballBox").classList.add("hidden");
 currentGame=game;
 
 if(game === "wolf"){
-document.getElementById("wolfBox").classList.remove("hidden");
 
-playStyle="ffa";
+playStyle = "ffa";
+
+/* FORCE DROPDOWN TO ONLY FFA */
+playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
+playStyleBox.value = "ffa";
+
+playStyleBox.classList.remove("hidden");
+playStyleLabel.classList.remove("hidden");
+
+/* PLAYER COUNT 3 OR 4 */
+playerCountBox.innerHTML = `
+<option value="3">3 Players</option>
+<option value="4" selected>4 Players</option>
+`;
+
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+
+/* MESSAGE */
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "Wolf is Free For All only";
+
+}
+
+
+
+if(game === "baseball"){
+
+playStyle="teams";
 
 playStyleBox.classList.add("hidden");
 playStyleLabel.classList.add("hidden");
 
-playerCountBox.classList.remove("hidden");
-playerCountLabel.classList.remove("hidden");
-}
+playerCountBox.classList.add("hidden");
+playerCountLabel.classList.add("hidden");
 
-
-if(game === "baseball"){
-document.getElementById("baseballBox").classList.remove("hidden");
 }
 
 if(game==="vegas" || game==="nassau"){
@@ -1081,12 +1073,26 @@ else{
 document.getElementById("wagerLabel").textContent="Wager per player";
 }
 
+if(game==="wolf"){
+playStyleBox.value="ffa";
+}
+
 show("step-style");
 };
 
 /* ================= SETUP ================= */
 
 window.nextTeams=()=>{
+if(currentGame === "wolf"){
+
+playStyle = "ffa";
+playerCount = parseInt(playerCountBox.value);
+
+buildPlayers();
+return;
+
+}
+
 if(currentGame==="vegas"||currentGame==="nassau"){
 show("step-teams");
 return;
@@ -1131,14 +1137,23 @@ teamBInputs.innerHTML += `<input placeholder="Player 2 name">`;
 
 }else{
 
-// FFA mode
+teamAInputs.innerHTML = "";
+teamBInputs.innerHTML = "";
+
 for(let i=0;i<playerCount;i++){
-if(i===0 && userName){
-teamAInputs.innerHTML += `<input value="${userName}">`;
-}else{
-teamAInputs.innerHTML += `<input placeholder="Player ${i+1} name">`;
+
+const input = document.createElement("input");
+
+input.placeholder = `Player ${i+1} name`;
+
+if(i === 0 && userName){
+input.value = userName;
 }
+
+teamAInputs.appendChild(input);
+
 }
+
 }
 
 show("step-players");
@@ -1150,28 +1165,53 @@ window.nextSettings=()=>show("step-settings");
 /* ================= HISTORY ================= */
 
 function saveState(){
+
 historyStack.push({
 hole,
-ledger:JSON.parse(JSON.stringify(ledger)),
+ledger: { ...ledger },
+players: [...players],
+
+wolfIndex: GAME_ENGINES.wolf?.wolfIndex,
+
 gameState: GAME_ENGINES[currentGame]?.getState
 ? GAME_ENGINES[currentGame].getState()
 : null
+
 });
+
 }
 
-window.undoHole=()=>{
+window.undoHole = () => {
+
 if(!historyStack.length) return;
 
-const prev=historyStack.pop();
-hole=prev.hole;
-ledger=prev.ledger;
+const prev = historyStack.pop();
 
+hole = prev.hole;
+ledger = { ...prev.ledger };
+players = [...prev.players];
+
+// ✅ restore engine state (wolf rotation + partner/lone)
 if(prev.gameState && GAME_ENGINES[currentGame]?.setState){
 GAME_ENGINES[currentGame].setState(prev.gameState);
 }
 
+// 🔥 FORCE UI TO REBIND TO RESTORED STATE
+if(GAME_UI[currentGame]){
+GAME_UI[currentGame].players = players;
+GAME_UI[currentGame].ledger = ledger;
+}
+
+// ✅ FORCE UI TO REBUILD CORRECTLY
+if(GAME_UI[currentGame]?.onHoleChange){
+GAME_UI[currentGame].onHoleChange(hole);
+}
+
 updateUI();
+
 };
+
+
 
 /* ================= START ROUND ================= */
 
@@ -1185,21 +1225,28 @@ document.getElementById("b2").value="";
 document.getElementById("birdieFlip").checked=false;
 
 document.querySelectorAll("#teamAInputs input").forEach(i=>{
+if(!i.value) return;
+
 players.push(i.value);
 ledger[i.value]=0;
 teams.A.push(i.value);
 });
 
-if(playStyle === "ffa"){
-teams.A = [players[0]];
-teams.B = [players[1]];
-}
-
 document.querySelectorAll("#teamBInputs input").forEach(i=>{
+if(!i.value) return;
+
 players.push(i.value);
 ledger[i.value]=0;
 teams.B.push(i.value);
 });
+
+/* Detect 1v1 automatically */
+
+if(teams.A.length === 1 && teams.B.length === 1){
+playStyle = "ffa";
+}else{
+playStyle = "teams";
+}
 
 baseWager=+document.getElementById("baseWager").value;
 holeLimit =
@@ -1214,310 +1261,35 @@ GAME_ENGINES[currentGame].reset(baseWager);
 skinsBox.classList.toggle("hidden",currentGame!=="skins");
 vegasBox.classList.toggle("hidden",currentGame!=="vegas");
 nassauBox.classList.toggle("hidden",currentGame!=="nassau");
-document.getElementById("wolfBox").classList.toggle("hidden",currentGame!=="wolf");
-document.getElementById("baseballBox").classList.toggle("hidden",currentGame!=="baseball");
+const wolfBox = document.getElementById("wolfBox");
 
-if(currentGame==="wolf"){
-buildWolfUI();
+if(wolfBox){
+wolfBox.classList.toggle("hidden", currentGame !== "wolf");
+}
+
+if(GAME_UI[currentGame]?.build){
+GAME_UI[currentGame].build({
+players,
+teams,
+ledger,
+baseWager
+});
 }
 
 teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
 
-if(currentGame==="baseball"){
+if(teams.A[0]) a1.placeholder = teams.A[0];
+if(teams.A[1]) a2.placeholder = teams.A[1];
 
-document.getElementById("baseballAwayLabel")
-.textContent="Away: "+teams.A.join(" / ");
+if(teams.B[0]) b1.placeholder = teams.B[0];
+if(teams.B[1]) b2.placeholder = teams.B[1];
 
-document.getElementById("baseballHomeLabel")
-.textContent="Home: "+teams.B.join(" / ");
-
-if(playStyle==="teams"){
-
-document.getElementById("baseballAwayScore2").classList.remove("hidden");
-document.getElementById("baseballHomeScore2").classList.remove("hidden");
-
-}else{
-
-document.getElementById("baseballAwayScore2").classList.add("hidden");
-document.getElementById("baseballHomeScore2").classList.add("hidden");
-
-}
-
-}
-
-if(currentGame==="nassau") buildNassauButtons();
-
-buildWinnerButtons();
 document.querySelectorAll("#game-screen input").forEach(i => i.value = "");
 updateUI();
 document.getElementById("leaderboardWrapper").classList.add("collapsed");
 show("game-screen");
 };
-
-/* ================= SKINS ================= */
-
-function buildWinnerButtons(){
-winnerButtons.innerHTML="";
-
-if(playStyle === "ffa"){
-
-players.forEach(p=>{
-const btn = document.createElement("button");
-btn.textContent = p;
-btn.onclick = ()=>{
-saveState();
-applyBonus();
-skinsGame.winPlayer(p, players, ledger);
-nextHole();
-};
-winnerButtons.appendChild(btn);
-});
-
-}
-
-else{
-
-["A","B"].forEach(t=>{
-const btn=document.createElement("button");
-
-btn.textContent =
-t==="A"
-? `${teamAName}: ${teams.A.join(" & ")}`
-: `${teamBName}: ${teams.B.join(" & ")}`;
-btn.onclick=()=>handleTeamWin(t);
-winnerButtons.appendChild(btn);
-});
-
-}
-}
-
-
-function handleTeamWin(t){
-saveState();
-applyBonus();
-skinsGame.winTeam(t,teams,ledger);
-nextHole();
-}
-
-tieBtn.onclick=()=>{
-saveState();
-applyBonus();
-skinsGame.tie();
-nextHole();
-};
-
-/* ================= VEGAS ================= */
-
-window.finishVegasHole=()=>{
-saveState();
-
-let a=[+a1.value,+a2.value].sort((x,y)=>x-y);
-let b=[+b1.value,+b2.value].sort((x,y)=>x-y);
-
-const swing=vegasGame.calculate(a[0],a[1],b[0],b[1],baseWager,birdieFlip.checked);
-
-if(swing){
-const win=vegasGame.winner(a[0],a[1],b[0],b[1]);
-const lose=win==="A"?"B":"A";
-teams[lose].forEach(p=>ledger[p]-=swing);
-teams[win].forEach(p=>ledger[p]+=swing);
-}
-
-nextHole();
-};
-
-/* ================= WOLF ================= */
-
-function buildWolfUI(){
-
-const wolfIndex = (hole-1) % players.length;
-
-const wolf = players[wolfIndex];
-
-const nextWolf = players[(wolfIndex+1) % players.length];
-
-const rotation = players.join(" → ");
-
-const el = document.getElementById("wolfPlayer");
-
-if(el){
-
-el.innerHTML = `
-Wolf: <strong>${wolf}</strong><br>
-
-<span style="font-size:12px;opacity:.85">
-Next Wolf: ${nextWolf}
-</span>
-
-<br>
-
-<span style="font-size:11px;opacity:.65">
-Rotation: ${rotation}
-</span>
-`;
-}
-
-const choices = document.getElementById("wolfChoices");
-choices.innerHTML = "";
-
-players
-.filter(p=>p!==wolf)
-.forEach(p=>{
-
-const btn = document.createElement("button");
-btn.textContent = "Partner: " + p;
-
-btn.onclick = ()=>{
-wolfGame.choosePartner(p);
-buildWolfScoreInputs();
-};
-
-choices.appendChild(btn);
-
-});
-
-const lone = document.createElement("button");
-lone.textContent = "Lone Wolf (2x)";
-
-lone.onclick = ()=>{
-wolfGame.chooseLone();
-buildWolfScoreInputs();
-};
-
-choices.appendChild(lone);
-
-}
-
-function buildWolfScoreInputs(){
-
-const box = document.getElementById("wolfScores");
-box.classList.remove("hidden");
-box.innerHTML = "";
-
-players.forEach(p=>{
-
-const row = document.createElement("div");
-
-row.innerHTML = `
-<label>${p}</label>
-<input class="score-input" id="wolf_${p}">
-`;
-
-box.appendChild(row);
-
-});
-
-const btn = document.createElement("button");
-
-btn.textContent = "Finish Hole";
-
-btn.onclick = finishWolfHole;
-
-box.appendChild(btn);
-
-}
-
-function finishWolfHole(){
-
-saveState();
-
-const scores = {};
-
-players.forEach(p=>{
-scores[p] = +document.getElementById(`wolf_${p}`).value || 0;
-});
-
-GAME_ENGINES.wolf.resolve(
-scores,
-players,
-baseWager,
-ledger
-);
-
-nextHole();
-
-}
-
-/* ================= BASEBALL ================= */
-
-window.finishBaseballHole=()=>{
-
-saveState();
-
-let scoreA1=+document.getElementById("baseballAwayScore1").value||0;
-let scoreA2=+document.getElementById("baseballAwayScore2").value||0;
-
-let scoreB1=+document.getElementById("baseballHomeScore1").value||0;
-let scoreB2=+document.getElementById("baseballHomeScore2").value||0;
-
-let scoreA=scoreA1;
-let scoreB=scoreB1;
-
-if(playStyle==="teams"){
-scoreA=scoreA1+scoreA2;
-scoreB=scoreB1+scoreB2;
-}
-
-const birdie=document.getElementById("baseballBirdie").checked;
-
-if(scoreA===0&&scoreB===0){
-alert("Enter scores");
-return;
-}
-
-GAME_ENGINES.baseball.recordHole(
-hole,
-scoreA,
-scoreB,
-birdie,
-baseWager,
-teams,
-ledger
-);
-
-document.getElementById("baseballAwayScore1").value="";
-document.getElementById("baseballAwayScore2").value="";
-document.getElementById("baseballHomeScore1").value="";
-document.getElementById("baseballHomeScore2").value="";
-document.getElementById("baseballBirdie").checked=false;
-
-nextHole();
-};
-
-/* ================= NASSAU ================= */
-
-function buildNassauButtons(){
-nassauWinners.innerHTML="";
-["A","B"].forEach(t=>{
-const btn=document.createElement("button");
-btn.textContent = 
-t==="A"
-? `${teamAName}: ${teams.A.join(" & ")}`
-: `${teamBName}: ${teams.B.join(" & ")}`;
-btn.onclick=()=>winNassauHole(t);
-nassauWinners.appendChild(btn);
-});
-}
-
-function winNassauHole(team){
-saveState();
-nassauGame.recordHole(team,hole);
-
-if(hole===9) nassauGame.settleFront(+frontWager.value,teams,ledger);
-if(hole===18){
-nassauGame.settleBack(+backWager.value,teams,ledger);
-nassauGame.settleOverall(+totalWager.value,teams,ledger);
-}
-
-nextHole();
-}
-
-nassauTieBtn.onclick=()=>{
-saveState();
-nextHole();
-};
-
 /* ================= SIDE BET ================= */
 
 sideBetBtn.onclick=()=>{
@@ -1573,15 +1345,48 @@ sideWinners.appendChild(btn);
 
 function nextHole(){
 if(hole>=holeLimit){
-updateUI();
-leaderboardModalList.innerHTML=leaderboard.innerHTML;
+
+// 🔥 FORCE FRESH RENDER FROM DATA (NOT DOM)
+const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
+
+leaderboardModalList.innerHTML = "";
+
+sorted.forEach(p=>{
+
+const value = ledger[p];
+
+const row = document.createElement("div");
+
+row.style.display = "flex";
+row.style.justifyContent = "space-between";
+row.style.padding = "10px 14px";
+row.style.marginBottom = "6px";
+row.style.borderRadius = "10px";
+row.style.fontWeight = "600";
+
+if(value > 0){
+row.style.color = "#2ecc71";
+}else if(value < 0){
+row.style.color = "#e74c3c";
+}else{
+row.style.color = "#ffffff";
+}
+
+row.innerHTML = `
+<span>${p}</span>
+<span>${value>=0?"+":""}$${value.toFixed(2)}</span>
+`;
+
+leaderboardModalList.appendChild(row);
+
+});
+
 leaderboardModal.classList.remove("hidden");
 return;
 }
-animateMoney();
 hole++;
-if(currentGame==="wolf"){
-buildWolfUI();
+if(GAME_UI[currentGame]?.onHoleChange){
+GAME_UI[currentGame].onHoleChange(hole);
 }
 document.getElementById("leaderboardWrapper").classList.remove("collapsed");
 updateUI();
@@ -1635,8 +1440,8 @@ sorted.forEach((p,i)=>{
 
 const value = ledger[p];
 const row = document.createElement("div");
-row.style.transition = "transform .25s ease, opacity .25s ease";
-row.style.transform = "translateY(10px)";
+row.style.transition = "transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease";
+row.style.transform = "translateY(20px)";
 row.style.opacity = "0";
 
 row.style.display = "flex";
@@ -1650,8 +1455,11 @@ row.style.borderRadius = "10px";
 row.style.fontWeight = "600";
 
 if(i === 0){
-row.style.background = "#0f5132"; // leader highlight
-row.classList.add("leader-flash");
+
+row.style.background = "linear-gradient(90deg,#0f5132,#1f7a4f)";
+row.style.boxShadow = "0 0 12px rgba(46,204,113,.35)";
+row.style.transform = "scale(1.03)";
+
 }
 
 if(value > 0){
@@ -1675,6 +1483,10 @@ row.style.opacity  = "1";
 });
 
 });
+
+if(GAME_UI[currentGame]?.update){
+GAME_UI[currentGame].update();
+}
 
 updateHeader("game-screen");
 animateMoney();
@@ -2573,3 +2385,23 @@ row.style.transform = "scale(1)";
 });
 
 }
+
+/* ================= SCORE AUTO ADVANCE ================= */
+
+document.addEventListener("input",(e)=>{
+
+if(!e.target.classList.contains("score-input")) return;
+
+if(e.target.value.length>=1){
+
+const inputs=[...document.querySelectorAll(".score-input")];
+
+const index=inputs.indexOf(e.target);
+
+if(index>-1 && index<inputs.length-1){
+inputs[index+1].focus();
+}
+
+}
+
+});

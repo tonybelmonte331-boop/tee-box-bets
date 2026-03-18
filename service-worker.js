@@ -1,15 +1,21 @@
-const CACHE_NAME = "tee-box-bets-v151"; // bump version anytime you change files
+const CACHE_NAME = "tee-box-bets-v153"; // bump version anytime you change files
 
 const FILES_TO_CACHE = [
 "./",
 "./index.html",
 "./style.css",
 "./app.js",
+
 "./games/skins.js",
 "./games/vegas.js",
 "./games/nassau.js",
+"./games/wolf.js",
+"./games/baseball.js",
 "./games/sidebets.js",
-"./manifest.json"
+
+"./manifest.json",
+"./icons/icon-192.png",
+"./icons/icon-512.png"
 ];
 
 // INSTALL — cache core files

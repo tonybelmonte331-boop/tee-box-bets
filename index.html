@@ -608,14 +608,27 @@ Save Course
 </div>
 
 </main>
-
-<script src="games/skins.js"></script>
-<script src="games/vegas.js"></script>
-<script src="games/nassau.js"></script>
-<script src="games/wolf.js"></script>
-<script src="games/baseball.js"></script>
-<script src="games/sidebets.js"></script>
+<!--CORE APP (MUST BE FIRST)-->
 <script src="app.js"></script>
+
+<!--GAME ENGINES-->
+<script src="games/skins/engine.js"></script>
+<script src="games/vegas/engine.js"></script>
+<script src="games/nassau/engine.js"></script>
+<script src="games/wolf/engine.js"></script>
+<script src="games/baseball/engine.js"></script>
+
+<!--GAME UI-->
+<script src="games/skins/ui.js"></script>
+<script src="games/vegas/ui.js"></script>
+<script src="games/nassau/ui.js"></script>
+<script src="games/wolf/ui.js"></script>
+<script src="games/baseball/ui.js"></script>
+
+<!--SHARED SYSTEMS-->
+<script src="games/sidebets.js"></script>
+<script src="router/gameRouter.js"></script>
+
 
 <script>
 if ("serviceWorker" in navigator) {

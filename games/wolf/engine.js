@@ -42,25 +42,52 @@ oppTeam = players.filter(p=>!wolfTeam.includes(p));
 const wolfScore = Math.min(...wolfTeam.map(p=>scores[p]));
 const oppScore = Math.min(...oppTeam.map(p=>scores[p]));
 
-if(wolfScore < oppScore){
+if (wolfScore < oppScore) {
 
-const mult = this.lone ? 2 : 1;
+if (this.lone) {
 
-oppTeam.forEach(p=>ledger[p]-=wager*mult);
-wolfTeam.forEach(p=>ledger[p]+=wager*mult);
+// each opponent loses DOUBLE
+oppTeam.forEach(p => {
+ledger[p] -= wager * 2;
+});
+
+// wolf gets EXACTLY what others lost (no extra multiply)
+const total = oppTeam.length * wager * 2;
+
+ledger[wolf] += total;
+} else {
+
+// normal play
+oppTeam.forEach(p => ledger[p] -= wager);
+wolfTeam.forEach(p => ledger[p] += wager);
 
 }
 
-if(oppScore < wolfScore){
+}
 
-const mult = this.lone ? 2 : 1;
+if (oppScore < wolfScore) {
 
-wolfTeam.forEach(p=>ledger[p]-=wager*mult);
-oppTeam.forEach(p=>ledger[p]+=wager*mult);
+if (this.lone) {
+
+// wolf loses double to each opponent
+const totalLoss = oppTeam.length * wager * 2;
+
+ledger[wolf] -= totalLoss;
+
+oppTeam.forEach(p => {
+ledger[p] += wager * 2;
+});
+
+} else {
+
+wolfTeam.forEach(p => ledger[p] -= wager);
+oppTeam.forEach(p => ledger[p] += wager);
 
 }
 
-this.wolfIndex++;
+}
+
+this.wolfIndex = (this.wolfIndex + 1) % players.length;
 
 this.partner=null;
 this.lone=false;
@@ -79,7 +106,7 @@ setState(state){
 this.wolfIndex=state.wolfIndex;
 this.partner=state.partner;
 this.lone=state.lone;
-}
+},
 
 };
 
