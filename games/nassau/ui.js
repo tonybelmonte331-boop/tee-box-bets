@@ -20,22 +20,23 @@ registerGameUI("nassau", {
     box.innerHTML = "";
 
     [["A", teamAName], ["B", teamBName]].forEach(([key, label]) => {
+      // Roster label above button
+      const roster = this.teams[key].join(" & ");
+      const lbl = document.createElement("div");
+      lbl.textContent = `${label}: ${roster}`;
+      lbl.style.cssText = "font-size:13px;opacity:.8;margin-top:10px;margin-bottom:4px;font-weight:600;";
+      box.appendChild(lbl);
+
       const btn = document.createElement("button");
       btn.textContent = label + " Wins Hole";
       btn.onclick = () => {
         saveState();
         nassauGame.recordHole(key, hole);
-
-        // Settle at end of front 9
-        if (hole === 9) {
-          nassauGame.settleFront(this.frontWager, teams, ledger);
-        }
-        // Settle at end of back 9
+        if (hole === 9)  nassauGame.settleFront(this.frontWager, teams, ledger);
         if (hole === 18) {
           nassauGame.settleBack(this.backWager, teams, ledger);
           nassauGame.settleOverall(this.totalWager, teams, ledger);
         }
-
         nextHole();
       };
       box.appendChild(btn);
@@ -47,10 +48,7 @@ registerGameUI("nassau", {
     if (!btn) return;
     btn.onclick = () => {
       saveState();
-      // Tied hole — no points awarded, but still settle if end of 9
-      if (hole === 9) {
-        nassauGame.settleFront(this.frontWager, teams, ledger);
-      }
+      if (hole === 9)  nassauGame.settleFront(this.frontWager, teams, ledger);
       if (hole === 18) {
         nassauGame.settleBack(this.backWager, teams, ledger);
         nassauGame.settleOverall(this.totalWager, teams, ledger);

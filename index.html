@@ -277,6 +277,11 @@ End Round (Discard)
 <div class="game-title">Baseball</div>
 </div>
 
+<div class="game-card" onclick="selectGame('bingo')">
+<img src="icons/games/bingo.png" class="game-icon">
+<div class="game-title">Bingo Bango Bongo</div>
+</div>
+
 </div>
 
 <button onclick="showRules()">Rules</button>
@@ -458,6 +463,10 @@ Birdie (2x Runs)
 
 </div>
 
+<div id="bingoBox" class="game-card hidden">
+<!-- Built dynamically by bingo/ui.js -->
+</div>
+
 <button id="sideBetBtn" class="hidden">Side Bet</button>
 <h3 id="leaderboardHeader" onclick="toggleLeaderboard()">
 ▼ Leaderboard
@@ -610,6 +619,7 @@ Save Course
 <script src="games/nassau/engine.js"></script>
 <script src="games/wolf/engine.js"></script>
 <script src="games/baseball/engine.js"></script>
+<script src="games/bingo/engine.js"></script>
 
 <!--GAME UI-->
 <script src="games/skins/ui.js"></script>
@@ -617,6 +627,7 @@ Save Course
 <script src="games/nassau/ui.js"></script>
 <script src="games/wolf/ui.js"></script>
 <script src="games/baseball/ui.js"></script>
+<script src="games/bingo/ui.js"></script>
 
 <!--GAME RULES-->
 <script src="games/skins/rules.js"></script>
@@ -624,6 +635,7 @@ Save Course
 <script src="games/nassau/rules.js"></script>
 <script src="games/wolf/rules.js"></script>
 <script src="games/baseball/rules.js"></script>
+<script src="games/bingo/rules.js"></script>
 
 <!--SHARED SYSTEMS-->
 <script src="games/sidebets.js"></script>

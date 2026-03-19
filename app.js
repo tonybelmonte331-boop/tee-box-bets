@@ -621,6 +621,7 @@ currentGame === "vegas" ? "Vegas" :
 currentGame === "nassau" ? "Nassau" :
 currentGame === "wolf" ? "Wolf" :
 currentGame === "baseball" ? "Baseball" :
+currentGame === "bingo" ? "Bingo Bango Bongo" :
 "Game";
 
 title.textContent = `${gameName} – Hole ${hole}`;
@@ -744,9 +745,39 @@ if(nineType) nineType.value = "front";
 
 function goHomeClean(){
 
-    userProfile = JSON.parse(localStorage.getItem("userProfile"));
+userProfile = JSON.parse(localStorage.getItem("userProfile"));
 
 screenHistory = [];
+
+// Reset game state so next game starts fresh
+currentGame = null;
+playStyle = null;
+playerCount = null;
+players = [];
+teams = { A:[], B:[] };
+ledger = {};
+hole = 1;
+historyStack = [];
+
+// Reset play style and player count dropdowns to defaults
+playStyleBox.innerHTML = `
+<option value="ffa">Free For All</option>
+<option value="teams">Teams</option>
+`;
+playStyleBox.value = "ffa";
+playStyleBox.classList.remove("hidden");
+playStyleLabel.classList.remove("hidden");
+
+playerCountBox.innerHTML = `
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+`;
+playerCountBox.value = "4";
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+
+lockedNotice.classList.add("hidden");
 
 resetRoundSetup();
 document.getElementById("baseWager").value = "";
@@ -782,7 +813,7 @@ window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
 
 window.showRules = () => {
-const order = ["skins","vegas","nassau","wolf","baseball"];
+const order = ["skins","vegas","nassau","wolf","baseball","bingo"];
 const box = document.getElementById("rulesContent");
 if(box){
 box.innerHTML = order.map(key => {
@@ -1057,6 +1088,28 @@ lockedNotice.textContent = "Baseball is Home vs Away";
 
 }
 
+if(game === "bingo"){
+
+playStyle = "ffa";
+
+playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
+playStyleBox.value = "ffa";
+playStyleBox.classList.add("hidden");
+playStyleLabel.classList.add("hidden");
+
+playerCountBox.innerHTML = `
+<option value="2">2 Players</option>
+<option value="3">3 Players</option>
+<option value="4" selected>4 Players</option>
+`;
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "Bingo Bango Bongo is Free For All";
+
+}
+
 if(game==="vegas" || game==="nassau"){
 lockedNotice.classList.remove("hidden");
 
@@ -1067,7 +1120,7 @@ playerCountLabel.classList.add("hidden");
 
 playStyle="teams";
 playerCount=4;
-}else{
+}else if(game !== "wolf" && game !== "baseball" && game !== "bingo"){
 lockedNotice.classList.add("hidden");
 
 playStyleBox.classList.remove("hidden");
@@ -1111,6 +1164,10 @@ else if(game==="nassau"){
 document.getElementById("wagerLabel").textContent="";
 baseWagerWrapper.classList.add("hidden");
 }
+else if(game==="bingo"){
+document.getElementById("wagerLabel").textContent="Wager per point";
+baseWagerWrapper.classList.remove("hidden");
+}
 else{
 document.getElementById("wagerLabel").textContent="Wager per player";
 baseWagerWrapper.classList.remove("hidden");
@@ -1133,7 +1190,7 @@ buildPlayers();
 return;
 }
 
-if(currentGame === "wolf"){
+if(currentGame === "wolf" || currentGame === "bingo"){
 
 playStyle = "ffa";
 playerCount = parseInt(playerCountBox.value);
@@ -1322,6 +1379,8 @@ const wolfBox = document.getElementById("wolfBox");
 if(wolfBox) wolfBox.classList.toggle("hidden", currentGame !== "wolf");
 const baseballBox = document.getElementById("baseballBox");
 if(baseballBox) baseballBox.classList.toggle("hidden", currentGame !== "baseball");
+const bingoBox = document.getElementById("bingoBox");
+if(bingoBox) bingoBox.classList.toggle("hidden", currentGame !== "bingo");
 
 if(GAME_UI[currentGame]?.build){
 GAME_UI[currentGame].build({
@@ -1419,34 +1478,38 @@ sideWinners.appendChild(btn);
 function nextHole(){
 if(hole>=holeLimit){
 
-// 🔥 FORCE FRESH RENDER FROM DATA (NOT DOM)
 const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
+const topValue = ledger[sorted[0]];
+const winners = sorted.filter(p => ledger[p] === topValue && topValue > 0);
 
 leaderboardModalList.innerHTML = "";
 
-sorted.forEach(p=>{
-
-const value = ledger[p];
-
-const row = document.createElement("div");
-
-row.style.display = "flex";
-row.style.justifyContent = "space-between";
-row.style.padding = "10px 14px";
-row.style.marginBottom = "6px";
-row.style.borderRadius = "10px";
-row.style.fontWeight = "600";
-
-if(value > 0){
-row.style.color = "#2ecc71";
-}else if(value < 0){
-row.style.color = "#e74c3c";
-}else{
-row.style.color = "#ffffff";
+// Winner banner
+if(winners.length > 0){
+const banner = document.createElement("div");
+banner.className = "winner-banner";
+banner.innerHTML = `
+<div class="winner-crown">🏆</div>
+<div class="winner-name">${winners.join(" & ")}</div>
+<div class="winner-sub">Winner${winners.length > 1 ? "s" : ""}!</div>
+`;
+leaderboardModalList.appendChild(banner);
 }
 
+// Confetti burst
+spawnConfetti();
+
+sorted.forEach((p, i) => {
+
+const value = ledger[p];
+const isWinner = winners.includes(p);
+
+const row = document.createElement("div");
+row.className = "results-row" + (isWinner ? " results-row-winner" : "");
+row.style.animationDelay = `${i * 80}ms`;
+
 row.innerHTML = `
-<span>${p}</span>
+<span>${isWinner ? "🏆 " : ""}${p}</span>
 <span>${value>=0?"+":""}$${value.toFixed(2)}</span>
 `;
 
@@ -1492,6 +1555,10 @@ potDisplay.textContent=`$${baseWager}/point`;
 
 if(currentGame==="baseball"){
 potDisplay.textContent=`$${baseWager}/run`;
+}
+
+if(currentGame==="bingo"){
+potDisplay.textContent=`$${baseWager}/point`;
 }
 
 if(currentGame==="nassau"){
@@ -2462,6 +2529,36 @@ row.style.transform = "scale(1)";
 },200);
 
 });
+
+}
+
+/* ================= CONFETTI ================= */
+
+function spawnConfetti(){
+
+const colors = ["#2ecc71","#f1c40f","#e74c3c","#3498db","#9b59b6","#ffffff"];
+const container = document.getElementById("leaderboardModal");
+if(!container) return;
+
+for(let i = 0; i < 60; i++){
+
+const piece = document.createElement("div");
+piece.className = "confetti-piece";
+
+piece.style.left = Math.random() * 100 + "%";
+piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+piece.style.animationDuration = (0.8 + Math.random() * 1.2) + "s";
+piece.style.animationDelay = (Math.random() * 0.6) + "s";
+piece.style.width = (6 + Math.random() * 6) + "px";
+piece.style.height = (6 + Math.random() * 6) + "px";
+piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+
+container.appendChild(piece);
+
+// Remove after animation
+setTimeout(() => piece.remove(), 2500);
+
+}
 
 }
 

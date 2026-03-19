@@ -1,4 +1,4 @@
-const CACHE_NAME = "tee-box-bets-v157"; // bump version anytime you change files
+const CACHE_NAME = "tee-box-bets-v158"; // bump version anytime you change files
 
 const FILES_TO_CACHE = [
 "./",
@@ -12,6 +12,7 @@ const FILES_TO_CACHE = [
 "./games/nassau/engine.js",
 "./games/wolf/engine.js",
 "./games/baseball/engine.js",
+"./games/bingo/engine.js",
 
 // Game UI
 "./games/skins/ui.js",
@@ -19,6 +20,7 @@ const FILES_TO_CACHE = [
 "./games/nassau/ui.js",
 "./games/wolf/ui.js",
 "./games/baseball/ui.js",
+"./games/bingo/ui.js",
 
 // Game Rules
 "./games/skins/rules.js",
@@ -26,6 +28,7 @@ const FILES_TO_CACHE = [
 "./games/nassau/rules.js",
 "./games/wolf/rules.js",
 "./games/baseball/rules.js",
+"./games/bingo/rules.js",
 
 // Shared
 "./games/sidebets.js",
