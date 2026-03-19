@@ -597,6 +597,7 @@ const headerMap = {
 "step-teams": "Teams",
 "step-players": "Players",
 "step-settings": "Wager Settings",
+"step-dots": "Choose Dots",
 
 "game-screen": "Live Game",
 
@@ -622,6 +623,7 @@ currentGame === "nassau" ? "Nassau" :
 currentGame === "wolf" ? "Wolf" :
 currentGame === "baseball" ? "Baseball" :
 currentGame === "bingo" ? "Bingo Bango Bongo" :
+currentGame === "dots" ? "Dots" :
 "Game";
 
 title.textContent = `${gameName} – Hole ${hole}`;
@@ -813,7 +815,7 @@ window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
 
 window.showRules = () => {
-const order = ["skins","vegas","nassau","wolf","baseball","bingo"];
+const order = ["skins","vegas","nassau","wolf","baseball","bingo","dots"];
 const box = document.getElementById("rulesContent");
 if(box){
 box.innerHTML = order.map(key => {
@@ -1110,6 +1112,50 @@ lockedNotice.textContent = "Bingo Bango Bongo is Free For All";
 
 }
 
+if(game === "dots"){
+
+playStyle = "ffa";
+
+playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
+playStyleBox.value = "ffa";
+playStyleBox.classList.add("hidden");
+playStyleLabel.classList.add("hidden");
+
+playerCountBox.innerHTML = `
+<option value="2">2 Players</option>
+<option value="3">3 Players</option>
+<option value="4" selected>4 Players</option>
+`;
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "Dots is Free For All";
+
+}
+
+if(game === "dots"){
+
+playStyle = "ffa";
+
+playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
+playStyleBox.value = "ffa";
+playStyleBox.classList.add("hidden");
+playStyleLabel.classList.add("hidden");
+
+playerCountBox.innerHTML = `
+<option value="2">2 Players</option>
+<option value="3">3 Players</option>
+<option value="4" selected>4 Players</option>
+`;
+playerCountBox.classList.remove("hidden");
+playerCountLabel.classList.remove("hidden");
+
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "Dots is Free For All";
+
+}
+
 if(game==="vegas" || game==="nassau"){
 lockedNotice.classList.remove("hidden");
 
@@ -1120,7 +1166,7 @@ playerCountLabel.classList.add("hidden");
 
 playStyle="teams";
 playerCount=4;
-}else if(game !== "wolf" && game !== "baseball" && game !== "bingo"){
+}else if(game !== "wolf" && game !== "baseball" && game !== "bingo" && game !== "dots"){
 lockedNotice.classList.add("hidden");
 
 playStyleBox.classList.remove("hidden");
@@ -1168,6 +1214,10 @@ else if(game==="bingo"){
 document.getElementById("wagerLabel").textContent="Wager per point";
 baseWagerWrapper.classList.remove("hidden");
 }
+else if(game==="dots"){
+document.getElementById("wagerLabel").textContent="Wager per dot";
+baseWagerWrapper.classList.remove("hidden");
+}
 else{
 document.getElementById("wagerLabel").textContent="Wager per player";
 baseWagerWrapper.classList.remove("hidden");
@@ -1190,7 +1240,7 @@ buildPlayers();
 return;
 }
 
-if(currentGame === "wolf" || currentGame === "bingo"){
+if(currentGame === "wolf" || currentGame === "bingo" || currentGame === "dots"){
 
 playStyle = "ffa";
 playerCount = parseInt(playerCountBox.value);
@@ -1272,9 +1322,126 @@ show("step-players");
 }
 
 
-window.nextSettings=()=>show("step-settings");
+window.nextSettings = () => {
+show("step-settings");
+};
 
-/* ================= HISTORY ================= */
+/* ================= DOT PICKER ================= */
+
+const DEFAULT_DOTS = [
+{ key:"birdie",    label:"Birdie",        value:1, single:false, on:true },
+{ key:"eagle",     label:"Eagle",         value:2, single:false, on:true },
+{ key:"gir",       label:"GIR",           value:1, single:false, on:true },
+{ key:"fir",       label:"FIR",           value:1, single:false, on:true },
+{ key:"oneputt",   label:"One Putt",      value:1, single:false, on:true },
+{ key:"holeout",   label:"Hole Out",      value:2, single:false, on:true },
+{ key:"sandsave",  label:"Sand Save",     value:1, single:false, on:true },
+{ key:"longdrive", label:"Long Drive",    value:1, single:true,  on:true },
+{ key:"longputt",  label:"Longest Putt",  value:1, single:true,  on:true },
+{ key:"ctp",       label:"CTP",           value:1, single:true,  on:true },
+{ key:"lowscore",  label:"Low Score",     value:1, single:true,  on:true },
+];
+
+let dotPickerState = [];
+
+function buildDotPicker(){
+const customs = dotPickerState.filter(d => d.custom);
+dotPickerState = DEFAULT_DOTS.map(d => ({ ...d })).concat(customs);
+renderDotPicker();
+}
+
+function renderDotPicker(){
+const list = document.getElementById("dotPickerList");
+if(!list) return;
+list.innerHTML = "";
+
+dotPickerState.forEach((dot, i) => {
+const row = document.createElement("div");
+row.style.cssText = "display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);";
+
+// Pill toggle
+const toggleWrap = document.createElement("label");
+toggleWrap.style.cssText = "position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer;";
+const checkbox = document.createElement("input");
+checkbox.type    = "checkbox";
+checkbox.checked = dot.on;
+checkbox.style.cssText = "opacity:0;width:0;height:0;position:absolute;";
+checkbox.onchange = () => { dotPickerState[i].on = checkbox.checked; slider.style.background = checkbox.checked ? "#2ecc71" : "rgba(255,255,255,.2)"; knob.style.transform = checkbox.checked ? "translateX(20px)" : "translateX(2px)"; };
+const slider = document.createElement("div");
+slider.style.cssText = `position:absolute;inset:0;border-radius:24px;background:${dot.on?"#2ecc71":"rgba(255,255,255,.2)"};transition:background .2s;`;
+const knob = document.createElement("div");
+knob.style.cssText = `position:absolute;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;transform:${dot.on?"translateX(20px)":"translateX(2px)"};`;
+slider.appendChild(knob);
+toggleWrap.appendChild(checkbox);
+toggleWrap.appendChild(slider);
+
+const lbl = document.createElement("div");
+lbl.style.cssText = "flex:1;font-weight:600;font-size:14px;";
+lbl.textContent   = dot.label + (dot.single ? " ⚡" : "");
+
+const val = document.createElement("div");
+val.style.cssText = "font-size:12px;opacity:.6;white-space:nowrap;";
+val.textContent   = dot.value + " dot" + (dot.value !== 1 ? "s" : "");
+
+row.appendChild(toggleWrap);
+row.appendChild(lbl);
+row.appendChild(val);
+
+if(dot.custom){
+const del = document.createElement("button");
+del.textContent   = "✕";
+del.style.cssText = "padding:4px 10px;font-size:13px;background:rgba(200,50,50,.4);";
+del.onclick       = () => { dotPickerState.splice(i, 1); renderDotPicker(); };
+row.appendChild(del);
+}
+
+list.appendChild(row);
+});
+}
+
+window.addCustomDot = () => {
+const name  = document.getElementById("customDotName").value.trim();
+const value = parseFloat(document.getElementById("customDotValue").value);
+if(!name)           return alert("Enter a dot name");
+if(!value || value <= 0) return alert("Enter a valid dot value");
+dotPickerState.push({ key:"custom_"+Date.now(), label:name, value, single:false, on:true, custom:true });
+document.getElementById("customDotName").value  = "";
+document.getElementById("customDotValue").value = "";
+renderDotPicker();
+};
+
+window.startDotsRound = () => {
+const active = dotPickerState.filter(d => d.on);
+if(!active.length) return alert("Select at least one dot");
+
+dotsGame.reset();
+dotsGame.initPlayers(players);
+dotsGame.setWager(baseWager);
+dotsGame.setActiveDots(active);
+
+holeLimit = +document.getElementById("holeLimit")?.value || 9;
+
+// Hide all game boxes, show dots
+["skinsBox","vegasBox","nassauBox","wolfBox","baseballBox","bingoBox","dotsBox"]
+.forEach(id => {
+const el = document.getElementById(id);
+if(el) el.classList.add("hidden");
+});
+document.getElementById("dotsBox")?.classList.remove("hidden");
+
+if(GAME_UI["dots"]?.build){
+GAME_UI["dots"].build({ players, teams, ledger, baseWager });
+}
+
+teamAPlayers.textContent = `Players: ${players.join(", ")}`;
+teamBPlayers.textContent = "";
+
+document.getElementById("leaderboardWrapper").classList.add("collapsed");
+document.getElementById("leaderboardWrapper").classList.add("hidden");
+document.getElementById("leaderboardHeader").classList.add("hidden");
+updateUI();
+show("game-screen");
+};
 
 function saveState(){
 
@@ -1334,7 +1501,6 @@ document.getElementById("birdieFlip").checked=false;
 
 document.querySelectorAll("#teamAInputs input").forEach(i=>{
 if(!i.value) return;
-
 players.push(i.value);
 ledger[i.value]=0;
 teams.A.push(i.value);
@@ -1342,11 +1508,18 @@ teams.A.push(i.value);
 
 document.querySelectorAll("#teamBInputs input").forEach(i=>{
 if(!i.value) return;
-
 players.push(i.value);
 ledger[i.value]=0;
 teams.B.push(i.value);
 });
+
+// Dots: collect wager then go to dot picker
+if(currentGame === "dots"){
+baseWager = +document.getElementById("baseWager").value;
+buildDotPicker();
+show("dot-picker");
+return;
+}
 
 // ✅ BASEBALL ONLY TEAM NAMES
 if(currentGame === "baseball"){
@@ -1381,6 +1554,8 @@ const baseballBox = document.getElementById("baseballBox");
 if(baseballBox) baseballBox.classList.toggle("hidden", currentGame !== "baseball");
 const bingoBox = document.getElementById("bingoBox");
 if(bingoBox) bingoBox.classList.toggle("hidden", currentGame !== "bingo");
+const dotsBox = document.getElementById("dotsBox");
+if(dotsBox) dotsBox.classList.toggle("hidden", currentGame !== "dots");
 
 if(GAME_UI[currentGame]?.build){
 GAME_UI[currentGame].build({
@@ -1420,6 +1595,14 @@ i.value = "";
 });
 updateUI();
 document.getElementById("leaderboardWrapper").classList.add("collapsed");
+// Hide money leaderboard entirely for dots/bingo — it doesn't update mid-round
+if(currentGame === "bingo" || currentGame === "dots"){
+document.getElementById("leaderboardWrapper").classList.add("hidden");
+document.getElementById("leaderboardHeader").classList.add("hidden");
+} else {
+document.getElementById("leaderboardWrapper").classList.remove("hidden");
+document.getElementById("leaderboardHeader").classList.remove("hidden");
+}
 show("game-screen");
 };
 /* ================= SIDE BET ================= */
@@ -1524,7 +1707,15 @@ hole++;
 if(GAME_UI[currentGame]?.onHoleChange){
 GAME_UI[currentGame].onHoleChange(hole);
 }
+// Dots and Bingo settle at end — money leaderboard stays hidden during round
+if(currentGame === "bingo" || currentGame === "dots"){
+document.getElementById("leaderboardWrapper").classList.add("hidden");
+document.getElementById("leaderboardHeader").classList.add("hidden");
+} else {
 document.getElementById("leaderboardWrapper").classList.remove("collapsed");
+document.getElementById("leaderboardWrapper").classList.remove("hidden");
+document.getElementById("leaderboardHeader").classList.remove("hidden");
+}
 // Scroll game screen back to top
 document.getElementById("game-screen")?.scrollTo({ top: 0, behavior: "smooth" });
 updateUI();
@@ -1561,6 +1752,14 @@ potDisplay.textContent=`$${baseWager}/run`;
 
 if(currentGame==="bingo"){
 potDisplay.textContent=`$${baseWager}/point`;
+}
+
+if(currentGame==="dots"){
+potDisplay.textContent=`$${baseWager}/dot`;
+}
+
+if(currentGame==="dots"){
+potDisplay.textContent=`$${baseWager}/dot`;
 }
 
 if(currentGame==="nassau"){

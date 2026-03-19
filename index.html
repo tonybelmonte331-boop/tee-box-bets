@@ -282,6 +282,11 @@ End Round (Discard)
 <div class="game-title">Bingo Bango Bongo</div>
 </div>
 
+<div class="game-card" onclick="selectGame('dots')">
+<img src="icons/games/dots.png" class="game-icon">
+<div class="game-title">Dots</div>
+</div>
+
 </div>
 
 <button onclick="showRules()">Rules</button>
@@ -376,6 +381,34 @@ This game is played with two teams of 2
 <button onclick="startRound()">Start</button>
 </section>
 
+<!-- ===== DOT PICKER ===== -->
+
+<section id="dot-picker" class="hidden">
+
+<h3>Choose Your Dots</h3>
+<p style="font-size:13px;opacity:.7;margin-bottom:16px;">Select which dots are active this round</p>
+
+<div id="dotPickerList"></div>
+
+<div style="margin-top:16px;">
+<h4>Add Custom Dot</h4>
+<input id="customDotName" placeholder="Dot name (e.g. Chip-in)">
+<div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+<label style="font-size:13px;">Dot value:</label>
+<select id="customDotValue">
+<option value="1">1 dot</option>
+<option value="2">2 dots</option>
+<option value="3">3 dots</option>
+</select>
+<button onclick="addCustomDot()">Add</button>
+</div>
+<div id="customDotList" style="margin-top:10px;"></div>
+</div>
+
+<button style="margin-top:20px;" onclick="startDotsRound()">Start Round</button>
+
+</section>
+
 <!-- ===== GAME SCREEN ===== -->
 
 <section id="game-screen" class="hidden">
@@ -465,6 +498,10 @@ Birdie (2x Runs)
 
 <div id="bingoBox" class="game-card hidden">
 <!-- Built dynamically by bingo/ui.js -->
+</div>
+
+<div id="dotsBox" class="game-card hidden">
+<!-- Built dynamically by dots/ui.js -->
 </div>
 
 <button id="sideBetBtn" class="hidden">Side Bet</button>
@@ -620,6 +657,7 @@ Save Course
 <script src="games/wolf/engine.js"></script>
 <script src="games/baseball/engine.js"></script>
 <script src="games/bingo/engine.js"></script>
+<script src="games/dots/engine.js"></script>
 
 <!--GAME UI-->
 <script src="games/skins/ui.js"></script>
@@ -628,6 +666,7 @@ Save Course
 <script src="games/wolf/ui.js"></script>
 <script src="games/baseball/ui.js"></script>
 <script src="games/bingo/ui.js"></script>
+<script src="games/dots/ui.js"></script>
 
 <!--GAME RULES-->
 <script src="games/skins/rules.js"></script>
@@ -636,6 +675,7 @@ Save Course
 <script src="games/wolf/rules.js"></script>
 <script src="games/baseball/rules.js"></script>
 <script src="games/bingo/rules.js"></script>
+<script src="games/dots/rules.js"></script>
 
 <!--SHARED SYSTEMS-->
 <script src="games/sidebets.js"></script>

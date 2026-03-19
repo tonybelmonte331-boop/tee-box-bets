@@ -134,6 +134,22 @@ overflow:hidden;
 
 #game-screen{
 overflow-y:auto;
+flex:1;
+min-height:0;
+}
+
+/* All setup/flow screens need to scroll on small phones */
+#step-game,
+#step-style,
+#step-teams,
+#step-players,
+#step-settings,
+#dot-picker,
+#rules-screen{
+overflow-y:auto;
+flex:1;
+min-height:0;
+-webkit-overflow-scrolling:touch;
 }
 
 #round-setup{
@@ -150,6 +166,7 @@ overflow-y:auto;
 -webkit-overflow-scrolling:touch;
 
 flex:1;
+min-height:0;
 }
 
 /* allow scrolling when modal open */
@@ -1472,4 +1489,25 @@ background: linear-gradient(135deg, #1a7a4f, #2ecc71) !important;
 box-shadow: 0 0 0 2px #2ecc71, 0 4px 14px rgba(46,204,113,.4) !important;
 color: #fff !important;
 transform: scale(1.04);
+}
+
+/* ===== DOT PICKER ===== */
+
+.dot-picker-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 14px;
+margin-bottom: 8px;
+background: rgba(255,255,255,.06);
+border-radius: 12px;
+gap: 12px;
+}
+
+.dot-toggle {
+width: 22px;
+height: 22px;
+min-width: 22px;
+accent-color: #2ecc71;
+cursor: pointer;
 }
