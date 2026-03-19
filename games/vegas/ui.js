@@ -6,9 +6,21 @@ registerGameUI("vegas", {
     this.ledger    = ledger;
     this.baseWager = baseWager;
 
-    // Labels already in HTML via teamAPlayers / teamBPlayers
-    // Wire the finish button
+    this.setupInputs();
     window.finishVegasHole = () => this.finishHole();
+  },
+
+  setupInputs() {
+    // Set placeholders to player names so inputs are clearly labelled
+    const a1 = document.getElementById("a1");
+    const a2 = document.getElementById("a2");
+    const b1 = document.getElementById("b1");
+    const b2 = document.getElementById("b2");
+
+    if(a1) a1.placeholder = this.teams.A[0] || "A1";
+    if(a2) a2.placeholder = this.teams.A[1] || "A2";
+    if(b1) b1.placeholder = this.teams.B[0] || "B1";
+    if(b2) b2.placeholder = this.teams.B[1] || "B2";
   },
 
   finishHole() {
@@ -19,21 +31,13 @@ registerGameUI("vegas", {
 
     if (!a1 || !b1) return;
 
-    // 2-player mode: a2/b2 may be 0 — treat as single score
-    const isTeams = this.teams.A.length > 1;
-
-    const scoreA1 = a1;
-    const scoreA2 = isTeams ? a2 : a1;
-    const scoreB1 = b1;
-    const scoreB2 = isTeams ? b2 : b1;
-
     const flip  = document.getElementById("birdieFlip").checked;
     const wager = baseWager;
 
     saveState();
 
-    const winner = vegasGame.winner(scoreA1, scoreA2, scoreB1, scoreB2);
-    const payout = vegasGame.calculate(scoreA1, scoreA2, scoreB1, scoreB2, wager, flip);
+    const winner = vegasGame.winner(a1, a2, b1, b2);
+    const payout = vegasGame.calculate(a1, a2, b1, b2, wager, flip);
 
     if (payout > 0) {
       const loser = winner === "A" ? "B" : "A";
@@ -41,7 +45,7 @@ registerGameUI("vegas", {
       teams[loser].forEach(p  => ledger[p] -= payout);
     }
 
-    // Clear inputs
+    // Clear values but keep placeholders
     ["a1","a2","b1","b2"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = "";

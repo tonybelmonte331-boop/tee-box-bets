@@ -788,12 +788,7 @@ if(box){
 box.innerHTML = order.map(key => {
 const r = GAME_RULES[key];
 if(!r) return "";
-return `
-<div class="rules-block">
-<h3>${r.icon || ""} ${r.title}</h3>
-${r.description}
-</div>
-`;
+return `<div class="rules-block"><h3>${r.icon || ""} ${r.title}</h3>${r.description}</div>`;
 }).join('<hr class="rules-divider">');
 }
 show("rules-screen");
@@ -1106,12 +1101,19 @@ holeLimitSelect.classList.remove("hidden");
 
 if(game==="vegas"){
 document.getElementById("wagerLabel").textContent="Wager per point";
+baseWagerWrapper.classList.remove("hidden");
 }
 else if(game==="baseball"){
 document.getElementById("wagerLabel").textContent="Wager per Run";
+baseWagerWrapper.classList.remove("hidden");
+}
+else if(game==="nassau"){
+document.getElementById("wagerLabel").textContent="";
+baseWagerWrapper.classList.add("hidden");
 }
 else{
 document.getElementById("wagerLabel").textContent="Wager per player";
+baseWagerWrapper.classList.remove("hidden");
 }
 
 if(game==="wolf"){
@@ -1317,10 +1319,9 @@ skinsBox.classList.toggle("hidden",currentGame!=="skins");
 vegasBox.classList.toggle("hidden",currentGame!=="vegas");
 nassauBox.classList.toggle("hidden",currentGame!=="nassau");
 const wolfBox = document.getElementById("wolfBox");
-
-if(wolfBox){
-wolfBox.classList.toggle("hidden", currentGame !== "wolf");
-}
+if(wolfBox) wolfBox.classList.toggle("hidden", currentGame !== "wolf");
+const baseballBox = document.getElementById("baseballBox");
+if(baseballBox) baseballBox.classList.toggle("hidden", currentGame !== "baseball");
 
 if(GAME_UI[currentGame]?.build){
 GAME_UI[currentGame].build({
@@ -1354,7 +1355,10 @@ teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
 }
 
-document.querySelectorAll("#game-screen input").forEach(i => i.value = "");
+document.querySelectorAll("#game-screen input").forEach(i => {
+if(["a1","a2","b1","b2"].includes(i.id)) return;
+i.value = "";
+});
 updateUI();
 document.getElementById("leaderboardWrapper").classList.add("collapsed");
 show("game-screen");
@@ -1480,6 +1484,14 @@ holeDisplay.textContent=`Hole ${hole}`;
 
 if(currentGame==="skins"){
 potDisplay.textContent=`$${skinsGame.currentPot()}/player`;
+}
+
+if(currentGame==="vegas"){
+potDisplay.textContent=`$${baseWager}/point`;
+}
+
+if(currentGame==="baseball"){
+potDisplay.textContent=`$${baseWager}/run`;
 }
 
 if(currentGame==="nassau"){
@@ -2393,10 +2405,10 @@ document.getElementById("roundDetailModal").classList.add("hidden");
 
 window.openBaseballScoreboard = () => {
 
-const data = GAME_ENGINES.baseball.getScoreboard();
+const innings = GAME_ENGINES.baseball.getScoreboard();
 
-let awayTotal = data.away.reduce((a,b)=>a+b,0);
-let homeTotal = data.home.reduce((a,b)=>a+b,0);
+const awayTotal = innings.reduce((a,inn) => a + (inn.away ?? 0), 0);
+const homeTotal = innings.reduce((a,inn) => a + (inn.home ?? 0), 0);
 
 let html = `
 <div class="mlb-scoreboard">
@@ -2409,13 +2421,13 @@ ${[1,2,3,4,5,6,7,8,9].map(i=>`<div>${i}</div>`).join("")}
 
 <div class="mlb-row">
 <div class="team-name">${teams.A.join("/")}</div>
-${data.away.map(r=>`<div>${r ?? 0}</div>`).join("")}
+${innings.map(inn=>`<div>${inn.away !== null ? inn.away : ""}</div>`).join("")}
 <div class="runs">${awayTotal}</div>
 </div>
 
 <div class="mlb-row">
 <div class="team-name">${teams.B.join("/")}</div>
-${data.home.map(r=>`<div>${r ?? 0}</div>`).join("")}
+${innings.map(inn=>`<div>${inn.home !== null ? inn.home : ""}</div>`).join("")}
 <div class="runs">${homeTotal}</div>
 </div>
 
@@ -2423,9 +2435,7 @@ ${data.home.map(r=>`<div>${r ?? 0}</div>`).join("")}
 `;
 
 document.getElementById("baseballScoreboardTable").innerHTML = html;
-
-document.getElementById("baseballScoreboardModal")
-.classList.remove("hidden");
+document.getElementById("baseballScoreboardModal").classList.remove("hidden");
 
 };
 

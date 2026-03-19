@@ -1,71 +1,75 @@
-const baseballGame = {
+const baseballGame = window.baseballGame = (()=>{
 
-awayRuns:[0,0,0,0,0,0,0,0,0],
-homeRuns:[0,0,0,0,0,0,0,0,0],
+// 9 innings, each stored as { away: runs, home: runs } or null if not yet played
+let innings = Array(9).fill(null).map(() => ({ away: null, home: null }));
 
-reset(){
-this.awayRuns=[0,0,0,0,0,0,0,0,0];
-this.homeRuns=[0,0,0,0,0,0,0,0,0];
-},
+function reset(){
+innings = Array(9).fill(null).map(() => ({ away: null, home: null }));
+}
 
-recordHole(hole,scoreA,scoreB,birdie,wager,teams,ledger){
+/*
+  hole  = 1-18 (1-indexed)
+  odd holes  = top of inning   (Away bats)
+  even holes = bottom of inning (Home bats)
 
-const inning=Math.ceil(hole/2);
-const isTop=hole%2===1;
+  1v1:  scoreA/scoreB = individual strokes
+  2v2:  scoreA/scoreB = combined team strokes (passed in already summed from ui.js)
 
-let runs=0;
+  Only the BATTING team can score runs.
+  Runs = opponent score - batting team score  (if positive, else 0)
+  Birdie = runs × 2
+*/
+function recordHole(hole, scoreA, scoreB, birdie, wager, teams, ledger){
+
+const inning  = Math.ceil(hole / 2) - 1; // 0-indexed
+const isTop   = hole % 2 === 1;           // odd = Away bats
+
+let runs = 0;
 
 if(isTop){
-if(scoreA<scoreB){
-runs=Math.abs(scoreB-scoreA);
-}
-}else{
-if(scoreB<scoreA){
-runs=Math.abs(scoreA-scoreB);
-}
-}
+// Away is batting — Away scores if their strokes < Home strokes
+runs = Math.max(scoreB - scoreA, 0);
+if(birdie && runs > 0) runs *= 2;
+innings[inning].away = runs;
 
-if(birdie) runs*=2;
-
-if(runs===0) return;
-
-if(isTop){
-
-this.awayRuns[inning-1]=runs;
-
-teams.B.forEach(p=>ledger[p]-=runs*wager);
-teams.A.forEach(p=>ledger[p]+=runs*wager);
-
-}else{
-
-this.homeRuns[inning-1]=runs;
-
-teams.A.forEach(p=>ledger[p]-=runs*wager);
-teams.B.forEach(p=>ledger[p]+=runs*wager);
-
+if(runs > 0){
+teams.A.forEach(p => ledger[p] += runs * wager);
+teams.B.forEach(p => ledger[p] -= runs * wager);
 }
 
-},
+} else {
+// Home is batting — Home scores if their strokes < Away strokes
+runs = Math.max(scoreA - scoreB, 0);
+if(birdie && runs > 0) runs *= 2;
+innings[inning].home = runs;
 
-getScoreboard(){
-return{
-away:this.awayRuns,
-home:this.homeRuns
-};
-},
-
-getState(){
-return{
-awayRuns:[...this.awayRuns],
-homeRuns:[...this.homeRuns]
-};
-},
-
-setState(state){
-this.awayRuns=[...state.awayRuns];
-this.homeRuns=[...state.homeRuns];
+if(runs > 0){
+teams.B.forEach(p => ledger[p] += runs * wager);
+teams.A.forEach(p => ledger[p] -= runs * wager);
+}
+}
 }
 
+function getScoreboard(){
+return innings;
+}
+
+function getState(){
+return { innings: JSON.parse(JSON.stringify(innings)) };
+}
+
+function setState(state){
+innings = JSON.parse(JSON.stringify(state.innings));
+}
+
+return {
+reset,
+recordHole,
+getScoreboard,
+getState,
+setState
 };
 
-registerGame("baseball",baseballGame);
+})();
+
+registerGame("baseball", baseballGame);

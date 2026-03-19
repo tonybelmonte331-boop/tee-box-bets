@@ -17,14 +17,11 @@ document.getElementById(id)?.classList.add("hidden");
 });
 
 const box = boxes[game];
+if(box) document.getElementById(box).classList.remove("hidden");
 
-if(box){
-document.getElementById(box).classList.remove("hidden");
-}
-
-
+// Pass baseWager so engines like skins can set their base pot correctly
 if(GAME_ENGINES[game]?.reset){
-GAME_ENGINES[game].reset();
+GAME_ENGINES[game].reset(baseWager);
 }
 
 if(GAME_UI[game]?.build){
