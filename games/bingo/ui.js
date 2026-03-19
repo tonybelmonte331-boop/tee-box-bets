@@ -5,7 +5,6 @@ registerGameUI("bingo", {
     this.ledger    = ledger;
     this.baseWager = baseWager;
 
-    // Initialize point tracking for this set of players
     bingoGame.initPlayers(players);
     this.renderFull();
   },
@@ -33,7 +32,12 @@ registerGameUI("bingo", {
 
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Next Hole";
-    nextBtn.onclick = () => nextHole();
+    nextBtn.onclick = () => {
+      // Scroll to top before advancing
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
+      nextHole();
+    };
 
     const undoBtn = document.createElement("button");
     undoBtn.className = "undo-btn";
@@ -98,23 +102,66 @@ registerGameUI("bingo", {
     const btnRow = document.createElement("div");
     btnRow.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
 
+    // Track selected button per section so only one can be highlighted at a time
+    let selectedBtn = null;
+
     this.players.forEach(p => {
       const btn = document.createElement("button");
       btn.textContent = p;
       btn.style.cssText = "flex:1;min-width:80px;";
+      btn.dataset.player = p;
+
       btn.onclick = () => {
+        // Deselect previous in this section
+        if (selectedBtn && selectedBtn !== btn) {
+          selectedBtn.classList.remove("bingo-selected");
+          // Undo the previous award for this section
+          const prev = selectedBtn.dataset.player;
+          const opponents = players.filter(op => op !== prev);
+          opponents.forEach(op => ledger[op] += baseWager);
+          ledger[prev] -= baseWager * opponents.length;
+          bingoGame.getPoints()[prev] = Math.max(0, (bingoGame.getPoints()[prev] || 0) - 1);
+        }
+
+        if (selectedBtn === btn) {
+          // Clicking same button again deselects
+          btn.classList.remove("bingo-selected");
+          const opponents = players.filter(op => op !== p);
+          opponents.forEach(op => ledger[op] += baseWager);
+          ledger[p] -= baseWager * opponents.length;
+          bingoGame.getPoints()[p] = Math.max(0, (bingoGame.getPoints()[p] || 0) - 1);
+          selectedBtn = null;
+          this.updateTally();
+          return;
+        }
+
         saveState();
         bingoGame.awardPoint(p, players, baseWager, ledger);
+        btn.classList.add("bingo-selected");
+        selectedBtn = btn;
         this.updateTally();
-        updateUI();
+        // Don't call updateUI() — leaderboard updates on Next Hole
       };
+
       btnRow.appendChild(btn);
     });
 
     const noneBtn = document.createElement("button");
     noneBtn.textContent = "No Award";
     noneBtn.style.cssText = "flex:1;min-width:80px;background:rgba(255,255,255,.1);";
-    noneBtn.onclick = () => {};
+    noneBtn.onclick = () => {
+      // Deselect any selected button in this section
+      if (selectedBtn) {
+        selectedBtn.classList.remove("bingo-selected");
+        const prev = selectedBtn.dataset.player;
+        const opponents = players.filter(op => op !== prev);
+        opponents.forEach(op => ledger[op] += baseWager);
+        ledger[prev] -= baseWager * opponents.length;
+        bingoGame.getPoints()[prev] = Math.max(0, (bingoGame.getPoints()[prev] || 0) - 1);
+        selectedBtn = null;
+        this.updateTally();
+      }
+    };
     btnRow.appendChild(noneBtn);
 
     section.appendChild(btnRow);
@@ -123,9 +170,15 @@ registerGameUI("bingo", {
 
   onHoleChange() {
     this.renderFull();
+    // Now update leaderboard after hole advances
+    updateUI();
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
   },
 
   update() {
+    // Only update tally, not full leaderboard during hole
     this.updateTally();
   }
 
