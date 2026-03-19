@@ -1525,9 +1525,8 @@ if(GAME_UI[currentGame]?.onHoleChange){
 GAME_UI[currentGame].onHoleChange(hole);
 }
 document.getElementById("leaderboardWrapper").classList.remove("collapsed");
-// Scroll to top so next hole starts fresh
-window.scrollTo({ top: 0, behavior: "smooth" });
-document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
+// Scroll game screen back to top
+document.getElementById("game-screen")?.scrollTo({ top: 0, behavior: "smooth" });
 updateUI();
 }
 

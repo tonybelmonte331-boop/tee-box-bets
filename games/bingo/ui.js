@@ -1,10 +1,9 @@
 registerGameUI("bingo", {
 
   build({ players, teams, ledger, baseWager }) {
-    this.players   = players;
-    this.ledger    = ledger;
-    this.baseWager = baseWager;
-
+    this.players    = players;
+    this.ledger     = ledger;
+    this.baseWager  = baseWager;
     bingoGame.initPlayers(players);
     this.renderFull();
   },
@@ -17,13 +16,16 @@ registerGameUI("bingo", {
     box.appendChild(this.buildTally());
 
     const pointDefs = [
-      { label: "🟢 Bingo", sub: "First player to reach the green" },
-      { label: "📍 Bango", sub: "Closest to the pin once all are on the green" },
-      { label: "🏆 Bongo", sub: "First player to hole out" },
+      { key: "bingo", label: "🟢 Bingo", sub: "First player to reach the green" },
+      { key: "bango", label: "📍 Bango", sub: "Closest to the pin once all are on the green" },
+      { key: "bongo", label: "🏆 Bongo", sub: "First player to hole out" },
     ];
 
-    pointDefs.forEach(({ label, sub }) => {
-      box.appendChild(this.buildPointSection(label, sub));
+    // selections = { bingo: playerName|"none"|null, bango: ..., bongo: ... }
+    const selections = { bingo: null, bango: null, bongo: null };
+
+    pointDefs.forEach(({ key, label, sub }) => {
+      box.appendChild(this.buildPointSection(key, label, sub, selections));
     });
 
     const actions = document.createElement("div");
@@ -33,9 +35,15 @@ registerGameUI("bingo", {
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Next Hole";
     nextBtn.onclick = () => {
-      // Scroll to top before advancing
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
+      saveState();
+
+      // Apply all 3 selections to ledger at once
+      Object.values(selections).forEach(winner => {
+        if (winner && winner !== "none") {
+          bingoGame.awardPoint(winner, players, baseWager, ledger);
+        }
+      });
+
       nextHole();
     };
 
@@ -69,7 +77,6 @@ registerGameUI("bingo", {
       background:rgba(255,255,255,.06);
       border-radius:12px;
     `;
-
     this.players.forEach(p => {
       const col = document.createElement("div");
       col.style.cssText = "text-align:center;min-width:0;";
@@ -80,11 +87,10 @@ registerGameUI("bingo", {
       `;
       tally.appendChild(col);
     });
-
     return tally;
   },
 
-  buildPointSection(label, sub) {
+  buildPointSection(key, label, sub, selections) {
     const section = document.createElement("div");
     section.style.cssText = "margin-bottom:14px;";
 
@@ -102,66 +108,31 @@ registerGameUI("bingo", {
     const btnRow = document.createElement("div");
     btnRow.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
 
-    // Track selected button per section so only one can be highlighted at a time
-    let selectedBtn = null;
+    // All buttons in this section — used to clear highlights
+    const allBtns = [];
 
+    const selectBtn = (btn, value) => {
+      allBtns.forEach(b => b.classList.remove("bingo-selected"));
+      btn.classList.add("bingo-selected");
+      selections[key] = value;
+    };
+
+    // Player buttons
     this.players.forEach(p => {
       const btn = document.createElement("button");
       btn.textContent = p;
       btn.style.cssText = "flex:1;min-width:80px;";
-      btn.dataset.player = p;
-
-      btn.onclick = () => {
-        // Deselect previous in this section
-        if (selectedBtn && selectedBtn !== btn) {
-          selectedBtn.classList.remove("bingo-selected");
-          // Undo the previous award for this section
-          const prev = selectedBtn.dataset.player;
-          const opponents = players.filter(op => op !== prev);
-          opponents.forEach(op => ledger[op] += baseWager);
-          ledger[prev] -= baseWager * opponents.length;
-          bingoGame.getPoints()[prev] = Math.max(0, (bingoGame.getPoints()[prev] || 0) - 1);
-        }
-
-        if (selectedBtn === btn) {
-          // Clicking same button again deselects
-          btn.classList.remove("bingo-selected");
-          const opponents = players.filter(op => op !== p);
-          opponents.forEach(op => ledger[op] += baseWager);
-          ledger[p] -= baseWager * opponents.length;
-          bingoGame.getPoints()[p] = Math.max(0, (bingoGame.getPoints()[p] || 0) - 1);
-          selectedBtn = null;
-          this.updateTally();
-          return;
-        }
-
-        saveState();
-        bingoGame.awardPoint(p, players, baseWager, ledger);
-        btn.classList.add("bingo-selected");
-        selectedBtn = btn;
-        this.updateTally();
-        // Don't call updateUI() — leaderboard updates on Next Hole
-      };
-
+      btn.onclick = () => selectBtn(btn, p);
+      allBtns.push(btn);
       btnRow.appendChild(btn);
     });
 
+    // No Award button
     const noneBtn = document.createElement("button");
     noneBtn.textContent = "No Award";
-    noneBtn.style.cssText = "flex:1;min-width:80px;background:rgba(255,255,255,.1);";
-    noneBtn.onclick = () => {
-      // Deselect any selected button in this section
-      if (selectedBtn) {
-        selectedBtn.classList.remove("bingo-selected");
-        const prev = selectedBtn.dataset.player;
-        const opponents = players.filter(op => op !== prev);
-        opponents.forEach(op => ledger[op] += baseWager);
-        ledger[prev] -= baseWager * opponents.length;
-        bingoGame.getPoints()[prev] = Math.max(0, (bingoGame.getPoints()[prev] || 0) - 1);
-        selectedBtn = null;
-        this.updateTally();
-      }
-    };
+    noneBtn.style.cssText = "flex:1;min-width:80px;";
+    noneBtn.onclick = () => selectBtn(noneBtn, "none");
+    allBtns.push(noneBtn);
     btnRow.appendChild(noneBtn);
 
     section.appendChild(btnRow);
@@ -170,15 +141,10 @@ registerGameUI("bingo", {
 
   onHoleChange() {
     this.renderFull();
-    // Now update leaderboard after hole advances
     updateUI();
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
   },
 
   update() {
-    // Only update tally, not full leaderboard during hole
     this.updateTally();
   }
 
