@@ -109,13 +109,19 @@ Reset Betting Stats
 <!-- ===== NEW ROUND ===== -->
 
 <div class="round-setup-card">
-<label>Select Course</label>
+<label>Search Course</label>
 <div class="course-select-wrapper">
-<input id="courseSearch" placeholder="Search or select course" autocomplete="off">
+<div class="course-search-row">
+<input id="courseSearch" placeholder="Type course name..." autocomplete="off">
+<button class="search-icon-btn" onclick="searchCoursesAPI()">🔍</button>
+</div>
+<div id="apiCourseDropdown" class="course-dropdown hidden"></div>
 <div id="courseDropdown" class="course-dropdown hidden"></div>
 </div>
 
-<label>Tee Box</label>
+<div id="apiCourseStatus" style="font-size:12px;opacity:.6;margin-top:4px;min-height:16px;"></div>
+
+<label style="margin-top:12px;">Tee Box</label>
 <select id="teeSelect">
 <option value="Default">Default</option>
 </select>
@@ -123,7 +129,7 @@ Reset Betting Stats
 <button onclick="openTeeManager()" class="secondary-btn">Manage Tees</button>
 
 <button onclick="openCourseModal()" style="margin-top:10px">
-Add Course
+Add Course Manually
 </button>
 
 </div>
@@ -185,23 +191,21 @@ Add Previous Round
 
 <section id="round-play" class="hidden">
 
-<h3 id="roundHoleDisplay"></h3>
-<h4 id="roundCourseInfo"></h4><div id="roundCourseHeader">
+<!-- Course info at top -->
+<div id="roundCourseHeader">
 <div class="round-header-card">
-
 <div id="roundCourseMain" class="round-header-main"></div>
-
 <div id="roundCourseSub" class="round-header-sub"></div>
+</div>
+</div>
 
-</div>
-</div>
+<!-- Hole display below course -->
+<h3 id="roundHoleDisplay"></h3>
 
 <div id="parButtonContainer" style="display:flex;gap:10px">
-
 <button class="par-btn" onclick="setPar(3,this)">Par 3</button>
 <button class="par-btn" onclick="setPar(4,this)">Par 4</button>
 <button class="par-btn" onclick="setPar(5,this)">Par 5</button>
-
 </div>
 
 <input type="hidden" id="holePar" value="4">
@@ -212,8 +216,8 @@ Add Previous Round
 </div>
 
 <div style="display:flex;gap:12px;margin-top:12px">
-<input id="holePutts" type="number" inputmode="numeric" placeholder="Putts">
-<input id="holePenalties" type="number" inputmode="numeric" placeholder="Penalties">
+<input id="holePutts" type="number" inputmode="numeric" placeholder="Putts" maxlength="1">
+<input id="holePenalties" type="number" inputmode="numeric" placeholder="Penalties" maxlength="1">
 </div>
 
 <label>Score</label>
@@ -231,18 +235,11 @@ Add Previous Round
 
 <input id="holeScore" type="number" inputmode="numeric" class="hidden">
 
-
 <h4 id="roundLiveStats"></h4>
 
 <button onclick="undoRoundHole()">Undo</button>
 <button onclick="openScorecard()">Scorecard</button>
 <button onclick="submitHoleScore()">Next Hole</button>
-
-<div style="margin-top:30px">
-<button style="background:#a83232" onclick="cancelTrackedRound()">
-End Round (Discard)
-</button>
-</div>
 
 </section>
 
@@ -512,12 +509,6 @@ Birdie (2x Runs)
 <div id="leaderboard"></div>
 </div>
 
-
-<button
-style="background:#b83232;margin-top:20px"
-onclick="endRoundNow()">
-End Round
-</button>
 </section>
 <!-- ===== MODALS ===== -->
 
@@ -647,6 +638,11 @@ Save Course
 </div>
 
 </main>
+
+<!-- ===== FLOATING ACTION BUTTONS (outside main, never hidden by sections) ===== -->
+<button id="sideBetBtn"  class="hidden">Side Bet</button>
+<button id="endRoundBtn" class="hidden" onclick="cancelTrackedRound()">✕ End Round</button>
+<button id="endBetBtn"   class="hidden" onclick="endRoundNow()">✕ End Round</button>
 <!--CORE APP (MUST BE FIRST)-->
 <script src="app.js"></script>
 

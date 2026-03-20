@@ -36,6 +36,153 @@ let historyStack=[];
 
 let currentRound = null;
 
+/* ================= GOLF COURSE API ================= */
+
+const SUPABASE_URL      = "https://hrslssvfafdzoncovfqt.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyc2xzc3ZmYWZkem9uY292ZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTU4MzIsImV4cCI6MjA4OTUzMTgzMn0.dFwltOaE4xZlKbllSOsltX9n5acEKou6QkpDgsaQCXQ";
+const GOLF_PROXY        = `${SUPABASE_URL}/functions/v1/golf-search`;
+
+async function callGolfProxy(params){
+  const qs  = new URLSearchParams(params).toString();
+  const res = await fetch(`${GOLF_PROXY}?${qs}`, {
+    headers: {
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type":  "application/json"
+    }
+  });
+  if(!res.ok) throw new Error(`Proxy error ${res.status}`);
+  return res.json();
+}
+
+window.searchCoursesAPI = async () => {
+  const input  = document.getElementById("courseSearch");
+  const status = document.getElementById("apiCourseStatus");
+  const drop   = document.getElementById("apiCourseDropdown");
+  const q      = input?.value?.trim();
+
+  if(!q || q.length < 2) return;
+
+  status.textContent = "Searching...";
+  drop.innerHTML     = "";
+  drop.classList.remove("hidden");
+
+  try {
+    const data    = await callGolfProxy({ action: "search", q });
+    const courses = data.courses || [];
+
+    status.textContent = courses.length
+      ? `${courses.length} course${courses.length > 1 ? "s" : ""} found`
+      : "No courses found — try a different search or add manually";
+
+    drop.innerHTML = "";
+
+    courses.slice(0, 10).forEach(c => {
+      const row  = document.createElement("div");
+      row.className = "course-row";
+
+      const name = document.createElement("span");
+      name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
+
+      name.onclick = async () => {
+        status.textContent = "Loading course data...";
+        drop.classList.add("hidden");
+        input.value = c.club_name;
+        await loadAPICourse(c.id, c.club_name);
+      };
+
+      row.appendChild(name);
+      drop.appendChild(row);
+    });
+
+  } catch(err) {
+    status.textContent = "Search failed — check connection or add manually";
+    drop.classList.add("hidden");
+    console.error("Golf API error:", err);
+  }
+};
+
+// Allow pressing Enter to search
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("courseSearch");
+  if(input){
+    input.addEventListener("keydown", e => {
+      if(e.key === "Enter") searchCoursesAPI();
+    });
+  }
+});
+
+async function loadAPICourse(courseId, clubName){
+  const status    = document.getElementById("apiCourseStatus");
+  const teeSelect = document.getElementById("teeSelect");
+
+  try {
+    const data   = await callGolfProxy({ action: "course", id: courseId });
+    const course = data.course || data;
+
+    const tees = {};
+
+    // API returns tees.male and tees.female arrays
+    const allTees = [
+      ...(course.tees?.male   || []).map(t => ({ ...t, gender: "M" })),
+      ...(course.tees?.female || []).map(t => ({ ...t, gender: "F" })),
+    ];
+
+    allTees.forEach(tee => {
+      const holes    = tee.holes || [];
+      const pars     = holes.map(h => h.par      || 4);
+      const yardages = holes.map(h => h.yardage  || 0);
+
+      // Label tee with gender suffix if same name exists for both
+      const teeName = tee.tee_name +
+        (allTees.filter(t => t.tee_name === tee.tee_name).length > 1
+          ? ` (${tee.gender === "M" ? "Men" : "Women"})`
+          : "");
+
+      tees[teeName] = {
+        rating:   parseFloat(tee.course_rating) || 72,
+        slope:    parseInt(tee.slope_rating)    || 113,
+        pars,
+        yardages
+      };
+    });
+
+    // Check if already saved — update tees if so
+    const existing = savedCourses.find(c =>
+      c.name.toLowerCase() === clubName.toLowerCase()
+    );
+
+    if(existing){
+      existing.tees = tees;
+    } else {
+      savedCourses.push({
+        name:    clubName,
+        favorite: false,
+        fromAPI: true,
+        tees
+      });
+    }
+
+    localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+    // Populate tee dropdown
+    teeSelect.innerHTML = "";
+    Object.keys(tees).forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t; opt.textContent = t;
+      teeSelect.appendChild(opt);
+    });
+
+    refreshCourseDropdown();
+
+    const teeCount = Object.keys(tees).length;
+    status.textContent = `✅ ${clubName} loaded — ${teeCount} tee box${teeCount !== 1 ? "es" : ""} found`;
+
+  } catch(err) {
+    status.textContent = "Failed to load course data — try adding manually";
+    console.error("Course load error:", err);
+  }
+}
+
 /* ================= COURSE STORAGE ================= */
 
 
@@ -334,6 +481,17 @@ if(!confirm(`Delete ${teeName} tee?`)) return;
 delete course.tees[teeName];
 
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+// Refresh the tee dropdown immediately
+const teeSelect = document.getElementById("teeSelect");
+if(teeSelect){
+teeSelect.innerHTML = "";
+Object.keys(course.tees).forEach(t => {
+const opt = document.createElement("option");
+opt.value = t; opt.textContent = t;
+teeSelect.appendChild(opt);
+});
+}
 
 refreshCourseDropdown();
 openTeeManager();
@@ -673,6 +831,26 @@ if(id === "game-screen"){
 sideBetBtn.classList.remove("hidden");
 }else{
 sideBetBtn.classList.add("hidden");
+}
+
+// End Round pill only during round tracking
+const endRoundBtn = document.getElementById("endRoundBtn");
+if(endRoundBtn){
+if(id === "round-play"){
+endRoundBtn.classList.remove("hidden");
+}else{
+endRoundBtn.classList.add("hidden");
+}
+}
+
+// End Round pill for betting game
+const endBetBtn = document.getElementById("endBetBtn");
+if(endBetBtn){
+if(id === "game-screen"){
+endBetBtn.classList.remove("hidden");
+}else{
+endBetBtn.classList.add("hidden");
+}
 }
 
 updateHeader(id);
@@ -1022,6 +1200,27 @@ input.value=input.value.slice(0,2);
 });
 
 });
+
+/* ===== PUTTS / PENALTIES AUTO-ADVANCE ===== */
+
+const holePutts     = document.getElementById("holePutts");
+const holePenalties = document.getElementById("holePenalties");
+
+if(holePutts){
+holePutts.addEventListener("input", () => {
+if(holePutts.value.length >= 1){
+holePenalties?.focus();
+}
+});
+}
+
+if(holePenalties){
+holePenalties.addEventListener("input", () => {
+if(holePenalties.value.length >= 1){
+holePenalties.blur();
+}
+});
+}
 
 });
 /* ================= GAME SELECT ================= */
@@ -1879,6 +2078,7 @@ const nineType = document.getElementById("nineType")?.value; // front/back
 let selectedCourse = savedCourses.find(c => c.name === selectedCourseName);
 
 let parArray = [];
+let yardageArray = [];
 let holeOffset = 0;
 let rating = 72;
 let slope = 113;
@@ -1893,12 +2093,15 @@ if(selectedCourse){
  slope = tee.slope;
 
  if(holesSelected === 18){
- parArray = tee.pars;
+ parArray     = tee.pars;
+ yardageArray = tee.yardages || [];
  }else if(nineType === "back"){
- parArray = tee.pars.slice(9,18);
+ parArray     = tee.pars.slice(9,18);
+ yardageArray = (tee.yardages || []).slice(9,18);
  holeOffset = 9;
  }else{
- parArray = tee.pars.slice(0,9);
+ parArray     = tee.pars.slice(0,9);
+ yardageArray = (tee.yardages || []).slice(0,9);
 holeOffset = 0;
 }
 }
@@ -1922,6 +2125,7 @@ fir: [],
 totalStrokes: 0,
 totalPar: 0,
 loadedPars: parArray,
+loadedYardages: yardageArray,
 holeOffset,
 };
 
@@ -1943,8 +2147,12 @@ if(currentRound.loadedPars && currentRound.loadedPars.length){
 
 parButtonContainer?.classList.add("hidden");
 
+const par  = currentRound.loadedPars[currentRound.currentHole - 1];
+const yds  = currentRound.loadedYardages?.[currentRound.currentHole - 1];
+const yardStr = yds ? ` – ${yds} yds` : "";
+
 document.getElementById("roundHoleDisplay").textContent =
-`Hole ${actualHoleNumber} (Par ${currentRound.loadedPars[currentRound.currentHole - 1]})`;
+`Hole ${actualHoleNumber} (Par ${par}${yardStr})`;
 
 }else{
 
