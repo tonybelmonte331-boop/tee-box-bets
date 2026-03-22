@@ -1,4 +1,4 @@
-const CACHE_NAME = "tee-box-bets-v163"; // bump version anytime you change files
+const CACHE_NAME = "tee-box-bets-v164"; // bump version anytime you change files
 
 const FILES_TO_CACHE = [
 "./",
@@ -14,6 +14,9 @@ const FILES_TO_CACHE = [
 "./games/baseball/engine.js",
 "./games/bingo/engine.js",
 "./games/dots/engine.js",
+"./games/nine/engine.js",
+"./games/sixes/engine.js",
+"./games/battle/engine.js",
 
 // Game UI
 "./games/skins/ui.js",
@@ -23,6 +26,9 @@ const FILES_TO_CACHE = [
 "./games/baseball/ui.js",
 "./games/bingo/ui.js",
 "./games/dots/ui.js",
+"./games/nine/ui.js",
+"./games/sixes/ui.js",
+"./games/battle/ui.js",
 
 // Game Rules
 "./games/skins/rules.js",
@@ -32,6 +38,9 @@ const FILES_TO_CACHE = [
 "./games/baseball/rules.js",
 "./games/bingo/rules.js",
 "./games/dots/rules.js",
+"./games/nine/rules.js",
+"./games/sixes/rules.js",
+"./games/battle/rules.js",
 
 // Shared
 "./games/sidebets.js",
@@ -39,7 +48,8 @@ const FILES_TO_CACHE = [
 
 "./manifest.json",
 "./icons/icon-192.png",
-"./icons/icon-512.png"
+"./icons/icon-512.png",
+"./icons/splash.png"
 ];
 
 // INSTALL — cache core files

@@ -1,3 +1,27 @@
+/* ================= TIER SYSTEM ================= */
+
+// Tiers: free | starter | pro | elite
+// In production this will be driven by RevenueCat
+let userTier = localStorage.getItem("userTier") || "free";
+
+function setTier(tier){
+userTier = tier;
+localStorage.setItem("userTier", tier);
+}
+
+function getTier(){ return userTier; }
+
+function hasStarterOrAbove(){ return ["starter","pro","elite"].includes(userTier); }
+function hasProOrAbove(){     return ["pro","elite"].includes(userTier); }
+function hasElite(){          return userTier === "elite"; }
+
+// Group limits
+function maxGroups(){
+if(hasElite())       return Infinity;
+if(hasProOrAbove())  return 5;
+return 2;
+}
+
 /* ================= GAME ENGINE REGISTRY ================= */
 
 window.GAME_ENGINES = {};
@@ -893,6 +917,13 @@ const wager  = +document.getElementById("saveGroupWager").value || 0;
 
 if(!name){ alert("Enter a group name"); return; }
 
+// Check group limit
+if(savedGroups.length >= maxGroups()){
+closeSaveGroup();
+openPremiumScreen("pro");
+return;
+}
+
 const names = [
 ...Array.from(document.querySelectorAll("#teamAInputs input")).map(i => i.value.trim()),
 ...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
@@ -1174,6 +1205,9 @@ currentGame === "wolf" ? "Wolf" :
 currentGame === "baseball" ? "Baseball" :
 currentGame === "bingo" ? "Bingo Bango Bongo" :
 currentGame === "dots" ? "Dots" :
+currentGame === "nine" ? "9-Point" :
+currentGame === "sixes" ? "Sixes" :
+currentGame === "battle" ? "Net Battle" :
 "Game";
 
 title.textContent = `${gameName} – Hole ${hole}`;
@@ -1380,6 +1414,9 @@ clearBettingCourse();
 // Refresh home screen groups
 renderHomeGroups();
 
+// Show/hide ads based on tier
+updateAdVisibility();
+
 updateHeader("step-home");
 syncBackButton();
 
@@ -1402,7 +1439,7 @@ window.goHome = goHomeClean;
 window.goGameSelect = () => show("step-game");
 
 window.showRules = () => {
-const order = ["skins","vegas","nassau","wolf","baseball","bingo","dots"];
+const order = ["skins","vegas","nassau","wolf","baseball","bingo","dots","nine","sixes","battle"];
 const box = document.getElementById("rulesContent");
 if(box){
 box.innerHTML = order.map(key => {
@@ -1490,6 +1527,7 @@ bettingNineType.classList.remove("hidden");
 }
 refreshCourseDropdown();
 renderHomeGroups();
+updateAdVisibility();
 const dropdown = document.getElementById("courseDropdown");
 
 if(search && dropdown){
@@ -1758,15 +1796,36 @@ lockedNotice.textContent = "Dots is Free For All";
 
 }
 
-if(game === "dots"){
-
+if(game === "nine"){
 playStyle = "ffa";
-
-playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
-playStyleBox.value = "ffa";
 playStyleBox.classList.add("hidden");
 playStyleLabel.classList.add("hidden");
+playerCountBox.innerHTML = `<option value="3" selected>3 Players</option>`;
+playerCountBox.classList.add("hidden");
+playerCountLabel.classList.add("hidden");
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "9-Point is a 3-player game";
+}
 
+if(game === "sixes"){
+playStyle = "teams";
+playerCount = 4;
+playStyleBox.classList.add("hidden");
+playStyleLabel.classList.add("hidden");
+playerCountBox.classList.add("hidden");
+playerCountLabel.classList.add("hidden");
+lockedNotice.classList.remove("hidden");
+lockedNotice.textContent = "Sixes must be played with 4 players";
+}
+
+if(game === "battle"){
+playStyleBox.innerHTML = `
+<option value="ffa">Free For All</option>
+<option value="teams">2v2 Teams</option>
+`;
+playStyleBox.value = "ffa";
+playStyleBox.classList.remove("hidden");
+playStyleLabel.classList.remove("hidden");
 playerCountBox.innerHTML = `
 <option value="2">2 Players</option>
 <option value="3">3 Players</option>
@@ -1774,10 +1833,8 @@ playerCountBox.innerHTML = `
 `;
 playerCountBox.classList.remove("hidden");
 playerCountLabel.classList.remove("hidden");
-
 lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "Dots is Free For All";
-
+lockedNotice.textContent = "Net Battle — handicap strokes applied automatically";
 }
 
 if(game==="vegas" || game==="nassau"){
@@ -1790,7 +1847,7 @@ playerCountLabel.classList.add("hidden");
 
 playStyle="teams";
 playerCount=4;
-}else if(game !== "wolf" && game !== "baseball" && game !== "bingo" && game !== "dots"){
+}else if(game !== "wolf" && game !== "baseball" && game !== "bingo" && game !== "dots" && game !== "nine" && game !== "sixes" && game !== "battle"){
 lockedNotice.classList.add("hidden");
 
 playStyleBox.classList.remove("hidden");
@@ -1842,9 +1899,27 @@ else if(game==="dots"){
 document.getElementById("wagerLabel").textContent="Wager per dot";
 baseWagerWrapper.classList.remove("hidden");
 }
+else if(game==="nine"){
+document.getElementById("wagerLabel").textContent="Wager per point";
+baseWagerWrapper.classList.remove("hidden");
+}
+else if(game==="sixes"){
+document.getElementById("wagerLabel").textContent="Wager per segment";
+baseWagerWrapper.classList.remove("hidden");
+}
+else if(game==="battle"){
+document.getElementById("wagerLabel").textContent="Wager amount";
+baseWagerWrapper.classList.remove("hidden");
+}
 else{
 document.getElementById("wagerLabel").textContent="Wager per player";
 baseWagerWrapper.classList.remove("hidden");
+}
+
+// Show battle payout row only for battle
+const battlePayoutRow = document.getElementById("battlePayoutRow");
+if(battlePayoutRow){
+battlePayoutRow.classList.toggle("hidden", game !== "battle");
 }
 
 if(game==="wolf"){
@@ -1874,14 +1949,30 @@ buildPlayers();
 return;
 }
 
-if(currentGame === "wolf" || currentGame === "bingo" || currentGame === "dots"){
-
+if(currentGame === "wolf" || currentGame === "bingo" || currentGame === "dots" || currentGame === "nine"){
 playStyle = "ffa";
 playerCount = parseInt(playerCountBox.value);
-
 buildPlayers();
 return;
+}
 
+if(currentGame === "battle"){
+playStyle = playStyleBox.value;
+playerCount = parseInt(playerCountBox.value);
+if(playStyle === "teams"){
+playerCount = 4;
+show("step-teams");
+} else {
+buildPlayers();
+}
+return;
+}
+
+if(currentGame === "sixes"){
+playStyle = "teams";
+playerCount = 4;
+buildPlayers();
+return;
 }
 
 if(currentGame==="vegas"||currentGame==="nassau"){
@@ -1914,14 +2005,18 @@ teamBInputs.innerHTML="";
 if(currentGame === "baseball"){
 teamALabel.textContent = "Away";
 teamBLabel.textContent = "Home";
-}else{
+} else if(currentGame === "sixes"){
+// Sixes: 4 individual name inputs, no team split
+teamALabel.textContent = "Players (rotation handled automatically)";
+teamBLabel.textContent = "";
+} else {
 teamALabel.textContent = playStyle==="teams" ? teamAName : "Players";
 teamBLabel.textContent = playStyle==="teams" ? teamBName : "";
 }
 
 const userName = userProfile ? userProfile.name : "";
 
-if(playStyle==="teams"){
+if(playStyle==="teams" && currentGame !== "sixes"){
 
 // TEAM A
 teamAInputs.innerHTML += `<input value="${userName}">`; // Player 1 auto-fill
@@ -1936,7 +2031,9 @@ teamBInputs.innerHTML += `<input placeholder="Player 2 name">`;
 teamAInputs.innerHTML = "";
 teamBInputs.innerHTML = "";
 
-for(let i=0;i<playerCount;i++){
+const count = currentGame === "sixes" ? 4 : playerCount;
+
+for(let i=0;i<count;i++){
 
 const input = document.createElement("input");
 
@@ -1959,6 +2056,90 @@ setTimeout(attachAllAutocomplete, 50);
 
 window.nextSettings = () => {
 show("step-settings");
+};
+
+window.setBattlePayout = (mode) => {
+battleGame.setPayoutMode(mode);
+document.getElementById("payoutFlat")?.classList.toggle("bingo-selected", mode === "flat");
+document.getElementById("payoutPerStroke")?.classList.toggle("bingo-selected", mode === "perstroke");
+};
+
+/* ================= NET BATTLE HANDICAP INPUT ================= */
+
+function buildHandicapInputs(){
+const list = document.getElementById("handicapInputList");
+if(!list) return;
+list.innerHTML = "";
+
+players.forEach(p => {
+const row = document.createElement("div");
+row.style.cssText = "display:flex;align-items:center;gap:12px;margin-bottom:12px;";
+row.innerHTML = `
+<div style="flex:1;font-weight:600;font-size:14px;">${p}</div>
+<input id="hcp_${p}" type="number" inputmode="decimal" placeholder="Handicap"
+style="width:100px;text-align:center;">
+`;
+list.appendChild(row);
+});
+}
+
+window.startBattleRound = () => {
+const handicaps = {};
+let allEntered = true;
+
+players.forEach(p => {
+const el  = document.getElementById(`hcp_${p}`);
+const val = el?.value;
+if(val === "" || val === undefined){ allEntered = false; return; }
+handicaps[p] = parseFloat(val) || 0;
+});
+
+if(!allEntered){
+alert("Please enter a handicap for every player (use 0 if scratch)");
+return;
+}
+
+if(GAME_UI["battle"]) GAME_UI["battle"]._handicapInputs = handicaps;
+
+// Determine 9 vs 18
+const isNineHole  = holeLimit <= 9;
+const halfForNine = document.getElementById("halfForNineToggle")?.checked || false;
+
+// Set up engine
+battleGame.reset();
+battleGame.setTeamMode(playStyle === "teams");
+battleGame.setHalfForNine(halfForNine);
+battleGame.setPlayers(players, handicaps, isNineHole);
+
+// Course data
+const rating = bettingCourse?.rating || 72;
+const slope  = bettingCourse?.slope  || 113;
+battleGame.setCourseHandicaps(rating, slope);
+
+// Hole handicap difficulty rankings if available
+if(bettingCourse){
+const saved   = savedCourses.find(c => c.name === bettingCourse.name);
+const teeName = document.getElementById("bettingTeeSelect")?.value;
+const tee     = saved?.tees?.[teeName];
+if(tee?.holeHandicaps?.length){
+battleGame.setHoleHandicaps(tee.holeHandicaps);
+}
+}
+
+["skinsBox","vegasBox","nassauBox","wolfBox","baseballBox","bingoBox","dotsBox","nineBox","sixesBox2","battleBox"]
+.forEach(id => document.getElementById(id)?.classList.add("hidden"));
+document.getElementById("battleBox")?.classList.remove("hidden");
+
+if(GAME_UI["battle"]?.build){
+GAME_UI["battle"].build({ players, teams, ledger, baseWager });
+}
+
+teamAPlayers.textContent = `Players: ${players.join(", ")}`;
+teamBPlayers.textContent = "";
+document.getElementById("leaderboardWrapper").classList.add("hidden");
+document.getElementById("leaderboardHeader").classList.add("hidden");
+updateUI();
+show("game-screen");
 };
 
 /* ================= DOT PICKER ================= */
@@ -2176,6 +2357,14 @@ show("dot-picker");
 return;
 }
 
+// Net Battle: go to handicap input screen
+if(currentGame === "battle"){
+baseWager = +document.getElementById("baseWager").value;
+buildHandicapInputs();
+show("handicap-input");
+return;
+}
+
 // ✅ BASEBALL ONLY TEAM NAMES
 if(currentGame === "baseball"){
 teamAName = "Away";
@@ -2211,6 +2400,12 @@ const bingoBox = document.getElementById("bingoBox");
 if(bingoBox) bingoBox.classList.toggle("hidden", currentGame !== "bingo");
 const dotsBox = document.getElementById("dotsBox");
 if(dotsBox) dotsBox.classList.toggle("hidden", currentGame !== "dots");
+const nineBox = document.getElementById("nineBox");
+if(nineBox) nineBox.classList.toggle("hidden", currentGame !== "nine");
+const sixesBox2 = document.getElementById("sixesBox2");
+if(sixesBox2) sixesBox2.classList.toggle("hidden", currentGame !== "sixes");
+const battleBox = document.getElementById("battleBox");
+if(battleBox) battleBox.classList.toggle("hidden", currentGame !== "battle");
 
 if(GAME_UI[currentGame]?.build){
 GAME_UI[currentGame].build({
@@ -2251,7 +2446,7 @@ i.value = "";
 updateUI();
 document.getElementById("leaderboardWrapper").classList.add("collapsed");
 // Hide money leaderboard entirely for dots/bingo — it doesn't update mid-round
-if(currentGame === "bingo" || currentGame === "dots"){
+if(currentGame === "bingo" || currentGame === "dots" || currentGame === "nine" || currentGame === "battle"){
 document.getElementById("leaderboardWrapper").classList.add("hidden");
 document.getElementById("leaderboardHeader").classList.add("hidden");
 } else {
@@ -2355,6 +2550,30 @@ leaderboardModalList.appendChild(row);
 
 });
 
+// For battle: add a "View Net Scores" button
+if(currentGame === "battle"){
+const netBtn = document.createElement("button");
+netBtn.textContent = "View Net Scores";
+netBtn.style.cssText = "width:100%;margin-top:12px;background:rgba(255,255,255,.15);font-size:14px;";
+netBtn.onclick = () => {
+const nets = battleGame.getNetScores();
+const ch   = battleGame.getCourseHandicaps();
+let html   = `<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.15);padding-top:14px;">
+<div style="font-weight:700;margin-bottom:10px;font-size:14px;">Net Score Breakdown</div>`;
+[...players].sort((a,b)=>nets[a]-nets[b]).forEach(p => {
+html += `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.07);">
+<span>${p} <span style="opacity:.5;font-size:11px;">(HCP ${ch[p]||0})</span></span>
+<span style="font-weight:700;">${nets[p]} net</span>
+</div>`;
+});
+html += `</div>`;
+const detail = document.createElement("div");
+detail.innerHTML = html;
+netBtn.replaceWith(detail);
+};
+leaderboardModalList.appendChild(netBtn);
+}
+
 leaderboardModal.classList.remove("hidden");
 return;
 }
@@ -2363,7 +2582,7 @@ if(GAME_UI[currentGame]?.onHoleChange){
 GAME_UI[currentGame].onHoleChange(hole);
 }
 // Dots and Bingo settle at end — money leaderboard stays hidden during round
-if(currentGame === "bingo" || currentGame === "dots"){
+if(currentGame === "bingo" || currentGame === "dots" || currentGame === "nine" || currentGame === "battle"){
 document.getElementById("leaderboardWrapper").classList.add("hidden");
 document.getElementById("leaderboardHeader").classList.add("hidden");
 } else {
@@ -2421,6 +2640,18 @@ potDisplay.textContent=`$${baseWager}/point`;
 
 if(currentGame==="dots"){
 potDisplay.textContent=`$${baseWager}/dot`;
+}
+
+if(currentGame==="nine"){
+potDisplay.textContent=`$${baseWager}/point`;
+}
+
+if(currentGame==="sixes"){
+potDisplay.textContent=`$${baseWager}/segment`;
+}
+
+if(currentGame==="battle"){
+potDisplay.textContent=`$${baseWager} wager`;
 }
 
 if(currentGame==="dots"){
@@ -2520,6 +2751,8 @@ leaderboardFinishBtn.onclick = () => {
 
 updateBettingStats();
 trackOpponents();
+trackPvP();
+saveBettingRound();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
@@ -3005,6 +3238,254 @@ btn.textContent = "Add Previous Round";
 };
 
 
+/* ================= PREMIUM SYSTEM ================= */
+
+window.openPremiumScreen = (highlightTier) => {
+const modal = document.getElementById("premiumModal");
+if(!modal) return;
+
+// Render tier cards
+const content = document.getElementById("premiumTierCards");
+if(content){
+
+const tiers = [
+{
+id: "starter",
+name: "Starter",
+price: "$2.99",
+period: "one-time",
+color: "#3498db",
+features: ["✓ No ads forever", "✓ All betting games", "✓ Up to 2 saved groups"]
+},
+{
+id: "pro",
+name: "Pro",
+price: "$4.99",
+period: "/ month",
+color: "#2ecc71",
+badge: "Popular",
+features: ["✓ Everything in Starter", "✓ Advanced betting stats", "✓ Player vs player money", "✓ Handicap trend chart", "✓ Up to 5 saved groups"]
+},
+{
+id: "elite",
+name: "Elite",
+price: "$9.99",
+period: "/ month",
+color: "#f1c40f",
+features: ["✓ Everything in Pro", "✓ Full betting history", "✓ Unlimited saved groups"]
+}
+];
+
+content.innerHTML = tiers.map(t => `
+<div class="premium-card ${t.id === highlightTier ? "premium-card-highlight" : ""}" style="border-color:${t.color}40;">
+${t.badge ? `<div class="premium-badge" style="background:${t.color};">${t.badge}</div>` : ""}
+<div class="premium-card-name" style="color:${t.color};">${t.name}</div>
+<div class="premium-card-price">${t.price} <span class="premium-card-period">${t.period}</span></div>
+<div class="premium-card-features">${t.features.map(f=>`<div>${f}</div>`).join("")}</div>
+<button class="premium-subscribe-btn" style="background:${t.color};" onclick="subscribeTier('${t.id}')">
+${userTier === t.id ? "✓ Current Plan" : "Get " + t.name}
+</button>
+</div>
+`).join("");
+}
+
+modal.classList.remove("hidden");
+};
+
+window.closePremiumModal = () => {
+document.getElementById("premiumModal")?.classList.add("hidden");
+};
+
+// In production this calls RevenueCat — for now sets tier locally (dev mode)
+window.subscribeTier = (tier) => {
+setTier(tier);
+closePremiumModal();
+renderProfile();
+alert(`✅ Dev mode: Switched to ${tier} tier`);
+};
+
+// ── Advanced Betting Stats ───────────────────────────────────────────────────
+function buildAdvancedBettingStats(){
+if(!userProfile?.bettingStats) return "<p>No data yet</p>";
+
+const stats  = userProfile.bettingStats;
+const rounds = userProfile.rounds || [];
+const opps   = stats.opponents || {};
+
+const net      = (stats.totalWon || 0) - (stats.totalLost || 0);
+const played   = stats.totalPlayed || 0;
+const winRate  = played ? Math.round((stats.totalWon > 0 ? 1 : 0) * 100) : 0;
+const avgPayout= played ? (net / played).toFixed(2) : "0.00";
+
+// Best opponent (most played)
+const topOpp = Object.entries(opps).sort((a,b)=>b[1]-a[1])[0];
+
+return `
+<div class="premium-stat-grid">
+<div class="premium-stat">
+<div class="premium-stat-val">${played}</div>
+<div class="premium-stat-label">Games Played</div>
+</div>
+<div class="premium-stat">
+<div class="premium-stat-val" style="color:${net>=0?"#2ecc71":"#e74c3c"}">
+${net>=0?"+":""}$${Math.abs(net).toFixed(2)}
+</div>
+<div class="premium-stat-label">Net Winnings</div>
+</div>
+<div class="premium-stat">
+<div class="premium-stat-val">${avgPayout>=0?"+":""}$${Math.abs(avgPayout)}</div>
+<div class="premium-stat-label">Avg per Game</div>
+</div>
+<div class="premium-stat">
+<div class="premium-stat-val">${topOpp ? topOpp[0] : "—"}</div>
+<div class="premium-stat-label">Most Played With</div>
+</div>
+</div>
+`;
+}
+
+// ── Player vs Player Net Money ───────────────────────────────────────────────
+function buildPvPStats(){
+if(!userProfile?.bettingStats?.pvp) return `<p style="opacity:.6;text-align:center;padding:20px 0;">Play more rounds to see player vs player stats.</p>`;
+
+const pvp  = userProfile.bettingStats.pvp;
+const rows = Object.entries(pvp).sort((a,b) => b[1] - a[1]);
+
+if(!rows.length) return `<p style="opacity:.6;text-align:center;padding:20px 0;">No data yet.</p>`;
+
+return rows.map(([name, net]) => `
+<div class="pvp-row">
+<span>${name}</span>
+<span style="color:${net>=0?"#2ecc71":"#e74c3c"};font-weight:700;">
+${net>=0?"+":""}$${Math.abs(net).toFixed(2)}
+</span>
+</div>
+`).join("");
+}
+
+// Track pvp data when a betting round ends
+function trackPvP(){
+if(!userProfile?.bettingStats) return;
+if(!userProfile.bettingStats.pvp) userProfile.bettingStats.pvp = {};
+
+const myName = userProfile.name;
+const myNet  = ledger[myName] || 0;
+
+players.forEach(p => {
+if(p === myName) return;
+const theirNet = ledger[p] || 0;
+// From my perspective: if I'm +$10 and they're -$10 vs me
+const vsMe = -theirNet; // approximation for 2-player; works for pairwise
+if(!userProfile.bettingStats.pvp[p]) userProfile.bettingStats.pvp[p] = 0;
+// Net between me and this player = my ledger share attributed to them
+// Simple approach: divide my net by number of opponents
+const opponents = players.filter(x => x !== myName).length || 1;
+userProfile.bettingStats.pvp[p] = +(userProfile.bettingStats.pvp[p] + myNet / opponents).toFixed(2);
+});
+}
+
+// ── Handicap Trend Chart ─────────────────────────────────────────────────────
+function buildHandicapChart(){
+if(!userProfile?.rounds?.length){
+return `<p style="opacity:.6;text-align:center;padding:20px 0;">No rounds tracked yet.</p>`;
+}
+
+const rounds = userProfile.rounds.filter(r => r.differential !== undefined).slice(-20);
+if(rounds.length < 2){
+return `<p style="opacity:.6;text-align:center;padding:20px 0;">Track at least 2 rounds to see your trend.</p>`;
+}
+
+const diffs  = rounds.map(r => r.differential);
+const minVal = Math.min(...diffs);
+const maxVal = Math.max(...diffs);
+const range  = maxVal - minVal || 1;
+const W = 300, H = 120, pad = 16;
+
+const pts = diffs.map((d,i) => {
+const x = pad + (i / (diffs.length-1)) * (W - pad*2);
+const y = H - pad - ((d - minVal) / range) * (H - pad*2);
+return `${x},${y}`;
+}).join(" ");
+
+const latest = diffs[diffs.length-1];
+
+return `
+<div style="text-align:center;margin-bottom:8px;font-size:13px;opacity:.7;">
+Last ${diffs.length} rounds · Current index: <strong>${latest}</strong>
+</div>
+<svg viewBox="0 0 ${W} ${H}" style="width:100%;border-radius:10px;background:rgba(255,255,255,.04);">
+<polyline points="${pts}" fill="none" stroke="#2ecc71" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+${diffs.map((d,i) => {
+const x = pad + (i/(diffs.length-1))*(W-pad*2);
+const y = H - pad - ((d-minVal)/range)*(H-pad*2);
+return `<circle cx="${x}" cy="${y}" r="4" fill="#2ecc71"/>`;
+}).join("")}
+</svg>
+`;
+}
+
+// ── Betting History ──────────────────────────────────────────────────────────
+function buildBettingHistory(){
+const history = userProfile?.bettingHistory || [];
+if(!history.length){
+return `<p style="opacity:.6;text-align:center;padding:20px 0;">No betting rounds recorded yet.</p>`;
+}
+
+return [...history].reverse().map((r,i) => {
+const d    = new Date(r.date);
+const date = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
+const myNet= r.ledger?.[userProfile.name] || 0;
+
+return `
+<div class="bet-history-card" onclick="toggleBetHistoryDetail(${i})">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-weight:700;font-size:14px;">${date} · ${r.game||"Game"}</div>
+<div style="font-size:12px;opacity:.6;">${r.players?.join(", ")||""}</div>
+</div>
+<div style="font-weight:800;font-size:16px;color:${myNet>=0?"#2ecc71":"#e74c3c"}">
+${myNet>=0?"+":""}$${Math.abs(myNet).toFixed(2)}
+</div>
+</div>
+<div id="betDetail_${i}" class="hidden" style="margin-top:10px;border-top:1px solid rgba(255,255,255,.1);padding-top:10px;">
+${Object.entries(r.ledger||{}).map(([p,v])=>`
+<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+<span>${p}</span>
+<span style="color:${v>=0?"#2ecc71":"#e74c3c"}">${v>=0?"+":""}$${Math.abs(v).toFixed(2)}</span>
+</div>`).join("")}
+</div>
+</div>
+`;
+}).join("");
+}
+
+window.toggleBetHistoryDetail = (i) => {
+document.getElementById(`betDetail_${i}`)?.classList.toggle("hidden");
+};
+
+// Save betting round to history when finished
+function saveBettingRound(){
+if(!userProfile) return;
+if(!userProfile.bettingHistory) userProfile.bettingHistory = [];
+
+userProfile.bettingHistory.push({
+date:    new Date().toISOString(),
+game:    currentGame === "nine"  ? "9-Point" :
+         currentGame === "sixes" ? "Sixes" :
+         currentGame === "battle"? "Net Battle" :
+         currentGame === "bingo" ? "Bingo Bango Bongo" :
+         currentGame === "dots"  ? "Dots" :
+         currentGame ? currentGame.charAt(0).toUpperCase() + currentGame.slice(1) : "Game",
+players: [...players],
+ledger:  { ...ledger }
+});
+
+// Keep last 50 rounds
+if(userProfile.bettingHistory.length > 50){
+userProfile.bettingHistory = userProfile.bettingHistory.slice(-50);
+}
+}
+
 /* ================= PROFILE ================= */
 
 function showProfileTab(tabId){
@@ -3019,9 +3500,15 @@ tab.classList.add("hidden");
 
 document.getElementById(tabId).classList.remove("hidden");
 
-const buttons = document.querySelectorAll(".profile-tab");
-buttons.forEach(b=>{
-if(b.textContent.toLowerCase().includes(tabId.replace("Tab","").toLowerCase())){
+// Match button to tab by data or text
+document.querySelectorAll(".profile-tab").forEach(b=>{
+const map = {
+summaryTab: "summary",
+roundsTab:  "rounds",
+bettingTab: "betting",
+premiumTab: "premium"
+};
+if(b.textContent.toLowerCase().includes(map[tabId]||"")){
 b.classList.add("active");
 }
 });
@@ -3060,6 +3547,7 @@ document.getElementById("betGames").textContent =
 userProfile.bettingStats.totalPlayed;
 
 const oppBox = document.getElementById("opponentList");
+if(oppBox){
 oppBox.innerHTML = "";
 
 const opponents = userProfile.bettingStats.opponents || {};
@@ -3089,6 +3577,7 @@ row.innerHTML = `
 oppBox.appendChild(row);
 
 });
+}
 }
 
 
@@ -3142,6 +3631,73 @@ container.appendChild(card);
 
 }
 
+// Premium sections
+const advancedBox = document.getElementById("advancedBettingStats");
+if(advancedBox){
+if(hasProOrAbove()){
+advancedBox.innerHTML = buildAdvancedBettingStats();
+} else {
+advancedBox.innerHTML = premiumLockBanner("pro", "Advanced Betting Stats");
+}
+}
+
+const pvpBox = document.getElementById("pvpStats");
+if(pvpBox){
+if(hasProOrAbove()){
+pvpBox.innerHTML = buildPvPStats();
+} else {
+pvpBox.innerHTML = premiumLockBanner("pro", "Player vs Player Money");
+}
+}
+
+const chartBox = document.getElementById("handicapChart");
+if(chartBox){
+if(hasProOrAbove()){
+chartBox.innerHTML = buildHandicapChart();
+} else {
+chartBox.innerHTML = premiumLockBanner("pro", "Handicap Trend Chart");
+}
+}
+
+const historyBox = document.getElementById("bettingHistoryList");
+if(historyBox){
+if(hasElite()){
+historyBox.innerHTML = buildBettingHistory();
+} else {
+historyBox.innerHTML = premiumLockBanner("elite", "Betting History");
+}
+}
+
+// Tier badge on profile
+const tierBadge = document.getElementById("tierBadge");
+if(tierBadge){
+const labels = { free:"Free", starter:"Starter ⚡", pro:"Pro 🏆", elite:"Elite 👑" };
+const colors = { free:"rgba(255,255,255,.2)", starter:"#3498db", pro:"#2ecc71", elite:"#f1c40f" };
+tierBadge.textContent = labels[userTier] || "Free";
+tierBadge.style.background = colors[userTier] || colors.free;
+}
+
+}
+
+function premiumLockBanner(tier, feature){
+const tierName = tier === "elite" ? "Elite" : "Pro";
+const price    = tier === "elite" ? "$9.99/mo" : "$4.99/mo";
+return `
+<div class="premium-lock-banner" onclick="openPremiumScreen('${tier}')">
+<div style="font-size:22px;">🔒</div>
+<div>
+<div style="font-weight:700;font-size:14px;">${feature}</div>
+<div style="font-size:12px;opacity:.7;">${tierName} feature · ${price} · Tap to unlock</div>
+</div>
+</div>
+`;
+}
+
+function updateAdVisibility(){
+const adSlots = document.querySelectorAll(".ad-slot");
+adSlots.forEach(slot => {
+slot.style.display = hasStarterOrAbove() ? "none" : "flex";
+});
 }
 
 function openRoundDetails(index){
@@ -3242,6 +3798,20 @@ Penalty Strokes: ${totalPens}
 document.getElementById("roundDetailContent").innerHTML = html;
 document.getElementById("roundDetailModal").classList.remove("hidden");
 }
+
+// DEV ONLY — tap tier badge 5x to open switcher
+let tierTapCount = 0;
+window.devTierTap = () => {
+tierTapCount++;
+if(tierTapCount >= 5){
+tierTapCount = 0;
+const t = prompt("Dev: Set tier (free/starter/pro/elite):", userTier);
+if(t && ["free","starter","pro","elite"].includes(t)){
+setTier(t);
+renderProfile();
+}
+}
+};
 
 window.editProfile = () => {
 

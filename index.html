@@ -39,6 +39,8 @@
 
 <div id="homeGroups" style="margin-top:20px;width:100%;max-width:400px;"></div>
 
+<div id="homeAdSlot" class="ad-slot">Advertisement</div>
+
 </section>
 
 <!-- ===== PROFILE ===== -->
@@ -46,44 +48,67 @@
 <section id="profile-screen" class="hidden">
 <h2>Your Profile</h2>
 
+<!-- Tier badge — tap 5x to open dev switcher -->
+<div id="tierBadge" onclick="devTierTap()" style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:12px;cursor:pointer;"></div>
+
 <div class="profile-tabs">
 <button class="profile-tab active" onclick="showProfileTab('summaryTab')">Summary</button>
 <button class="profile-tab" onclick="showProfileTab('roundsTab')">Rounds</button>
 <button class="profile-tab" onclick="showProfileTab('bettingTab')">Betting</button>
+<button class="profile-tab" onclick="showProfileTab('premiumTab')">Premium</button>
 </div>
 
+<!-- SUMMARY TAB -->
 <div id="summaryTab" class="profile-tab-content">
-
 <div class="profile-card">
 <h3 id="profileNameDisplay"></h3>
 <p>Handicap: <strong id="profileHandicapDisplay"></strong></p>
 <p>Rounds Played: <strong id="profileRounds"></strong></p>
 <p>Average Score: <strong id="profileAvg"></strong></p>
 </div>
-
+<div class="profile-card">
+<h3>Handicap Trend</h3>
+<div id="handicapChart"></div>
+</div>
 </div>
 
-<div id="bettingTab" class="profile-tab-content hidden">
+<!-- ROUNDS TAB -->
+<div id="roundsTab" class="profile-tab-content hidden">
+<div class="profile-card">
+<h3>Round History</h3>
+<div id="roundHistoryTable"></div>
+</div>
+</div>
 
+<!-- BETTING TAB -->
+<div id="bettingTab" class="profile-tab-content hidden">
 <div class="profile-card">
 <h3>Betting Stats</h3>
 <p>Total +/- : <strong id="betNet"></strong></p>
 <p>Games Played: <strong id="betGames"></strong></p>
-<button id="resetBettingBtn" style="background:#a83232;margin-top:10px">
-Reset Betting Stats
-</button>
-<h3 style="margin-top:20px">Most Played With</h3>
-<div id="opponentList"></div>
+<button id="resetBettingBtn" style="background:#a83232;margin-top:10px">Reset Betting Stats</button>
 </div>
-
-</div>
-
-<div id="roundsTab" class="profile-tab-content hidden">
-
 <div class="profile-card">
-<h3>Round History</h3>
+<h3>Advanced Stats</h3>
+<div id="advancedBettingStats"></div>
+</div>
+<div class="profile-card">
+<h3>Player vs Player</h3>
+<div id="pvpStats"></div>
+</div>
+<div class="profile-card">
+<h3>Betting History</h3>
+<div id="bettingHistoryList"></div>
+</div>
+</div>
 
-<div id="roundHistoryTable"></div>
+<!-- PREMIUM TAB -->
+<div id="premiumTab" class="profile-tab-content hidden">
+<div class="profile-card" style="text-align:center;">
+<div style="font-size:36px;margin-bottom:8px;">🏆</div>
+<h3>Tee Box Bets Premium</h3>
+<p style="opacity:.7;font-size:13px;margin-bottom:16px;">Unlock advanced stats, betting history, unlimited groups and more.</p>
+<button onclick="openPremiumScreen()" style="background:linear-gradient(135deg,#1a7a4f,#2ecc71);">View Plans</button>
 </div>
 </div>
 
@@ -288,6 +313,21 @@ Add Previous Round
 <div class="game-title">Dots</div>
 </div>
 
+<div class="game-card" onclick="selectGame('nine')">
+<img src="icons/games/nine.png" class="game-icon">
+<div class="game-title">9-Point</div>
+</div>
+
+<div class="game-card" onclick="selectGame('sixes')">
+<img src="icons/games/sixes.png" class="game-icon">
+<div class="game-title">Sixes</div>
+</div>
+
+<div class="game-card" onclick="selectGame('battle')">
+<img src="icons/games/battle.png" class="game-icon">
+<div class="game-title">Net Battle</div>
+</div>
+
 </div>
 
 <button onclick="showRules()">Rules</button>
@@ -339,9 +379,9 @@ This game is played with two teams of 2
 <h4 id="teamBLabel">Team 2</h4>
 <div id="teamBInputs"></div>
 
-<div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
-<button onclick="nextSettings()" style="flex:1;">Next</button>
-<button onclick="promptSaveGroup()" style="flex:0 0 auto;background:rgba(255,255,255,.15);font-size:13px;padding:10px 14px;">💾 Save Group</button>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+<button onclick="nextSettings()" style="width:100%;">Next</button>
+<button onclick="promptSaveGroup()" style="width:100%;background:rgba(255,255,255,.15);font-size:13px;">💾 Save Group</button>
 </div>
 
 </section>
@@ -373,6 +413,15 @@ This game is played with two teams of 2
 </div>
 
 <p id="wagerLabel"></p>
+
+<!-- Battle payout mode — shown only for Net Battle -->
+<div id="battlePayoutRow" class="hidden" style="margin-bottom:12px;">
+<label style="font-size:13px;opacity:.7;margin-bottom:6px;display:block;">Payout Format</label>
+<div style="display:flex;gap:8px;">
+<button id="payoutFlat" class="bingo-selected" style="flex:1;font-size:13px;" onclick="setBattlePayout('flat')">Flat Pot</button>
+<button id="payoutPerStroke" style="flex:1;font-size:13px;" onclick="setBattlePayout('perstroke')">Per Stroke</button>
+</div>
+</div>
 
 <select id="holeLimit">
 <option value="9">9 Holes</option>
@@ -434,6 +483,22 @@ This game is played with two teams of 2
 
 <button style="margin-top:20px;" onclick="startDotsRound()">Start Round</button>
 
+</section>
+
+<!-- ===== HANDICAP INPUT (Net Battle) ===== -->
+
+<section id="handicap-input" class="hidden">
+<h3>Player Handicaps</h3>
+<p style="font-size:13px;opacity:.6;margin-bottom:16px;">Enter each player's handicap index</p>
+<div id="handicapInputList"></div>
+<div style="margin-top:16px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;">
+<label style="font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+<span>Halve handicap for 9 holes</span>
+<input type="checkbox" id="halfForNineToggle" style="width:20px;height:20px;accent-color:#2ecc71;">
+</label>
+<p style="font-size:11px;opacity:.55;margin-top:4px;">Off = full handicap applies (casual play). On = USGA official (half your index).</p>
+</div>
+<button style="margin-top:20px;" onclick="startBattleRound()">Start Round</button>
 </section>
 
 <!-- ===== GAME SCREEN ===== -->
@@ -532,6 +597,18 @@ Birdie (2x Runs)
 <!-- Built dynamically by dots/ui.js -->
 </div>
 
+<div id="nineBox" class="game-card hidden">
+<!-- Built dynamically by nine/ui.js -->
+</div>
+
+<div id="sixesBox2" class="game-card hidden">
+<!-- Built dynamically by sixes/ui.js -->
+</div>
+
+<div id="battleBox" class="game-card hidden">
+<!-- Built dynamically by battle/ui.js -->
+</div>
+
 <button id="sideBetBtn" class="hidden">Side Bet</button>
 <h3 id="leaderboardHeader" onclick="toggleLeaderboard()">
 ▼ Leaderboard
@@ -542,6 +619,16 @@ Birdie (2x Runs)
 
 </section>
 <!-- ===== MODALS ===== -->
+
+<!-- Premium Modal -->
+<div id="premiumModal" class="modal hidden" onclick="closePremiumModal()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:460px;">
+<h3 style="text-align:center;margin-bottom:4px;">🏆 Go Premium</h3>
+<p style="text-align:center;font-size:13px;opacity:.6;margin-bottom:16px;">Choose the plan that's right for you</p>
+<div id="premiumTierCards"></div>
+<button onclick="closePremiumModal()" style="background:rgba(255,255,255,.1);margin-top:8px;">Maybe Later</button>
+</div>
+</div>
 
 <!-- Groups Manager -->
 <div id="groupsModal" class="modal hidden" onclick="closeGroupsManager()">
@@ -723,6 +810,9 @@ Save Course
 <script src="games/baseball/engine.js"></script>
 <script src="games/bingo/engine.js"></script>
 <script src="games/dots/engine.js"></script>
+<script src="games/nine/engine.js"></script>
+<script src="games/sixes/engine.js"></script>
+<script src="games/battle/engine.js"></script>
 
 <!--GAME UI-->
 <script src="games/skins/ui.js"></script>
@@ -732,6 +822,9 @@ Save Course
 <script src="games/baseball/ui.js"></script>
 <script src="games/bingo/ui.js"></script>
 <script src="games/dots/ui.js"></script>
+<script src="games/nine/ui.js"></script>
+<script src="games/sixes/ui.js"></script>
+<script src="games/battle/ui.js"></script>
 
 <!--GAME RULES-->
 <script src="games/skins/rules.js"></script>
@@ -741,6 +834,9 @@ Save Course
 <script src="games/baseball/rules.js"></script>
 <script src="games/bingo/rules.js"></script>
 <script src="games/dots/rules.js"></script>
+<script src="games/nine/rules.js"></script>
+<script src="games/sixes/rules.js"></script>
+<script src="games/battle/rules.js"></script>
 
 <!--SHARED SYSTEMS-->
 <script src="games/sidebets.js"></script>
