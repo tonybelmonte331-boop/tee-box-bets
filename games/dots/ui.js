@@ -31,8 +31,9 @@ registerGameUI("dots", {
     }
 
     activeDots.forEach(dot => {
-      if(dot.key === "fir" && par !== null && par === 3)  return;
-      if(dot.key === "ctp" && par !== null && par !== 3)  return;
+      if(dot.key === "fir"       && par !== null && par === 3)  return;
+      if(dot.key === "longdrive" && par !== null && par === 3)  return;
+      if(dot.key === "ctp"       && par !== null && par !== 3)  return;
       box.appendChild(this.buildDotSection(dot, selections));
     });
 
@@ -68,8 +69,12 @@ registerGameUI("dots", {
   },
 
   getHolePar() {
-    if(typeof currentRound !== "undefined" && currentRound &&
-       currentRound.loadedPars && currentRound.loadedPars.length){
+    // Use betting course pars (primary)
+    if(typeof bettingCourse !== "undefined" && bettingCourse?.pars?.length){
+      return bettingCourse.pars[hole - 1] || null;
+    }
+    // Fallback to tracked round pars
+    if(typeof currentRound !== "undefined" && currentRound?.loadedPars?.length){
       return currentRound.loadedPars[hole - 1] || null;
     }
     return null;
@@ -118,8 +123,8 @@ registerGameUI("dots", {
     if(dot.single){
       const badge = document.createElement("span");
       let badgeText = " · 1 winner";
-      if(dot.key === "ctp")       badgeText += " · Par 3 only";
-      if(dot.key === "longdrive") badgeText += " · Par 4 & 5 only";
+      if(dot.key === "ctp")       badgeText += " · Par 3 only · must hit green";
+      if(dot.key === "longdrive") badgeText += " · Par 4 & 5 only · must be in fairway";
       badge.textContent   = badgeText;
       badge.style.cssText = "font-size:10px;opacity:.5;font-weight:400;margin-left:4px;";
       heading.appendChild(badge);

@@ -32,6 +32,8 @@ let hole=1;
 let holeLimit=9;
 let baseWager=0;
 
+let bettingCourse = null; // { name, pars: [], tee: "" }
+
 let historyStack=[];
 
 let currentRound = null;
@@ -109,6 +111,23 @@ document.addEventListener("DOMContentLoaded", () => {
       if(e.key === "Enter") searchCoursesAPI();
     });
   }
+
+  // Betting course search — Enter key
+  const bInput = document.getElementById("bettingCourseSearch");
+  if(bInput){
+    bInput.addEventListener("keydown", e => {
+      if(e.key === "Enter") searchBettingCourse();
+    });
+  }
+
+  // Dismiss betting dropdown on outside click
+  document.addEventListener("click", e => {
+    if(!e.target.closest("#bettingCourseSearch") &&
+       !e.target.closest("#bettingCourseDropdown") &&
+       !e.target.closest(".search-icon-btn")){
+      document.getElementById("bettingCourseDropdown")?.classList.add("hidden");
+    }
+  });
 });
 
 async function loadAPICourse(courseId, clubName){
@@ -181,6 +200,138 @@ async function loadAPICourse(courseId, clubName){
     status.textContent = "Failed to load course data — try adding manually";
     console.error("Course load error:", err);
   }
+}
+
+
+/* ================= BETTING COURSE SEARCH ================= */
+
+window.searchBettingCourse = async () => {
+  const input  = document.getElementById("bettingCourseSearch");
+  const status = document.getElementById("bettingCourseStatus");
+  const drop   = document.getElementById("bettingCourseDropdown");
+  const q      = input?.value?.trim();
+  if(!q || q.length < 2) return;
+
+  status.textContent = "Searching...";
+  drop.innerHTML = "";
+  drop.classList.remove("hidden");
+
+  try {
+    const localMatches = savedCourses.filter(c =>
+      c.name.toLowerCase().includes(q.toLowerCase())
+    );
+    const data    = await callGolfProxy({ action: "search", q });
+    const courses = data.courses || [];
+    drop.innerHTML = "";
+
+    localMatches.forEach(c => {
+      const row = document.createElement("div");
+      row.className = "course-row";
+      const name = document.createElement("span");
+      name.textContent = "⭐ " + c.name;
+      name.onclick = () => selectBettingCourse(c.name);
+      row.appendChild(name);
+      drop.appendChild(row);
+    });
+
+    courses.slice(0, 8).forEach(c => {
+      const row = document.createElement("div");
+      row.className = "course-row";
+      const name = document.createElement("span");
+      name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
+      name.onclick = async () => {
+        status.textContent = "Loading...";
+        drop.classList.add("hidden");
+        input.value = c.club_name;
+        await loadBettingCourseFromAPI(c.id, c.club_name);
+      };
+      row.appendChild(name);
+      drop.appendChild(row);
+    });
+
+    const total = localMatches.length + Math.min(courses.length, 8);
+    status.textContent = total > 0 ? `${total} courses found` : "No courses found";
+    if(!drop.children.length) drop.classList.add("hidden");
+
+  } catch(err) {
+    status.textContent = "Search failed";
+    console.error(err);
+  }
+};
+
+async function loadBettingCourseFromAPI(courseId, clubName){
+  const status    = document.getElementById("bettingCourseStatus");
+  try {
+    const data   = await callGolfProxy({ action: "course", id: courseId });
+    const course = data.course || data;
+    const allTees = [
+      ...(course.tees?.male   || []).map(t => ({ ...t, gender:"M" })),
+      ...(course.tees?.female || []).map(t => ({ ...t, gender:"F" })),
+    ];
+    const tees = {};
+    allTees.forEach(tee => {
+      const name = tee.tee_name +
+        (allTees.filter(t => t.tee_name === tee.tee_name).length > 1
+          ? ` (${tee.gender === "M" ? "Men" : "Women"})` : "");
+      tees[name] = { pars: (tee.holes||[]).map(h => h.par||4) };
+    });
+    if(!savedCourses.find(c => c.name.toLowerCase() === clubName.toLowerCase())){
+      savedCourses.push({ name: clubName, favorite: false, fromAPI: true,
+        tees: Object.fromEntries(Object.entries(tees).map(([k,v]) => [k, { ...v, rating:72, slope:113, yardages:[] }]))
+      });
+      localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+    }
+    populateBettingTees(clubName, tees);
+    status.textContent = "\u2705 " + clubName;
+  } catch(err) {
+    status.textContent = "Failed to load";
+  }
+}
+
+function selectBettingCourse(courseName){
+  const input     = document.getElementById("bettingCourseSearch");
+  const drop      = document.getElementById("bettingCourseDropdown");
+  const status    = document.getElementById("bettingCourseStatus");
+  input.value = courseName;
+  drop.classList.add("hidden");
+  const saved = savedCourses.find(c => c.name === courseName);
+  if(saved && saved.tees){
+    const teeMap = {};
+    Object.entries(saved.tees).forEach(([name, tee]) => {
+      teeMap[name] = { pars: tee.pars };
+    });
+    populateBettingTees(courseName, teeMap);
+    status.textContent = "\u2705 " + courseName;
+  }
+}
+
+function populateBettingTees(courseName, tees){
+  const teeRow    = document.getElementById("bettingTeeRow");
+  const teeSelect = document.getElementById("bettingTeeSelect");
+  teeSelect.innerHTML = "";
+  Object.keys(tees).forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t; opt.textContent = t;
+    teeSelect.appendChild(opt);
+  });
+  teeRow.classList.remove("hidden");
+  const firstTee = Object.keys(tees)[0];
+  bettingCourse = { name: courseName, fullPars: tees[firstTee].pars };
+  teeSelect.onchange = () => {
+    bettingCourse = { name: courseName, fullPars: tees[teeSelect.value]?.pars || [] };
+  };
+}
+
+function clearBettingCourse(){
+  bettingCourse = null;
+  const input  = document.getElementById("bettingCourseSearch");
+  const drop   = document.getElementById("bettingCourseDropdown");
+  const status = document.getElementById("bettingCourseStatus");
+  const teeRow = document.getElementById("bettingTeeRow");
+  if(input)  input.value = "";
+  if(drop)   { drop.innerHTML = ""; drop.classList.add("hidden"); }
+  if(status) status.textContent = "";
+  if(teeRow) teeRow.classList.add("hidden");
 }
 
 /* ================= COURSE STORAGE ================= */
@@ -517,6 +668,247 @@ localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 refreshCourseDropdown();
 
 }
+
+/* ================= SAVED PLAYERS & GROUPS ================= */
+
+let savedPlayers = JSON.parse(localStorage.getItem("savedPlayers")) || [];
+let savedGroups  = JSON.parse(localStorage.getItem("savedGroups"))  || [];
+
+// ── Save a player by name ────────────────────────────────────────────────────
+function savePlayer(name){
+if(!name || savedPlayers.find(p => p.name.toLowerCase() === name.toLowerCase())) return;
+savedPlayers.push({ name });
+localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+}
+
+// ── Autocomplete on player inputs ───────────────────────────────────────────
+function attachPlayerAutocomplete(input){
+if(!input || input.dataset.acAttached) return;
+input.dataset.acAttached = "1";
+
+const wrap = document.createElement("div");
+wrap.style.cssText = "position:relative;";
+input.parentNode.insertBefore(wrap, input);
+wrap.appendChild(input);
+
+const drop = document.createElement("div");
+drop.className = "course-dropdown hidden";
+drop.style.cssText = "position:absolute;top:100%;left:0;right:0;z-index:200;";
+wrap.appendChild(drop);
+
+input.addEventListener("input", () => {
+const q = input.value.trim().toLowerCase();
+if(!q){ drop.classList.add("hidden"); return; }
+
+const matches = savedPlayers.filter(p =>
+p.name.toLowerCase().startsWith(q) &&
+p.name.toLowerCase() !== q
+).slice(0, 5);
+
+if(!matches.length){ drop.classList.add("hidden"); return; }
+
+drop.innerHTML = "";
+matches.forEach(p => {
+const row = document.createElement("div");
+row.className = "course-row";
+const span = document.createElement("span");
+span.textContent = p.name;
+span.onclick = () => {
+input.value = p.name;
+drop.classList.add("hidden");
+input.dispatchEvent(new Event("change"));
+};
+row.appendChild(span);
+drop.appendChild(row);
+});
+drop.classList.remove("hidden");
+});
+
+document.addEventListener("click", e => {
+if(!wrap.contains(e.target)) drop.classList.add("hidden");
+}, { capture: false });
+}
+
+// Called from buildPlayers to attach autocomplete to all name inputs
+function attachAllAutocomplete(){
+document.querySelectorAll("#teamAInputs input, #teamBInputs input").forEach(attachPlayerAutocomplete);
+}
+
+// ── Groups Manager ───────────────────────────────────────────────────────────
+window.openGroupsManager = () => {
+renderGroupsList();
+document.getElementById("groupsModal").classList.remove("hidden");
+};
+
+window.closeGroupsManager = () => {
+document.getElementById("groupsModal").classList.add("hidden");
+};
+
+function renderGroupsList(){
+const list = document.getElementById("groupsList");
+list.innerHTML = "";
+
+if(!savedGroups.length){
+list.innerHTML = `<p style="opacity:.6;text-align:center;padding:20px 0;">No groups saved yet.<br>Enter players during a bet and tap 💾 Save Group.</p>`;
+return;
+}
+
+savedGroups.forEach((g, i) => {
+const card = document.createElement("div");
+card.className = "group-card";
+
+card.innerHTML = `
+<div class="group-card-info">
+<div class="group-card-name">${g.name}</div>
+<div class="group-card-sub">
+${g.players.join(", ")}
+${g.game ? " · " + g.game.charAt(0).toUpperCase() + g.game.slice(1) : ""}
+${g.wager ? " · $" + g.wager : ""}
+</div>
+</div>
+<div class="group-card-actions">
+<button class="group-quick-btn" onclick="quickStartGroup(${i})">⚡ Start</button>
+<button class="group-del-btn" onclick="deleteGroup(${i})">✕</button>
+</div>
+`;
+
+list.appendChild(card);
+});
+
+// Also render on home screen
+renderHomeGroups();
+}
+
+function renderHomeGroups(){
+const box = document.getElementById("homeGroups");
+if(!box) return;
+box.innerHTML = "";
+
+if(!savedGroups.length) return;
+
+const label = document.createElement("div");
+label.style.cssText = "font-size:13px;opacity:.6;margin-bottom:8px;font-weight:600;";
+label.textContent = "Quick Start";
+box.appendChild(label);
+
+savedGroups.forEach((g, i) => {
+const card = document.createElement("div");
+card.className = "group-card";
+card.innerHTML = `
+<div class="group-card-info">
+<div class="group-card-name">${g.name}</div>
+<div class="group-card-sub">${g.players.join(", ")}${g.game ? " · " + g.game.charAt(0).toUpperCase() + g.game.slice(1) : ""}${g.wager ? " · $" + g.wager : ""}</div>
+</div>
+<button class="group-quick-btn" onclick="quickStartGroup(${i})">⚡ Start</button>
+`;
+box.appendChild(card);
+});
+}
+
+window.deleteGroup = (i) => {
+if(!confirm(`Delete "${savedGroups[i].name}"?`)) return;
+savedGroups.splice(i, 1);
+localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
+renderGroupsList();
+renderHomeGroups();
+};
+
+// ── Quick Start ──────────────────────────────────────────────────────────────
+window.quickStartGroup = (i) => {
+const g = savedGroups[i];
+
+closeGroupsManager();
+
+// Set game if saved
+if(g.game){
+currentGame = g.game;
+} else {
+currentGame = "skins"; // sensible default
+}
+
+// Set players
+players  = [...g.players];
+teams    = { A:[], B:[] };
+ledger   = {};
+
+// For FFA games put all in A, for team games split evenly
+if(g.players.length === 4 && currentGame !== "wolf" && currentGame !== "bingo" && currentGame !== "dots"){
+teams.A = [g.players[0], g.players[1]];
+teams.B = [g.players[2], g.players[3]];
+} else {
+teams.A = [...g.players];
+}
+
+players.forEach(p => ledger[p] = 0);
+
+// Pre-fill wager
+if(g.wager){
+baseWager = g.wager;
+document.getElementById("baseWager").value = g.wager;
+}
+
+// Configure UI for this game (same as selectGame does)
+selectGame(currentGame);
+
+// Skip ahead to settings after a tick
+setTimeout(() => {
+// Pre-fill player inputs
+const aInputs = document.querySelectorAll("#teamAInputs input");
+const bInputs = document.querySelectorAll("#teamBInputs input");
+teams.A.forEach((p,i) => { if(aInputs[i]) aInputs[i].value = p; });
+teams.B.forEach((p,i) => { if(bInputs[i]) bInputs[i].value = p; });
+
+show("step-settings");
+}, 50);
+};
+
+// ── Save Group prompt ────────────────────────────────────────────────────────
+window.promptSaveGroup = () => {
+// Collect current player names
+const names = [
+...Array.from(document.querySelectorAll("#teamAInputs input")).map(i => i.value.trim()),
+...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
+].filter(Boolean);
+
+if(names.length < 2){
+alert("Enter at least 2 player names first.");
+return;
+}
+
+// Pre-fill group name with players
+document.getElementById("saveGroupName").value = names.join(", ");
+document.getElementById("saveGroupGame").value = currentGame || "";
+document.getElementById("saveGroupWager").value = "";
+document.getElementById("saveGroupModal").classList.remove("hidden");
+};
+
+window.closeSaveGroup = () => {
+document.getElementById("saveGroupModal").classList.add("hidden");
+};
+
+window.confirmSaveGroup = () => {
+const name   = document.getElementById("saveGroupName").value.trim();
+const game   = document.getElementById("saveGroupGame").value;
+const wager  = +document.getElementById("saveGroupWager").value || 0;
+
+if(!name){ alert("Enter a group name"); return; }
+
+const names = [
+...Array.from(document.querySelectorAll("#teamAInputs input")).map(i => i.value.trim()),
+...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
+].filter(Boolean);
+
+// Save each player individually too
+names.forEach(savePlayer);
+
+savedGroups.push({ name, players: names, game: game||null, wager: wager||null });
+localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
+localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+
+closeSaveGroup();
+renderHomeGroups();
+alert(`"${name}" saved!`);
+};
 
 /* ================= HAPTIC ================= */
 function tapHaptic(){
@@ -902,6 +1294,12 @@ function resetRoundSetup(){
 const search = document.getElementById("courseSearch");
 if(search) search.value = "";
 
+// Clear API search results
+const apiDrop   = document.getElementById("apiCourseDropdown");
+const apiStatus = document.getElementById("apiCourseStatus");
+if(apiDrop)   { apiDrop.innerHTML = ""; apiDrop.classList.add("hidden"); }
+if(apiStatus)   apiStatus.textContent = "";
+
 const teeSelect = document.getElementById("teeSelect");
 
 if(teeSelect){
@@ -970,6 +1368,17 @@ s.classList.add("hidden")
 );
 
 document.getElementById("step-home").classList.remove("hidden");
+
+// Always hide floating action buttons on home
+document.getElementById("sideBetBtn")?.classList.add("hidden");
+document.getElementById("endRoundBtn")?.classList.add("hidden");
+document.getElementById("endBetBtn")?.classList.add("hidden");
+
+// Clear betting course selection
+clearBettingCourse();
+
+// Refresh home screen groups
+renderHomeGroups();
 
 updateHeader("step-home");
 syncBackButton();
@@ -1065,9 +1474,22 @@ nineType.classList.remove("hidden");
 });
 
 }
-refreshCourseDropdown();
 
-const search = document.getElementById("courseSearch");
+// Betting nine type show/hide
+const holeLimitEl     = document.getElementById("holeLimit");
+const bettingNineType = document.getElementById("bettingNineType");
+
+if(holeLimitEl && bettingNineType){
+holeLimitEl.addEventListener("change", ()=>{
+if(holeLimitEl.value === "18"){
+bettingNineType.classList.add("hidden");
+} else {
+bettingNineType.classList.remove("hidden");
+}
+});
+}
+refreshCourseDropdown();
+renderHomeGroups();
 const dropdown = document.getElementById("courseDropdown");
 
 if(search && dropdown){
@@ -1143,6 +1565,9 @@ dropdown.appendChild(row);
 document.addEventListener("click",(e)=>{
 if(!e.target.closest(".course-select-wrapper")){
 dropdown.classList.add("hidden");
+// Also hide API results dropdown
+const apiDrop = document.getElementById("apiCourseDropdown");
+if(apiDrop) apiDrop.classList.add("hidden");
 }
 });
 
@@ -1426,6 +1851,16 @@ if(game==="wolf"){
 playStyleBox.value="ffa";
 }
 
+// Update course label in step-settings
+const courseLabel = document.getElementById("bettingCourseLabel");
+if(courseLabel){
+if(game === "dots"){
+courseLabel.innerHTML = `Course <span style="color:#e74c3c;font-size:12px;">Required</span>`;
+} else {
+courseLabel.innerHTML = `Course <span style="opacity:.5;font-size:12px;">(optional)</span>`;
+}
+}
+
 show("step-style");
 };
 
@@ -1518,6 +1953,7 @@ teamAInputs.appendChild(input);
 }
 
 show("step-players");
+setTimeout(attachAllAutocomplete, 50);
 }
 
 
@@ -1694,6 +2130,26 @@ updateUI();
 /* ================= START ROUND ================= */
 
 window.startRound=()=>{
+
+// Dots requires a course
+if(currentGame === "dots" && !bettingCourse){
+alert("Please select a course for Dots — it's needed for par-based dot rules.");
+return;
+}
+
+// Slice betting course pars based on hole selection
+if(bettingCourse && bettingCourse.fullPars){
+const holes    = +document.getElementById("holeLimit")?.value || 9;
+const nineType = document.getElementById("bettingNineType")?.value || "front";
+if(holes === 18){
+bettingCourse.pars = bettingCourse.fullPars.slice(0, 18);
+} else if(nineType === "back"){
+bettingCourse.pars = bettingCourse.fullPars.slice(9, 18);
+} else {
+bettingCourse.pars = bettingCourse.fullPars.slice(0, 9);
+}
+}
+
 players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 historyStack=[];
 document.getElementById("birdieFlip").checked=false;
@@ -1936,6 +2392,16 @@ wrap.classList.contains("collapsed")
 
 function updateUI(){
 holeDisplay.textContent=`Hole ${hole}`;
+
+// Show par for current hole if course is selected
+const parDisplay = document.getElementById("parDisplay");
+if(parDisplay){
+if(bettingCourse && bettingCourse.pars && bettingCourse.pars[hole-1]){
+parDisplay.textContent = `Par ${bettingCourse.pars[hole-1]}`;
+} else {
+parDisplay.textContent = "";
+}
+}
 
 if(currentGame==="skins"){
 potDisplay.textContent=`$${skinsGame.currentPot()}/player`;
@@ -2565,6 +3031,7 @@ b.classList.add("active");
 window.openProfile = () =>{
 renderProfile();
 show("profile-screen");
+showProfileTab("summaryTab");
 };
 
 function renderProfile(){

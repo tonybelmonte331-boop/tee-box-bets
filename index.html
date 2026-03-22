@@ -33,7 +33,11 @@
 
 <button onclick="openProfile()">Player Profile</button>
 
+<button onclick="openGroupsManager()">My Groups</button>
+
 </div>
+
+<div id="homeGroups" style="margin-top:20px;width:100%;max-width:400px;"></div>
 
 </section>
 
@@ -335,12 +339,33 @@ This game is played with two teams of 2
 <h4 id="teamBLabel">Team 2</h4>
 <div id="teamBInputs"></div>
 
-<button onclick="nextSettings()">Next</button>
+<div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
+<button onclick="nextSettings()" style="flex:1;">Next</button>
+<button onclick="promptSaveGroup()" style="flex:0 0 auto;background:rgba(255,255,255,.15);font-size:13px;padding:10px 14px;">💾 Save Group</button>
+</div>
+
 </section>
 
 <!-- ===== SETTINGS ===== -->
 
 <section id="step-settings" class="hidden">
+
+<!-- ===== COURSE SELECTION ===== -->
+<div class="round-setup-card" style="margin-bottom:16px;">
+<label id="bettingCourseLabel">Course <span style="opacity:.5;font-size:12px;">(optional)</span></label>
+<div class="course-select-wrapper">
+<div class="course-search-row">
+<input id="bettingCourseSearch" placeholder="Search course..." autocomplete="off">
+<button class="search-icon-btn" onclick="searchBettingCourse()">🔍</button>
+</div>
+<div id="bettingCourseDropdown" class="course-dropdown hidden"></div>
+</div>
+<div id="bettingCourseStatus" style="font-size:12px;opacity:.6;margin-top:4px;min-height:16px;"></div>
+<div id="bettingTeeRow" class="hidden" style="margin-top:10px;">
+<label>Tee Box</label>
+<select id="bettingTeeSelect"></select>
+</div>
+</div>
 
 <div id="baseWagerWrapper" class="money-input">
 <span>$</span>
@@ -352,6 +377,11 @@ This game is played with two teams of 2
 <select id="holeLimit">
 <option value="9">9 Holes</option>
 <option value="18">18 Holes</option>
+</select>
+
+<select id="bettingNineType">
+<option value="front">Front 9</option>
+<option value="back">Back 9</option>
 </select>
 
 <div id="nassauWagers" class="hidden">
@@ -412,6 +442,7 @@ This game is played with two teams of 2
 
 <h3 id="holeDisplay"></h3>
 <h3 id="potDisplay"></h3>
+<div id="parDisplay" style="font-size:13px;opacity:.6;margin-bottom:8px;min-height:16px;"></div>
 
 
 <div id="skinsBox" class="game-card">
@@ -511,6 +542,44 @@ Birdie (2x Runs)
 
 </section>
 <!-- ===== MODALS ===== -->
+
+<!-- Groups Manager -->
+<div id="groupsModal" class="modal hidden" onclick="closeGroupsManager()">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>My Groups</h3>
+<div id="groupsList"></div>
+<button style="margin-top:16px;" onclick="closeGroupsManager()">Close</button>
+</div>
+</div>
+
+<!-- Save Group -->
+<div id="saveGroupModal" class="modal hidden" onclick="closeSaveGroup()">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>Save Group</h3>
+<label>Group Name</label>
+<input id="saveGroupName" placeholder="e.g. Weekend Crew">
+<label style="margin-top:12px;">Default Game</label>
+<select id="saveGroupGame">
+<option value="">No default</option>
+<option value="skins">Skins</option>
+<option value="vegas">Vegas</option>
+<option value="nassau">Nassau</option>
+<option value="wolf">Wolf</option>
+<option value="baseball">Baseball</option>
+<option value="bingo">Bingo Bango Bongo</option>
+<option value="dots">Dots</option>
+</select>
+<label style="margin-top:12px;">Default Wager ($)</label>
+<div class="money-input">
+<span>$</span>
+<input id="saveGroupWager" type="number" inputmode="decimal" placeholder="0">
+</div>
+<div style="display:flex;gap:10px;margin-top:16px;">
+<button onclick="confirmSaveGroup()" style="flex:1;">Save</button>
+<button onclick="closeSaveGroup()" class="cancel-btn" style="flex:1;">Cancel</button>
+</div>
+</div>
+</div>
 
 <div id="scorecardModal" class="modal hidden" onclick="closeScorecard()">
 <div class="modal-box" onclick="event.stopPropagation()">
