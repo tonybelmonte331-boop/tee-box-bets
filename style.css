@@ -379,10 +379,25 @@ border-radius:18px;
 width:90%;
 max-width:420px;
 box-shadow:0 12px 30px rgba(0,0,0,.5);
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.modal-box > *:not(button) {
+width: 100%;
 }
 
 .modal{
     z-index: 5000;
+}
+
+#settleModal {
+z-index: 5100;
+}
+
+#handleInputModal {
+z-index: 5200;
 }
 
 /* ================= FLOATING SIDE BET ================= */
@@ -1865,4 +1880,55 @@ margin-bottom: 16px;
 width: 100%;
 max-width: 100%;
 text-align: center;
+}
+
+/* ===== SETTLE UP ===== */
+
+.settle-card {
+background: rgba(255,255,255,.06);
+border: 1px solid rgba(255,255,255,.12);
+border-radius: 14px;
+padding: 14px;
+margin-bottom: 12px;
+}
+
+.settle-card-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 12px;
+}
+
+.settle-btn-row {
+display: flex;
+gap: 8px;
+}
+
+#settleModal .modal-box button:last-child {
+margin-left: auto;
+margin-right: auto;
+display: block;
+}
+
+.settle-app-btn {
+border-radius: 10px;
+border: none;
+color: #fff;
+cursor: pointer;
+text-align: center;
+line-height: 1.3;
+}
+
+/* Breathing room between stacked modal buttons */
+#leaderboardFinishBtn {
+margin-top: 8px;
+}
+
+/* ===== LEADERBOARD MODAL BUTTON SPACING ===== */
+#settleUpBtn {
+margin-bottom: 12px;
+}
+
+#leaderboardFinishBtn {
+margin-top: 4px;
 }

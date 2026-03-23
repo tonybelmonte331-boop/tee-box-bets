@@ -622,6 +622,30 @@ Birdie (2x Runs)
 </section>
 <!-- ===== MODALS ===== -->
 
+<!-- Handle Input Modal (replaces browser prompt) -->
+<div id="handleInputModal" class="modal hidden" onclick="closeHandleModal()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:360px;">
+<h3 id="handleInputTitle" style="text-align:center;margin-bottom:8px;"></h3>
+<p id="handleInputSubtitle" style="text-align:center;font-size:13px;opacity:.6;margin-bottom:14px;"></p>
+<input id="handleInputField" placeholder="@username" autocomplete="off"
+style="width:100%;text-align:center;font-size:16px;">
+<div style="display:flex;gap:10px;margin-top:14px;">
+<button id="handleInputConfirm" style="flex:1;">Open App</button>
+<button onclick="closeHandleModal()" style="flex:1;background:rgba(255,255,255,.1);">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- Settle Up Modal -->
+<div id="settleModal" class="modal hidden" onclick="closeSettleModal()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:460px;">
+<h3 style="text-align:center;margin-bottom:4px;">💸 Settle Up</h3>
+<p style="text-align:center;font-size:13px;opacity:.6;margin-bottom:16px;">Tap a payment app to settle each debt</p>
+<div id="settleList"></div>
+<button onclick="closeSettleModal()" style="background:rgba(255,255,255,.1);margin-top:8px;">Done</button>
+</div>
+</div>
+
 <!-- Premium Modal -->
 <div id="premiumModal" class="modal hidden" onclick="closePremiumModal()">
 <div class="modal-box" onclick="event.stopPropagation()" style="max-width:460px;">
@@ -662,6 +686,11 @@ Birdie (2x Runs)
 <div class="money-input">
 <span>$</span>
 <input id="saveGroupWager" type="number" inputmode="decimal" placeholder="0">
+</div>
+
+<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;">
+<div style="font-size:12px;opacity:.6;margin-bottom:10px;font-weight:600;">PAYMENT HANDLES (optional — saves per player)</div>
+<div id="saveGroupPaymentFields"></div>
 </div>
 <div style="display:flex;gap:10px;margin-top:16px;">
 <button onclick="confirmSaveGroup()" style="flex:1;">Save</button>

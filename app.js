@@ -693,6 +693,184 @@ refreshCourseDropdown();
 
 }
 
+/* ================= SETTLE UP ================= */
+
+const PAYMENT_APPS = [
+{
+id:    "venmo",
+label: "Venmo",
+color: "#008CFF",
+icon:  "V",
+url:   (handle, amount, note) =>
+`https://venmo.com/${encodeURIComponent(handle.replace(/^@/,""))}?txn=pay&amount=${amount}&note=${encodeURIComponent(note)}`
+},
+{
+id:    "cashapp",
+label: "Cash App",
+color: "#00D632",
+icon:  "$",
+url:   (handle, amount, note) =>
+`cashapp://cash.app/${encodeURIComponent(handle)}?amount=${amount}&note=${encodeURIComponent(note)}`
+},
+{
+id:    "zelle",
+label: "Zelle",
+color: "#6D1ED4",
+icon:  "Z",
+url:   (handle, amount, note) =>
+`https://enroll.zellepay.com/qr-codes?data=${encodeURIComponent(JSON.stringify({name:handle,action:"payment"}))}`
+},
+{
+id:    "paypal",
+label: "PayPal",
+color: "#003087",
+icon:  "P",
+url:   (handle, amount, note) =>
+`https://www.paypal.com/paypalme/${encodeURIComponent(handle)}/${amount}`
+}
+];
+
+// Get payment handles for a player name from savedPlayers
+function getPaymentHandles(playerName){
+const p = savedPlayers.find(s => s.name.toLowerCase() === playerName.toLowerCase());
+return p?.payments || {};
+}
+
+// Save payment handles back to savedPlayers
+function savePaymentHandle(playerName, appId, handle){
+if(!handle) return;
+let p = savedPlayers.find(s => s.name.toLowerCase() === playerName.toLowerCase());
+if(!p){
+p = { name: playerName };
+savedPlayers.push(p);
+}
+if(!p.payments) p.payments = {};
+p.payments[appId] = handle;
+localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+}
+
+// Internal: open the in-app handle input instead of prompt()
+function askForHandle(playerName, appLabel, onConfirm){
+const modal    = document.getElementById("handleInputModal");
+const title    = document.getElementById("handleInputTitle");
+const subtitle = document.getElementById("handleInputSubtitle");
+const field    = document.getElementById("handleInputField");
+const confirm  = document.getElementById("handleInputConfirm");
+
+title.textContent    = appLabel + " Handle";
+subtitle.textContent = `Enter ${playerName}'s ${appLabel} username`;
+field.value          = "";
+modal.classList.remove("hidden");
+setTimeout(() => field.focus(), 100);
+
+confirm.onclick = () => {
+const val = field.value.trim();
+if(!val) return;
+modal.classList.add("hidden");
+onConfirm(val);
+};
+
+field.onkeydown = (e) => {
+if(e.key === "Enter") confirm.onclick();
+};
+}
+
+window.closeHandleModal = () => {
+document.getElementById("handleInputModal")?.classList.add("hidden");
+};
+
+window.openSettleModal = () => {
+// Hide leaderboard modal so settle modal appears on top cleanly
+const lbModal = document.getElementById("leaderboardModal");
+if(lbModal) lbModal.classList.add("hidden");
+
+const list = document.getElementById("settleList");
+if(!list) return;
+list.innerHTML = "";
+
+// Build debts: each person with negative ledger owes those with positive
+const debts = [];
+const totalWon = Object.values(ledger).filter(v => v > 0).reduce((a,b) => a+b, 0);
+
+Object.entries(ledger).forEach(([name, amount]) => {
+if(amount < 0){
+const winners = Object.entries(ledger).filter(([n,v]) => v > 0).sort((a,b) => b[1]-a[1]);
+winners.forEach(([winner, winAmt]) => {
+const share = Math.abs(amount) * (winAmt / (totalWon || 1));
+if(share > 0.01) debts.push({ from: name, to: winner, amount: +share.toFixed(2) });
+});
+}
+});
+
+if(!debts.length){
+list.innerHTML = `<p style="text-align:center;opacity:.6;padding:20px 0;">No debts to settle!</p>`;
+} else {
+debts.forEach(debt => {
+const handles = getPaymentHandles(debt.to);
+const card    = document.createElement("div");
+card.className = "settle-card";
+
+card.innerHTML = `
+<div class="settle-card-header">
+<div>
+<div style="font-weight:700;font-size:15px;">${debt.from} <span style="opacity:.5;">→</span> ${debt.to}</div>
+<div style="font-size:12px;opacity:.55;margin-top:2px;">owes</div>
+</div>
+<div style="font-size:24px;font-weight:800;color:#e74c3c;">$${debt.amount.toFixed(2)}</div>
+</div>
+`;
+
+const btnRow = document.createElement("div");
+btnRow.className = "settle-btn-row";
+
+PAYMENT_APPS.forEach(app => {
+const savedHandle = handles[app.id] || "";
+const btn = document.createElement("button");
+btn.className = "settle-app-btn";
+btn.style.cssText = `background:${app.color};max-width:none;padding:10px 6px;flex:1;font-size:11px;font-weight:700;margin-top:0;line-height:1.4;border-radius:10px;`;
+btn.innerHTML = `<div style="font-size:18px;">${app.icon}</div><div>${app.label}</div>`;
+if(savedHandle){
+btn.innerHTML += `<div style="font-size:9px;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${savedHandle}</div>`;
+}
+
+btn.onclick = () => {
+const launch = (handle) => {
+savePaymentHandle(debt.to, app.id, handle);
+const note = `Tee Box Bets${currentGame ? " - " + (currentGame.charAt(0).toUpperCase()+currentGame.slice(1)) : ""}`;
+const url  = app.url(handle, debt.amount, note);
+window.open(url, "_blank");
+};
+if(savedHandle){
+launch(savedHandle);
+} else {
+askForHandle(debt.to, app.label, (handle) => {
+// Update the button label with saved handle
+const handleEl = document.createElement("div");
+handleEl.style.cssText = "font-size:9px;opacity:.8;";
+handleEl.textContent = handle;
+btn.appendChild(handleEl);
+launch(handle);
+});
+}
+};
+btnRow.appendChild(btn);
+});
+
+card.appendChild(btnRow);
+list.appendChild(card);
+});
+}
+
+document.getElementById("settleModal").classList.remove("hidden");
+};
+
+window.closeSettleModal = () => {
+document.getElementById("settleModal")?.classList.add("hidden");
+// Restore leaderboard modal
+const lbModal = document.getElementById("leaderboardModal");
+if(lbModal) lbModal.classList.remove("hidden");
+};
+
 /* ================= SAVED PLAYERS & GROUPS ================= */
 
 let savedPlayers = JSON.parse(localStorage.getItem("savedPlayers")) || [];
@@ -888,7 +1066,6 @@ show("step-settings");
 
 // ── Save Group prompt ────────────────────────────────────────────────────────
 window.promptSaveGroup = () => {
-// Collect current player names
 const names = [
 ...Array.from(document.querySelectorAll("#teamAInputs input")).map(i => i.value.trim()),
 ...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
@@ -899,10 +1076,31 @@ alert("Enter at least 2 player names first.");
 return;
 }
 
-// Pre-fill group name with players
 document.getElementById("saveGroupName").value = names.join(", ");
 document.getElementById("saveGroupGame").value = currentGame || "";
 document.getElementById("saveGroupWager").value = "";
+
+// Build payment fields for each player
+const payFields = document.getElementById("saveGroupPaymentFields");
+if(payFields){
+payFields.innerHTML = "";
+names.forEach(name => {
+const existing = savedPlayers.find(p => p.name.toLowerCase() === name.toLowerCase());
+const handles  = existing?.payments || {};
+const section  = document.createElement("div");
+section.style.cssText = "margin-bottom:14px;";
+section.innerHTML = `<div style="font-weight:700;font-size:13px;margin-bottom:6px;">${name}</div>
+${PAYMENT_APPS.map(app => `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+<div style="width:64px;font-size:12px;opacity:.7;">${app.label}</div>
+<input id="pay_${name}_${app.id}" placeholder="@username"
+style="flex:1;font-size:13px;padding:8px 12px;"
+value="${handles[app.id]||''}">
+</div>`).join("")}`;
+payFields.appendChild(section);
+});
+}
+
 document.getElementById("saveGroupModal").classList.remove("hidden");
 };
 
@@ -929,8 +1127,16 @@ const names = [
 ...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
 ].filter(Boolean);
 
-// Save each player individually too
-names.forEach(savePlayer);
+// Save each player individually + their payment handles
+names.forEach(name => {
+savePlayer(name);
+PAYMENT_APPS.forEach(app => {
+const input = document.getElementById(`pay_${name}_${app.id}`);
+if(input?.value?.trim()){
+savePaymentHandle(name, app.id, input.value.trim());
+}
+});
+});
 
 savedGroups.push({ name, players: names, game: game||null, wager: wager||null });
 localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
@@ -2572,6 +2778,24 @@ detail.innerHTML = html;
 netBtn.replaceWith(detail);
 };
 leaderboardModalList.appendChild(netBtn);
+}
+
+// Add Settle Up button if any money changed hands — appended to modal-box not the list
+const hasDebts = Object.values(ledger).some(v => v < 0);
+const existingSettleBtn = document.getElementById("settleUpBtn");
+if(existingSettleBtn) existingSettleBtn.remove();
+if(hasDebts){
+const settleBtn = document.createElement("button");
+settleBtn.id = "settleUpBtn";
+settleBtn.textContent = "💸 Settle Up";
+settleBtn.style.cssText = "background:linear-gradient(135deg,#1a4f8c,#3498db);margin-top:8px;";
+settleBtn.onclick = (e) => {
+e.stopPropagation();
+openSettleModal();
+};
+// Insert before the Finish Round button
+const finishBtn = document.getElementById("leaderboardFinishBtn");
+finishBtn.parentNode.insertBefore(settleBtn, finishBtn);
 }
 
 leaderboardModal.classList.remove("hidden");
