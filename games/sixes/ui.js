@@ -14,18 +14,19 @@ registerGameUI("sixes", {
     box.innerHTML = "";
 
     const { teamA, teamB, segment } = sixesGame.getTeams(hole, this.players);
-    const segLen  = holeLimit === 18 ? 6 : 3;
-    const segHole = ((hole - 1) % segLen) + 1;
+    const segLen   = holeLimit === 18 ? 6 : 3;
+    const segHole  = ((hole - 1) % segLen) + 1;
+    const status   = sixesGame.getSegmentStatus(hole);
 
     // Segment header
     const segHeader = document.createElement("div");
     segHeader.style.cssText = "background:rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;";
     segHeader.innerHTML = `
-      <div style="font-weight:700;margin-bottom:4px;">Segment ${segment} — Hole ${segHole} of ${segLen}</div>
-      <div style="opacity:.7;">
-        <span style="color:#2ecc71;font-weight:600;">${teamA.join(" & ")}</span>
-        <span style="opacity:.5;"> vs </span>
-        <span style="color:#3498db;font-weight:600;">${teamB.join(" & ")}</span>
+      <div style="font-weight:700;margin-bottom:6px;">Segment ${segment} — Hole ${segHole} of ${segLen}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:#2ecc71;font-weight:700;font-size:15px;">${teamA.join(" & ")}</span>
+        <span style="font-size:18px;font-weight:800;letter-spacing:2px;">${status.winsA} – ${status.winsB}</span>
+        <span style="color:#3498db;font-weight:700;font-size:15px;">${teamB.join(" & ")}</span>
       </div>
     `;
     box.appendChild(segHeader);

@@ -77,6 +77,17 @@ segWinner = "tie";
 return { segmentDone, segWinner };
 }
 
+// Returns hole wins for current segment: { winsA, winsB, holesPlayed }
+function getSegmentStatus(currentHole){
+const seg      = Math.ceil(currentHole / segmentLength) - 1;
+const score    = segmentScores[seg] || 0;
+const winsA    = Math.max(0, score);
+const winsB    = Math.max(0, -score);
+const segStart = seg * segmentLength + 1;
+const holesPlayed = currentHole - segStart + 1;
+return { winsA, winsB, holesPlayed, segment: seg + 1, segmentLength };
+}
+
 function getState(){
 return { segmentLength, segmentScores: [...segmentScores], holeScores: {...holeScores} };
 }
@@ -87,7 +98,7 @@ segmentScores  = [...state.segmentScores];
 holeScores     = {...state.holeScores};
 }
 
-return { reset, getTeams, recordHole, getState, setState };
+return { reset, getTeams, recordHole, getSegmentStatus, getState, setState };
 
 })();
 

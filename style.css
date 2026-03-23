@@ -1833,3 +1833,28 @@ font-size: 11px;
 opacity: .4;
 margin: 12px 0;
 }
+
+/* ===== PROFILE SCREEN LAYOUT ===== */
+
+#profile-screen {
+align-items: center;
+}
+
+#profile-screen h2 {
+text-align: center;
+width: 100%;
+}
+
+.profile-tabs {
+display: flex;
+flex-direction: column;
+gap: 10px;
+width: 100%;
+max-width: 440px;
+margin: 0 auto 16px auto;
+}
+
+.profile-tab {
+width: 100%;
+text-align: center;
+}
