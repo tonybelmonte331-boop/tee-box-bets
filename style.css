@@ -1837,11 +1837,17 @@ margin: 12px 0;
 /* ===== PROFILE SCREEN LAYOUT ===== */
 
 #profile-screen {
-align-items: center;
+align-items: stretch;
 }
 
 #profile-screen h2 {
 text-align: center;
+width: 100%;
+}
+
+#profile-screen > div:first-of-type {
+display: flex;
+justify-content: center;
 width: 100%;
 }
 
@@ -1850,8 +1856,7 @@ display: flex;
 flex-direction: column;
 gap: 10px;
 width: 100%;
-max-width: 440px;
-margin: 0 auto 16px auto;
+margin-bottom: 16px;
 }
 
 .profile-tab {
