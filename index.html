@@ -41,6 +41,9 @@
 
 <div id="homeAdSlot" class="ad-slot">Advertisement</div>
 
+<!-- Account sync status -->
+<div id="homeAccountBar" style="width:100%;max-width:400px;margin-top:8px;"></div>
+
 </section>
 
 <!-- ===== PROFILE ===== -->
@@ -622,6 +625,51 @@ Birdie (2x Runs)
 </section>
 <!-- ===== MODALS ===== -->
 
+<!-- Auth Modal (Login / Signup) -->
+<div id="authModal" class="modal hidden" onclick="event.stopPropagation()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:380px;">
+
+<div style="text-align:center;margin-bottom:16px;">
+<div style="font-size:32px;">⛳</div>
+<h3 style="margin:4px 0;">Tee Box Bets</h3>
+<p style="font-size:13px;opacity:.6;">Sign in to sync your data across devices</p>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:16px;">
+<button id="authTabLogin" class="auth-tab active" onclick="switchAuthTab('login')" style="flex:1;padding:10px;font-size:14px;">Sign In</button>
+<button id="authTabSignup" class="auth-tab" onclick="switchAuthTab('signup')" style="flex:1;padding:10px;font-size:14px;">Create Account</button>
+</div>
+
+<div id="authLoginForm">
+<input id="authEmail" type="email" placeholder="Email" autocomplete="email" style="margin-bottom:10px;">
+<input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" style="margin-bottom:10px;">
+<div id="authError" style="color:#e74c3c;font-size:12px;margin-bottom:8px;min-height:16px;text-align:center;"></div>
+<button id="authSubmitBtn" onclick="handleAuthSubmit()">Sign In</button>
+<button onclick="closeAuthModal()" style="background:rgba(255,255,255,.1);margin-top:8px;">Continue Without Account</button>
+</div>
+
+<div id="authSignupExtra" class="hidden">
+<input id="authDisplayName" type="text" placeholder="Your name" style="margin-bottom:10px;">
+</div>
+
+<div style="text-align:center;margin-top:12px;">
+<button onclick="handleForgotPassword()" style="background:none;color:rgba(255,255,255,.5);font-size:12px;padding:4px;margin:0;max-width:none;width:auto;">Forgot password?</button>
+</div>
+
+</div>
+</div>
+
+<!-- Account Settings Modal -->
+<div id="accountModal" class="modal hidden" onclick="closeAccountModal()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:380px;">
+<h3 style="text-align:center;">Account</h3>
+<div id="accountInfo" style="text-align:center;margin-bottom:16px;"></div>
+<button onclick="syncToServer(true)" style="background:linear-gradient(135deg,#1a7a4f,#2ecc71);margin-bottom:8px;">☁️ Sync Now</button>
+<button onclick="handleSignOut()" style="background:#a83232;margin-bottom:8px;">Sign Out</button>
+<button onclick="closeAccountModal()" style="background:rgba(255,255,255,.1);">Close</button>
+</div>
+</div>
+
 <!-- Handle Input Modal (replaces browser prompt) -->
 <div id="handleInputModal" class="modal hidden" onclick="closeHandleModal()">
 <div class="modal-box" onclick="event.stopPropagation()" style="max-width:360px;">
@@ -872,6 +920,7 @@ Save Course
 <!--SHARED SYSTEMS-->
 <script src="games/sidebets.js"></script>
 <script src="router/gameRouter.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 
 <script>

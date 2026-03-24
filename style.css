@@ -1932,3 +1932,28 @@ margin-bottom: 12px;
 #leaderboardFinishBtn {
 margin-top: 4px;
 }
+
+/* ===== AUTH MODAL ===== */
+
+.auth-tab {
+background: rgba(255,255,255,.1);
+border: 1px solid rgba(255,255,255,.15);
+font-size: 14px;
+padding: 10px;
+transition: background .15s, border-color .15s;
+}
+
+.auth-tab.active {
+background: linear-gradient(135deg, #1a7a4f, #2ecc71);
+border-color: transparent;
+font-weight: 700;
+}
+
+#authModal input {
+width: 100%;
+margin-bottom: 10px;
+}
+
+#authSignupExtra input {
+margin-bottom: 10px;
+}

@@ -1,3 +1,315 @@
+/* ================= SUPABASE AUTH & SYNC ================= */
+
+const SUPABASE_URL      = "https://hrslssvfafdzoncovfqt.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyc2xzc3ZmYWZkem9uY292ZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTU4MzIsImV4cCI6MjA4OTUzMTgzMn0.dFwltOaE4xZlKbllSOsltX9n5acEKou6QkpDgsaQCXQ";
+
+let sbClient = null;
+let currentUser = null;
+let syncInProgress = false;
+
+// Initialize Supabase client once the CDN script loads
+function initSupabase(){
+if(typeof window.supabase !== "undefined" && !sbClient){
+sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+sbClient.auth.onAuthStateChange(async (event, session) => {
+if(event === "SIGNED_IN" && session){
+currentUser = session.user;
+await restoreFromServer();
+updateAccountBar();
+closeAuthModal();
+} else if(event === "SIGNED_OUT"){
+currentUser = null;
+updateAccountBar();
+}
+});
+sbClient.auth.getSession().then(({ data: { session } }) => {
+if(session){
+currentUser = session.user;
+updateAccountBar();
+}
+});
+} else if(typeof window.supabase === "undefined") {
+// CDN not loaded yet — retry after a short delay
+setTimeout(initSupabase, 200);
+}
+}
+
+// ── Auth UI ──────────────────────────────────────────────────────────────────
+
+let authMode = "login";
+
+window.openAuthModal = () => {
+if(currentUser){
+openAccountModal();
+return;
+}
+switchAuthTab("login");
+document.getElementById("authModal").classList.remove("hidden");
+setTimeout(() => document.getElementById("authEmail")?.focus(), 100);
+};
+
+window.closeAuthModal = () => {
+document.getElementById("authModal")?.classList.add("hidden");
+document.getElementById("authError").textContent = "";
+};
+
+window.switchAuthTab = (mode) => {
+authMode = mode;
+const loginTab   = document.getElementById("authTabLogin");
+const signupTab  = document.getElementById("authTabSignup");
+const extra      = document.getElementById("authSignupExtra");
+const submitBtn  = document.getElementById("authSubmitBtn");
+loginTab.classList.toggle("active", mode === "login");
+signupTab.classList.toggle("active", mode === "signup");
+extra.classList.toggle("hidden", mode === "login");
+submitBtn.textContent = mode === "login" ? "Sign In" : "Create Account";
+document.getElementById("authError").textContent = "";
+};
+
+window.handleAuthSubmit = async () => {
+// Ensure client is ready
+if(!sbClient){
+initSupabase();
+await new Promise(r => setTimeout(r, 600));
+}
+if(!sbClient){
+document.getElementById("authError").textContent = "Connection error — please try again";
+return;
+}
+const email    = document.getElementById("authEmail")?.value?.trim();
+const password = document.getElementById("authPassword")?.value;
+const errorEl  = document.getElementById("authError");
+const btn      = document.getElementById("authSubmitBtn");
+
+if(!email || !password){ errorEl.textContent = "Please enter email and password"; return; }
+
+btn.textContent = "Please wait...";
+btn.disabled    = true;
+errorEl.textContent = "";
+
+try {
+if(authMode === "signup"){
+const name = document.getElementById("authDisplayName")?.value?.trim() || "";
+const { error } = await sbClient.auth.signUp({
+email, password,
+options: { data: { name } }
+});
+if(error) throw error;
+errorEl.style.color = "#2ecc71";
+errorEl.textContent = "Account created! Check your email to confirm.";
+} else {
+const { error } = await sbClient.auth.signInWithPassword({ email, password });
+if(error) throw error;
+}
+} catch(err) {
+errorEl.style.color = "#e74c3c";
+errorEl.textContent = err.message || "Something went wrong";
+} finally {
+btn.textContent = authMode === "login" ? "Sign In" : "Create Account";
+btn.disabled    = false;
+}
+};
+
+window.handleForgotPassword = async () => {
+if(!sbClient){ initSupabase(); }
+const email = document.getElementById("authEmail")?.value?.trim();
+if(!email){ document.getElementById("authError").textContent = "Enter your email first"; return; }
+await sbClient.auth.resetPasswordForEmail(email);
+document.getElementById("authError").style.color = "#2ecc71";
+document.getElementById("authError").textContent = "Password reset email sent!";
+};
+
+window.handleSignOut = async () => {
+if(!sbClient) return;
+await sbClient.auth.signOut();
+closeAccountModal();
+updateAccountBar();
+alert("Signed out. Your local data is still saved on this device.");
+};
+
+// ── Account Modal ─────────────────────────────────────────────────────────────
+
+window.openAccountModal = () => {
+const box = document.getElementById("accountInfo");
+if(box && currentUser){
+box.innerHTML = `
+<div style="font-size:28px;margin-bottom:6px;">👤</div>
+<div style="font-weight:700;">${currentUser.user_metadata?.name || currentUser.email}</div>
+<div style="font-size:12px;opacity:.6;">${currentUser.email}</div>
+`;
+}
+document.getElementById("accountModal")?.classList.remove("hidden");
+};
+
+window.closeAccountModal = () => {
+document.getElementById("accountModal")?.classList.add("hidden");
+};
+
+// ── Account Bar (home screen) ─────────────────────────────────────────────────
+
+function updateAccountBar(){
+const bar = document.getElementById("homeAccountBar");
+if(!bar) return;
+
+if(currentUser){
+bar.innerHTML = `
+<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:rgba(255,255,255,.06);border-radius:12px;font-size:13px;cursor:pointer;" onclick="openAccountModal()">
+<span>☁️</span>
+<span style="opacity:.8;">Synced · ${currentUser.user_metadata?.name || currentUser.email}</span>
+<span style="opacity:.4;">›</span>
+</div>
+`;
+} else {
+bar.innerHTML = `
+<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:rgba(255,255,255,.06);border-radius:12px;font-size:13px;cursor:pointer;" onclick="openAuthModal()">
+<span>☁️</span>
+<span style="opacity:.8;">Sign in to sync your data</span>
+<span style="opacity:.4;">›</span>
+</div>
+`;
+}
+}
+
+// ── Sync Engine ───────────────────────────────────────────────────────────────
+
+window.syncToServer = async (showAlert) => {
+if(!sbClient || !currentUser) return;
+if(syncInProgress) return;
+syncInProgress = true;
+
+try {
+const uid = currentUser.id;
+
+// 1. Profile
+if(userProfile){
+await sbClient.from("profiles").upsert({
+id:        uid,
+name:      userProfile.name,
+handicap:  userProfile.currentHandicap || 0,
+updated_at: new Date().toISOString()
+});
+}
+
+// 2. Saved Players
+if(savedPlayers?.length){
+await sbClient.from("saved_players").delete().eq("user_id", uid);
+const rows = savedPlayers.map(p => ({ user_id: uid, name: p.name, payments: p.payments || {} }));
+await sbClient.from("saved_players").insert(rows);
+}
+
+// 3. Saved Groups
+if(savedGroups?.length){
+await sbClient.from("saved_groups").delete().eq("user_id", uid);
+const rows = savedGroups.map(g => ({
+user_id: uid, name: g.name, players: g.players,
+game: g.game, wager: g.wager
+}));
+await sbClient.from("saved_groups").insert(rows);
+}
+
+// 4. Betting History
+if(userProfile?.bettingHistory?.length){
+await sbClient.from("betting_history").delete().eq("user_id", uid);
+const rows = userProfile.bettingHistory.map(r => ({
+user_id: uid, date: r.date, game: r.game,
+players: r.players, ledger: r.ledger
+}));
+await sbClient.from("betting_history").insert(rows);
+}
+
+// 5. Round History
+if(userProfile?.rounds?.length){
+await sbClient.from("rounds").delete().eq("user_id", uid);
+const rows = userProfile.rounds.map(r => ({
+user_id: uid, date: r.date, course: r.course,
+strokes: r.strokes, holes: r.holes,
+differential: r.differential, hole_scores: r.holeScores || []
+}));
+await sbClient.from("rounds").insert(rows);
+}
+
+if(showAlert) alert("✅ Data synced to server!");
+
+} catch(err) {
+console.error("Sync error:", err);
+if(showAlert) alert("Sync failed: " + err.message);
+} finally {
+syncInProgress = false;
+}
+};
+
+async function restoreFromServer(){
+if(!sbClient || !currentUser) return;
+const uid = currentUser.id;
+
+try {
+// Profile
+const { data: profile } = await supabase
+.from("profiles").select("*").eq("id", uid).single();
+if(profile && userProfile){
+userProfile.name            = profile.name || userProfile.name;
+userProfile.currentHandicap = profile.handicap || userProfile.currentHandicap;
+}
+
+// Saved Players
+const { data: players } = await supabase
+.from("saved_players").select("*").eq("user_id", uid);
+if(players?.length){
+// Merge with local — server wins on conflict
+players.forEach(sp => {
+const local = savedPlayers.find(p => p.name.toLowerCase() === sp.name.toLowerCase());
+if(!local) savedPlayers.push({ name: sp.name, payments: sp.payments || {} });
+else local.payments = { ...local.payments, ...sp.payments };
+});
+localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+}
+
+// Saved Groups
+const { data: groups } = await supabase
+.from("saved_groups").select("*").eq("user_id", uid);
+if(groups?.length){
+savedGroups = groups.map(g => ({
+name: g.name, players: g.players, game: g.game, wager: g.wager
+}));
+localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
+renderHomeGroups();
+}
+
+// Betting History
+const { data: bHistory } = await supabase
+.from("betting_history").select("*").eq("user_id", uid).order("date", { ascending: false });
+if(bHistory?.length && userProfile){
+userProfile.bettingHistory = bHistory.map(r => ({
+date: r.date, game: r.game, players: r.players, ledger: r.ledger
+}));
+}
+
+// Rounds
+const { data: rounds } = await supabase
+.from("rounds").select("*").eq("user_id", uid).order("date", { ascending: false });
+if(rounds?.length && userProfile){
+userProfile.rounds = rounds.map(r => ({
+date: r.date, course: r.course, strokes: r.strokes,
+holes: r.holes, differential: r.differential, holeScores: r.hole_scores || []
+}));
+}
+
+if(userProfile) localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+console.log("✅ Data restored from server");
+} catch(err) {
+console.error("Restore error:", err);
+}
+}
+
+// Auto-sync after betting round ends
+function autoSync(){
+if(currentUser && sbClient){
+setTimeout(() => syncToServer(false), 1000);
+}
+}
+
+/* ================= TIER SYSTEM ================= */
 /* ================= TIER SYSTEM ================= */
 
 // Tiers: free | starter | pro | elite
@@ -64,9 +376,7 @@ let currentRound = null;
 
 /* ================= GOLF COURSE API ================= */
 
-const SUPABASE_URL      = "https://hrslssvfafdzoncovfqt.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyc2xzc3ZmYWZkem9uY292ZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTU4MzIsImV4cCI6MjA4OTUzMTgzMn0.dFwltOaE4xZlKbllSOsltX9n5acEKou6QkpDgsaQCXQ";
-const GOLF_PROXY        = `${SUPABASE_URL}/functions/v1/golf-search`;
+const GOLF_PROXY = `${SUPABASE_URL}/functions/v1/golf-search`;
 
 async function callGolfProxy(params){
   const qs  = new URLSearchParams(params).toString();
@@ -1623,6 +1933,9 @@ renderHomeGroups();
 // Show/hide ads based on tier
 updateAdVisibility();
 
+// Update account bar
+updateAccountBar();
+
 updateHeader("step-home");
 syncBackButton();
 
@@ -1734,17 +2047,21 @@ bettingNineType.classList.remove("hidden");
 refreshCourseDropdown();
 renderHomeGroups();
 updateAdVisibility();
+initSupabase();
+updateAccountBar();
+
+const courseSearchEl = document.getElementById("courseSearch");
 const dropdown = document.getElementById("courseDropdown");
 
-if(search && dropdown){
+if(courseSearchEl && dropdown){
 
-search.addEventListener("focus", ()=>{
+courseSearchEl.addEventListener("focus", ()=>{
 dropdown.classList.remove("hidden");
 });
 
-search.addEventListener("input", ()=>{
+courseSearchEl.addEventListener("input", ()=>{
 
-const term = search.value.trim().toLowerCase();
+const term = courseSearchEl.value.trim().toLowerCase();
 
 dropdown.innerHTML = "";
 
@@ -1761,7 +2078,7 @@ const name = document.createElement("span");
 name.textContent = course.name;
 
 name.onclick = ()=>{
-search.value = course.name;
+courseSearchEl.value = course.name;
 dropdown.classList.add("hidden");
 };
 
@@ -1777,9 +2094,9 @@ if(!confirm(`Delete ${course.name}?`)) return;
 savedCourses = savedCourses.filter(c=>c.name !== course.name);
 localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
 
-if(search.value === course.name){
+if(courseSearchEl.value === course.name){
 
-search.value = "";
+courseSearchEl.value = "";
 
 const teeSelect = document.getElementById("teeSelect");
 
@@ -2788,7 +3105,7 @@ if(hasDebts){
 const settleBtn = document.createElement("button");
 settleBtn.id = "settleUpBtn";
 settleBtn.textContent = "💸 Settle Up";
-settleBtn.style.cssText = "background:linear-gradient(135deg,#1a4f8c,#3498db);margin-top:8px;";
+settleBtn.style.cssText = "background:linear-gradient(135deg,#1a4f8c,#3498db);margin-top:8px;margin-bottom:8px;";
 settleBtn.onclick = (e) => {
 e.stopPropagation();
 openSettleModal();
@@ -2981,6 +3298,8 @@ saveBettingRound();
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 leaderboardModal.classList.add("hidden");
+
+autoSync();
 
 setTimeout(()=>{
 goHomeClean();
@@ -3238,6 +3557,8 @@ fir: currentRound.fir
 updateHandicap();
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+autoSync();
 
 currentRound = null;
 alert("Round Saved!");
