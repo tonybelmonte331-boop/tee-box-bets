@@ -1,0 +1,18 @@
+# Capacitor generated
+android/
+ios/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Build artifacts
+www/
+
+# Environment
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
