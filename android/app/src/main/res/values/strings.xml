@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tee Box Bets</string>
+    <string name="title_activity_main">Tee Box Bets</string>
+    <string name="package_name">com.teeboxbets.app</string>
+    <string name="custom_url_scheme">com.teeboxbets.app</string>
+</resources>

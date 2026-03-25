@@ -1,8 +1,7 @@
 {
   "appId": "com.teeboxbets.app",
   "appName": "Tee Box Bets",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "android": {
     "allowMixedContent": true,
     "backgroundColor": "#041a13"
@@ -12,10 +11,7 @@
       "launchShowDuration": 2000,
       "backgroundColor": "#041a13",
       "androidSplashResourceName": "splash",
-      "iosSplashResourceName": "Splash",
-      "showSpinner": false,
-      "splashFullScreen": true,
-      "splashImmersive": true
+      "showSpinner": false
     }
   }
 }
