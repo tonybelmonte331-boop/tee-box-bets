@@ -111,12 +111,24 @@ btn.disabled    = false;
 };
 
 window.handleForgotPassword = async () => {
-if(!sbClient){ initSupabase(); }
+if(!sbClient){
+initSupabase();
+await new Promise(r => setTimeout(r, 600));
+}
+if(!sbClient){
+document.getElementById("authError").textContent = "Connection error — please try again";
+return;
+}
 const email = document.getElementById("authEmail")?.value?.trim();
 if(!email){ document.getElementById("authError").textContent = "Enter your email first"; return; }
+try {
 await sbClient.auth.resetPasswordForEmail(email);
 document.getElementById("authError").style.color = "#2ecc71";
 document.getElementById("authError").textContent = "Password reset email sent!";
+} catch(err) {
+document.getElementById("authError").style.color = "#e74c3c";
+document.getElementById("authError").textContent = err.message || "Failed to send reset email";
+}
 };
 
 window.handleSignOut = async () => {
@@ -244,7 +256,7 @@ const uid = currentUser.id;
 
 try {
 // Profile
-const { data: profile } = await supabase
+const { data: profile } = await sbClient
 .from("profiles").select("*").eq("id", uid).single();
 if(profile && userProfile){
 userProfile.name            = profile.name || userProfile.name;
@@ -252,7 +264,7 @@ userProfile.currentHandicap = profile.handicap || userProfile.currentHandicap;
 }
 
 // Saved Players
-const { data: players } = await supabase
+const { data: players } = await sbClient
 .from("saved_players").select("*").eq("user_id", uid);
 if(players?.length){
 // Merge with local — server wins on conflict
@@ -265,7 +277,7 @@ localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
 }
 
 // Saved Groups
-const { data: groups } = await supabase
+const { data: groups } = await sbClient
 .from("saved_groups").select("*").eq("user_id", uid);
 if(groups?.length){
 savedGroups = groups.map(g => ({
@@ -276,7 +288,7 @@ renderHomeGroups();
 }
 
 // Betting History
-const { data: bHistory } = await supabase
+const { data: bHistory } = await sbClient
 .from("betting_history").select("*").eq("user_id", uid).order("date", { ascending: false });
 if(bHistory?.length && userProfile){
 userProfile.bettingHistory = bHistory.map(r => ({
@@ -285,7 +297,7 @@ date: r.date, game: r.game, players: r.players, ledger: r.ledger
 }
 
 // Rounds
-const { data: rounds } = await supabase
+const { data: rounds } = await sbClient
 .from("rounds").select("*").eq("user_id", uid).order("date", { ascending: false });
 if(rounds?.length && userProfile){
 userProfile.rounds = rounds.map(r => ({
@@ -4422,20 +4434,82 @@ renderProfile();
 
 /* ================= RESET BETTING ================= */
 
+// Reusable Yes/No modal — replaces browser confirm() for important actions
+function showConfirm({ icon="", title, message, onYes, onNo }){
+document.getElementById("confirmModalIcon").textContent    = icon;
+document.getElementById("confirmModalTitle").textContent   = title;
+document.getElementById("confirmModalMessage").textContent = message;
+document.getElementById("confirmModal").classList.remove("hidden");
+
+document.getElementById("confirmModalYes").onclick = () => {
+document.getElementById("confirmModal").classList.add("hidden");
+if(onYes) onYes();
+};
+document.getElementById("confirmModalNo").onclick = () => {
+document.getElementById("confirmModal").classList.add("hidden");
+if(onNo) onNo();
+};
+}
+
 document.getElementById("resetBettingBtn").onclick = () => {
 
-if(!confirm("Reset all betting stats? This cannot be undone.")) return;
+showConfirm({
+icon: "⚠️",
+title: "Reset Betting Stats?",
+message: "This will reset your total winnings, games played, and net money to $0. This cannot be undone.",
+onYes: () => {
+// Step 2 — ask about history and opponent data
+showConfirm({
+icon: "🗑️",
+title: "Delete Betting History?",
+message: "Do you also want to delete all betting history and opponent data?",
+onYes: () => {
+resetBettingStats(true);
+},
+onNo: () => {
+resetBettingStats(false);
+}
+});
+}
+});
 
-userProfile.bettingStats = {
-totalWon:0,
-totalLost:0,
-totalPlayed:0
 };
+
+function resetBettingStats(clearHistory){
+userProfile.bettingStats = {
+totalWon: 0,
+totalLost: 0,
+totalPlayed: 0,
+opponents: {},
+pvp: {}
+};
+
+if(clearHistory){
+userProfile.bettingHistory = [];
+}
 
 localStorage.setItem("userProfile", JSON.stringify(userProfile));
+autoSync();
 renderProfile();
 
-};
+showConfirm({
+icon: "✅",
+title: "Done",
+message: clearHistory
+? "Betting stats, history, and opponent data cleared."
+: "Betting stats reset. History and opponent data kept.",
+onYes: () => {},
+onNo: null
+});
+
+// Change Yes/No to just "OK" for the success message
+setTimeout(() => {
+const yesBtn = document.getElementById("confirmModalYes");
+const noBtn  = document.getElementById("confirmModalNo");
+if(yesBtn){ yesBtn.textContent = "OK"; yesBtn.style.background = "rgba(46,204,113,.8)"; }
+if(noBtn)  noBtn.style.display = "none";
+}, 10);
+}
 
 /* ================= OPPONENT TRACKING ================= */
 

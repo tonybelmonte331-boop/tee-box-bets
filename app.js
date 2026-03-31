@@ -111,12 +111,24 @@ btn.disabled    = false;
 };
 
 window.handleForgotPassword = async () => {
-if(!sbClient){ initSupabase(); }
+if(!sbClient){
+initSupabase();
+await new Promise(r => setTimeout(r, 600));
+}
+if(!sbClient){
+document.getElementById("authError").textContent = "Connection error — please try again";
+return;
+}
 const email = document.getElementById("authEmail")?.value?.trim();
 if(!email){ document.getElementById("authError").textContent = "Enter your email first"; return; }
+try {
 await sbClient.auth.resetPasswordForEmail(email);
 document.getElementById("authError").style.color = "#2ecc71";
 document.getElementById("authError").textContent = "Password reset email sent!";
+} catch(err) {
+document.getElementById("authError").style.color = "#e74c3c";
+document.getElementById("authError").textContent = err.message || "Failed to send reset email";
+}
 };
 
 window.handleSignOut = async () => {
@@ -244,7 +256,7 @@ const uid = currentUser.id;
 
 try {
 // Profile
-const { data: profile } = await supabase
+const { data: profile } = await sbClient
 .from("profiles").select("*").eq("id", uid).single();
 if(profile && userProfile){
 userProfile.name            = profile.name || userProfile.name;
@@ -252,7 +264,7 @@ userProfile.currentHandicap = profile.handicap || userProfile.currentHandicap;
 }
 
 // Saved Players
-const { data: players } = await supabase
+const { data: players } = await sbClient
 .from("saved_players").select("*").eq("user_id", uid);
 if(players?.length){
 // Merge with local — server wins on conflict
@@ -265,7 +277,7 @@ localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
 }
 
 // Saved Groups
-const { data: groups } = await supabase
+const { data: groups } = await sbClient
 .from("saved_groups").select("*").eq("user_id", uid);
 if(groups?.length){
 savedGroups = groups.map(g => ({
@@ -276,7 +288,7 @@ renderHomeGroups();
 }
 
 // Betting History
-const { data: bHistory } = await supabase
+const { data: bHistory } = await sbClient
 .from("betting_history").select("*").eq("user_id", uid).order("date", { ascending: false });
 if(bHistory?.length && userProfile){
 userProfile.bettingHistory = bHistory.map(r => ({
@@ -285,7 +297,7 @@ date: r.date, game: r.game, players: r.players, ledger: r.ledger
 }
 
 // Rounds
-const { data: rounds } = await supabase
+const { data: rounds } = await sbClient
 .from("rounds").select("*").eq("user_id", uid).order("date", { ascending: false });
 if(rounds?.length && userProfile){
 userProfile.rounds = rounds.map(r => ({

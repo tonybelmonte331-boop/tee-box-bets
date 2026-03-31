@@ -122,7 +122,7 @@
 <div style="text-align:center;margin-top:16px;padding-bottom:8px;">
 <a href="privacy-policy.html" target="_blank" style="color:rgba(255,255,255,.35);font-size:12px;">Privacy Policy</a>
 <span style="color:rgba(255,255,255,.2);margin:0 8px;">·</span>
-<a href="mailto:teeboxbets@gmail.com" style="color:rgba(255,255,255,.35);font-size:12px;">Contact</a>
+<a href="/cdn-cgi/l/email-protection#2b5f4e4e494453494e5f586b4c464a424705484446" style="color:rgba(255,255,255,.35);font-size:12px;">Contact</a>
 </div>
 
 </section>
@@ -684,6 +684,19 @@ Birdie (2x Runs)
 </div>
 </div>
 
+<!-- Yes/No Confirm Modal -->
+<div id="confirmModal" class="modal hidden" onclick="event.stopPropagation()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:340px;text-align:center;">
+<div id="confirmModalIcon" style="font-size:32px;margin-bottom:8px;"></div>
+<h3 id="confirmModalTitle" style="margin-bottom:8px;"></h3>
+<p id="confirmModalMessage" style="font-size:14px;opacity:.75;margin-bottom:20px;"></p>
+<div style="display:flex;gap:10px;">
+<button id="confirmModalYes" style="flex:1;background:#a83232;">Yes</button>
+<button id="confirmModalNo" style="flex:1;background:rgba(255,255,255,.15);">No</button>
+</div>
+</div>
+</div>
+
 <!-- Handle Input Modal (replaces browser prompt) -->
 <div id="handleInputModal" class="modal hidden" onclick="closeHandleModal()">
 <div class="modal-box" onclick="event.stopPropagation()" style="max-width:360px;">
@@ -893,7 +906,7 @@ Save Course
 <button id="endRoundBtn" class="hidden" onclick="cancelTrackedRound()">✕ End Round</button>
 <button id="endBetBtn"   class="hidden" onclick="endRoundNow()">✕ End Round</button>
 <!--CORE APP (MUST BE FIRST)-->
-<script src="app.js"></script>
+<!-- cloudflare removed -->
 
 <!--GAME ENGINES-->
 <script src="games/skins/engine.js"></script>
@@ -934,14 +947,7 @@ Save Course
 <!--SHARED SYSTEMS-->
 <script src="games/sidebets.js"></script>
 <script src="router/gameRouter.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-
-<script>
-if ("serviceWorker" in navigator) {
-navigator.serviceWorker.register("./service-worker.js");
-}
-</script>
-
+<script src="sb-client.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
