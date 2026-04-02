@@ -1,7 +1,7 @@
 /* ================= SUPABASE AUTH & SYNC ================= */
 
-const SUPABASE_URL      = "https://hrslssvfafdzoncovfqt.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyc2xzc3ZmYWZkem9uY292ZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTU4MzIsImV4cCI6MjA4OTUzMTgzMn0.dFwltOaE4xZlKbllSOsltX9n5acEKou6QkpDgsaQCXQ";
+const SUPABASE_URL = “https://hrslssvfafdzoncovfqt.supabase.co”;
+const SUPABASE_ANON_KEY = “eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyc2xzc3ZmYWZkem9uY292ZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTU4MzIsImV4cCI6MjA4OTUzMTgzMn0.dFwltOaE4xZlKbllSOsltX9n5acEKou6QkpDgsaQCXQ”;
 
 let sbClient = null;
 let currentUser = null;
@@ -9,15 +9,15 @@ let syncInProgress = false;
 
 // Initialize Supabase client once the CDN script loads
 function initSupabase(){
-if(typeof window.supabase !== "undefined" && !sbClient){
+if(typeof window.supabase !== “undefined” && !sbClient){
 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 sbClient.auth.onAuthStateChange(async (event, session) => {
-if(event === "SIGNED_IN" && session){
+if(event === “SIGNED_IN” && session){
 currentUser = session.user;
 await restoreFromServer();
 updateAccountBar();
 closeAuthModal();
-} else if(event === "SIGNED_OUT"){
+} else if(event === “SIGNED_OUT”){
 currentUser = null;
 updateAccountBar();
 }
@@ -28,7 +28,7 @@ currentUser = session.user;
 updateAccountBar();
 }
 });
-} else if(typeof window.supabase === "undefined") {
+} else if(typeof window.supabase === “undefined”) {
 // CDN not loaded yet — retry after a short delay
 setTimeout(initSupabase, 200);
 }
@@ -36,34 +36,34 @@ setTimeout(initSupabase, 200);
 
 // ── Auth UI ──────────────────────────────────────────────────────────────────
 
-let authMode = "login";
+let authMode = “login”;
 
 window.openAuthModal = () => {
 if(currentUser){
 openAccountModal();
 return;
 }
-switchAuthTab("login");
-document.getElementById("authModal").classList.remove("hidden");
-setTimeout(() => document.getElementById("authEmail")?.focus(), 100);
+switchAuthTab(“login”);
+document.getElementById(“authModal”).classList.remove(“hidden”);
+setTimeout(() => document.getElementById(“authEmail”)?.focus(), 100);
 };
 
 window.closeAuthModal = () => {
-document.getElementById("authModal")?.classList.add("hidden");
-document.getElementById("authError").textContent = "";
+document.getElementById(“authModal”)?.classList.add(“hidden”);
+document.getElementById(“authError”).textContent = “”;
 };
 
 window.switchAuthTab = (mode) => {
 authMode = mode;
-const loginTab   = document.getElementById("authTabLogin");
-const signupTab  = document.getElementById("authTabSignup");
-const extra      = document.getElementById("authSignupExtra");
-const submitBtn  = document.getElementById("authSubmitBtn");
-loginTab.classList.toggle("active", mode === "login");
-signupTab.classList.toggle("active", mode === "signup");
-extra.classList.toggle("hidden", mode === "login");
-submitBtn.textContent = mode === "login" ? "Sign In" : "Create Account";
-document.getElementById("authError").textContent = "";
+const loginTab = document.getElementById(“authTabLogin”);
+const signupTab = document.getElementById(“authTabSignup”);
+const extra = document.getElementById(“authSignupExtra”);
+const submitBtn = document.getElementById(“authSubmitBtn”);
+loginTab.classList.toggle(“active”, mode === “login”);
+signupTab.classList.toggle(“active”, mode === “signup”);
+extra.classList.toggle(“hidden”, mode === “login”);
+submitBtn.textContent = mode === “login” ? “Sign In” : “Create Account”;
+document.getElementById(“authError”).textContent = “”;
 };
 
 window.handleAuthSubmit = async () => {
@@ -73,40 +73,40 @@ initSupabase();
 await new Promise(r => setTimeout(r, 600));
 }
 if(!sbClient){
-document.getElementById("authError").textContent = "Connection error — please try again";
+document.getElementById(“authError”).textContent = “Connection error — please try again”;
 return;
 }
-const email    = document.getElementById("authEmail")?.value?.trim();
-const password = document.getElementById("authPassword")?.value;
-const errorEl  = document.getElementById("authError");
-const btn      = document.getElementById("authSubmitBtn");
+const email = document.getElementById(“authEmail”)?.value?.trim();
+const password = document.getElementById(“authPassword”)?.value;
+const errorEl = document.getElementById(“authError”);
+const btn = document.getElementById(“authSubmitBtn”);
 
-if(!email || !password){ errorEl.textContent = "Please enter email and password"; return; }
+if(!email || !password){ errorEl.textContent = “Please enter email and password”; return; }
 
-btn.textContent = "Please wait...";
-btn.disabled    = true;
-errorEl.textContent = "";
+btn.textContent = “Please wait…”;
+btn.disabled = true;
+errorEl.textContent = “”;
 
 try {
-if(authMode === "signup"){
-const name = document.getElementById("authDisplayName")?.value?.trim() || "";
+if(authMode === “signup”){
+const name = document.getElementById(“authDisplayName”)?.value?.trim() || “”;
 const { error } = await sbClient.auth.signUp({
 email, password,
 options: { data: { name } }
 });
 if(error) throw error;
-errorEl.style.color = "#2ecc71";
-errorEl.textContent = "Account created! Check your email to confirm.";
+errorEl.style.color = “#2ecc71”;
+errorEl.textContent = “Account created! Check your email to confirm.”;
 } else {
 const { error } = await sbClient.auth.signInWithPassword({ email, password });
 if(error) throw error;
 }
 } catch(err) {
-errorEl.style.color = "#e74c3c";
-errorEl.textContent = err.message || "Something went wrong";
+errorEl.style.color = “#e74c3c”;
+errorEl.textContent = err.message || “Something went wrong”;
 } finally {
-btn.textContent = authMode === "login" ? "Sign In" : "Create Account";
-btn.disabled    = false;
+btn.textContent = authMode === “login” ? “Sign In” : “Create Account”;
+btn.disabled = false;
 }
 };
 
@@ -116,18 +116,18 @@ initSupabase();
 await new Promise(r => setTimeout(r, 600));
 }
 if(!sbClient){
-document.getElementById("authError").textContent = "Connection error — please try again";
+document.getElementById(“authError”).textContent = “Connection error — please try again”;
 return;
 }
-const email = document.getElementById("authEmail")?.value?.trim();
-if(!email){ document.getElementById("authError").textContent = "Enter your email first"; return; }
+const email = document.getElementById(“authEmail”)?.value?.trim();
+if(!email){ document.getElementById(“authError”).textContent = “Enter your email first”; return; }
 try {
 await sbClient.auth.resetPasswordForEmail(email);
-document.getElementById("authError").style.color = "#2ecc71";
-document.getElementById("authError").textContent = "Password reset email sent!";
+document.getElementById(“authError”).style.color = “#2ecc71”;
+document.getElementById(“authError”).textContent = “Password reset email sent!”;
 } catch(err) {
-document.getElementById("authError").style.color = "#e74c3c";
-document.getElementById("authError").textContent = err.message || "Failed to send reset email";
+document.getElementById(“authError”).style.color = “#e74c3c”;
+document.getElementById(“authError”).textContent = err.message || “Failed to send reset email”;
 }
 };
 
@@ -136,16 +136,17 @@ if(!sbClient) return;
 await sbClient.auth.signOut();
 closeAccountModal();
 updateAccountBar();
-alert("Signed out. Your local data is still saved on this device.");
+alert(“Signed out. Your local data is still saved on this device.”);
 };
 
 // ── Account Modal ─────────────────────────────────────────────────────────────
 
 window.openAccountModal = () => {
-const box = document.getElementById("accountInfo");
+const box = document.getElementById(“accountInfo”);
 if(box && currentUser){
 box.innerHTML = `
-<div style="font-size:28px;margin-bottom:6px;">👤</div>
+
+<div style="font-size:28px;margin-bottom:6px;"> </div>
 <div style="font-weight:700;">${currentUser.user_metadata?.name || currentUser.email}</div>
 <div style="font-size:12px;opacity:.6;">${currentUser.email}</div>
 `;
@@ -154,19 +155,20 @@ document.getElementById("accountModal")?.classList.remove("hidden");
 };
 
 window.closeAccountModal = () => {
-document.getElementById("accountModal")?.classList.add("hidden");
+document.getElementById(“accountModal”)?.classList.add(“hidden”);
 };
 
 // ── Account Bar (home screen) ─────────────────────────────────────────────────
 
 function updateAccountBar(){
-const bar = document.getElementById("homeAccountBar");
+const bar = document.getElementById(“homeAccountBar”);
 if(!bar) return;
 
 if(currentUser){
 bar.innerHTML = `
+
 <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:rgba(255,255,255,.06);border-radius:12px;font-size:13px;cursor:pointer;" onclick="openAccountModal()">
-<span>☁️</span>
+<span> </span>
 <span style="opacity:.8;">Synced · ${currentUser.user_metadata?.name || currentUser.email}</span>
 <span style="opacity:.4;">›</span>
 </div>
@@ -174,7 +176,7 @@ bar.innerHTML = `
 } else {
 bar.innerHTML = `
 <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:rgba(255,255,255,.06);border-radius:12px;font-size:13px;cursor:pointer;" onclick="openAuthModal()">
-<span>☁️</span>
+<span> </span>
 <span style="opacity:.8;">Sign in to sync your data</span>
 <span style="opacity:.4;">›</span>
 </div>
@@ -194,57 +196,57 @@ const uid = currentUser.id;
 
 // 1. Profile
 if(userProfile){
-await sbClient.from("profiles").upsert({
-id:        uid,
-name:      userProfile.name,
-handicap:  userProfile.currentHandicap || 0,
+await sbClient.from(“profiles”).upsert({
+id: uid,
+name: userProfile.name,
+handicap: userProfile.currentHandicap || 0,
 updated_at: new Date().toISOString()
 });
 }
 
 // 2. Saved Players
 if(savedPlayers?.length){
-await sbClient.from("saved_players").delete().eq("user_id", uid);
+await sbClient.from(“saved_players”).delete().eq(“user_id”, uid);
 const rows = savedPlayers.map(p => ({ user_id: uid, name: p.name, payments: p.payments || {} }));
-await sbClient.from("saved_players").insert(rows);
+await sbClient.from(“saved_players”).insert(rows);
 }
 
 // 3. Saved Groups
 if(savedGroups?.length){
-await sbClient.from("saved_groups").delete().eq("user_id", uid);
+await sbClient.from(“saved_groups”).delete().eq(“user_id”, uid);
 const rows = savedGroups.map(g => ({
 user_id: uid, name: g.name, players: g.players,
 game: g.game, wager: g.wager
 }));
-await sbClient.from("saved_groups").insert(rows);
+await sbClient.from(“saved_groups”).insert(rows);
 }
 
 // 4. Betting History
 if(userProfile?.bettingHistory?.length){
-await sbClient.from("betting_history").delete().eq("user_id", uid);
+await sbClient.from(“betting_history”).delete().eq(“user_id”, uid);
 const rows = userProfile.bettingHistory.map(r => ({
 user_id: uid, date: r.date, game: r.game,
 players: r.players, ledger: r.ledger
 }));
-await sbClient.from("betting_history").insert(rows);
+await sbClient.from(“betting_history”).insert(rows);
 }
 
 // 5. Round History
 if(userProfile?.rounds?.length){
-await sbClient.from("rounds").delete().eq("user_id", uid);
+await sbClient.from(“rounds”).delete().eq(“user_id”, uid);
 const rows = userProfile.rounds.map(r => ({
 user_id: uid, date: r.date, course: r.course,
 strokes: r.strokes, holes: r.holes,
 differential: r.differential, hole_scores: r.holeScores || []
 }));
-await sbClient.from("rounds").insert(rows);
+await sbClient.from(“rounds”).insert(rows);
 }
 
-if(showAlert) alert("✅ Data synced to server!");
+if(showAlert) alert(“ Data synced to server!”);
 
 } catch(err) {
-console.error("Sync error:", err);
-if(showAlert) alert("Sync failed: " + err.message);
+console.error(“Sync error:”, err);
+if(showAlert) alert(“Sync failed: “ + err.message);
 } finally {
 syncInProgress = false;
 }
@@ -257,39 +259,39 @@ const uid = currentUser.id;
 try {
 // Profile
 const { data: profile } = await sbClient
-.from("profiles").select("*").eq("id", uid).single();
+.from(“profiles”).select(”*”).eq(“id”, uid).single();
 if(profile && userProfile){
-userProfile.name            = profile.name || userProfile.name;
+userProfile.name = profile.name || userProfile.name;
 userProfile.currentHandicap = profile.handicap || userProfile.currentHandicap;
 }
 
 // Saved Players
 const { data: players } = await sbClient
-.from("saved_players").select("*").eq("user_id", uid);
+.from(“saved_players”).select(”*”).eq(“user_id”, uid);
 if(players?.length){
 // Merge with local — server wins on conflict
 players.forEach(sp => {
 const local = savedPlayers.find(p => p.name.toLowerCase() === sp.name.toLowerCase());
 if(!local) savedPlayers.push({ name: sp.name, payments: sp.payments || {} });
-else local.payments = { ...local.payments, ...sp.payments };
+else local.payments = { …local.payments, …sp.payments };
 });
-localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+localStorage.setItem(“savedPlayers”, JSON.stringify(savedPlayers));
 }
 
 // Saved Groups
 const { data: groups } = await sbClient
-.from("saved_groups").select("*").eq("user_id", uid);
+.from(“saved_groups”).select(”*”).eq(“user_id”, uid);
 if(groups?.length){
 savedGroups = groups.map(g => ({
 name: g.name, players: g.players, game: g.game, wager: g.wager
 }));
-localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
+localStorage.setItem(“savedGroups”, JSON.stringify(savedGroups));
 renderHomeGroups();
 }
 
 // Betting History
 const { data: bHistory } = await sbClient
-.from("betting_history").select("*").eq("user_id", uid).order("date", { ascending: false });
+.from(“betting_history”).select(”*”).eq(“user_id”, uid).order(“date”, { ascending: false });
 if(bHistory?.length && userProfile){
 userProfile.bettingHistory = bHistory.map(r => ({
 date: r.date, game: r.game, players: r.players, ledger: r.ledger
@@ -298,7 +300,7 @@ date: r.date, game: r.game, players: r.players, ledger: r.ledger
 
 // Rounds
 const { data: rounds } = await sbClient
-.from("rounds").select("*").eq("user_id", uid).order("date", { ascending: false });
+.from(“rounds”).select(”*”).eq(“user_id”, uid).order(“date”, { ascending: false });
 if(rounds?.length && userProfile){
 userProfile.rounds = rounds.map(r => ({
 date: r.date, course: r.course, strokes: r.strokes,
@@ -306,11 +308,11 @@ holes: r.holes, differential: r.differential, holeScores: r.hole_scores || []
 }));
 }
 
-if(userProfile) localStorage.setItem("userProfile", JSON.stringify(userProfile));
+if(userProfile) localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 
-console.log("✅ Data restored from server");
+console.log(“ Data restored from server”);
 } catch(err) {
-console.error("Restore error:", err);
+console.error(“Restore error:”, err);
 }
 }
 
@@ -326,23 +328,23 @@ setTimeout(() => syncToServer(false), 1000);
 
 // Tiers: free | starter | pro | elite
 // In production this will be driven by RevenueCat
-let userTier = localStorage.getItem("userTier") || "free";
+let userTier = localStorage.getItem(“userTier”) || “free”;
 
 function setTier(tier){
 userTier = tier;
-localStorage.setItem("userTier", tier);
+localStorage.setItem(“userTier”, tier);
 }
 
 function getTier(){ return userTier; }
 
-function hasStarterOrAbove(){ return ["starter","pro","elite"].includes(userTier); }
-function hasProOrAbove(){     return ["pro","elite"].includes(userTier); }
-function hasElite(){          return userTier === "elite"; }
+function hasStarterOrAbove(){ return [“starter”,“pro”,“elite”].includes(userTier); }
+function hasProOrAbove(){ return [“pro”,“elite”].includes(userTier); }
+function hasElite(){ return userTier === “elite”; }
 
 // Group limits
 function maxGroups(){
-if(hasElite())       return Infinity;
-if(hasProOrAbove())  return 5;
+if(hasElite()) return Infinity;
+if(hasProOrAbove()) return 5;
 return 2;
 }
 
@@ -368,19 +370,19 @@ GAME_RULES[name] = rules;
 
 /* ================= STATE ================= */
 
-let userProfile = JSON.parse(localStorage.getItem("userProfile"));
+let userProfile = JSON.parse(localStorage.getItem(“userProfile”));
 
 let currentGame = null;
 
 let playStyle, playerCount;
-let teamAName="", teamBName="";
+let teamAName=””, teamBName=””;
 let players=[], teams={A:[],B:[]}, ledger={};
 
 let hole=1;
 let holeLimit=9;
 let baseWager=0;
 
-let bettingCourse = null; // { name, pars: [], tee: "" }
+let bettingCourse = null; // { name, pars: [], tee: “” }
 
 let historyStack=[];
 
@@ -391,338 +393,342 @@ let currentRound = null;
 const GOLF_PROXY = `${SUPABASE_URL}/functions/v1/golf-search`;
 
 async function callGolfProxy(params){
-  const qs  = new URLSearchParams(params).toString();
-  const res = await fetch(`${GOLF_PROXY}?${qs}`, {
-    headers: {
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type":  "application/json"
-    }
-  });
-  if(!res.ok) throw new Error(`Proxy error ${res.status}`);
-  return res.json();
+const qs = new URLSearchParams(params).toString();
+const res = await fetch(`${GOLF_PROXY}?${qs}`, {
+headers: {
+“Authorization”: `Bearer ${SUPABASE_ANON_KEY}`,
+“Content-Type”: “application/json”
+}
+});
+if(!res.ok) throw new Error(`Proxy error ${res.status}`);
+return res.json();
 }
 
 window.searchCoursesAPI = async () => {
-  const input  = document.getElementById("courseSearch");
-  const status = document.getElementById("apiCourseStatus");
-  const drop   = document.getElementById("apiCourseDropdown");
-  const q      = input?.value?.trim();
+const input = document.getElementById(“courseSearch”);
+const status = document.getElementById(“apiCourseStatus”);
+const drop = document.getElementById(“apiCourseDropdown”);
+const q = input?.value?.trim();
 
-  if(!q || q.length < 2) return;
+if(!q || q.length < 2) return;
 
-  status.textContent = "Searching...";
-  drop.innerHTML     = "";
-  drop.classList.remove("hidden");
+status.textContent = “Searching…”;
+drop.innerHTML = “”;
+drop.classList.remove(“hidden”);
 
-  try {
-    const data    = await callGolfProxy({ action: "search", q });
-    const courses = data.courses || [];
+try {
+const data = await callGolfProxy({ action: “search”, q });
+const courses = data.courses || [];
 
-    status.textContent = courses.length
-      ? `${courses.length} course${courses.length > 1 ? "s" : ""} found`
-      : "No courses found — try a different search or add manually";
+```
+status.textContent = courses.length
+ ? `${courses.length} course${courses.length > 1 ? "s" : ""} found`
+ : "No courses found — try a different search or add manually";
 
-    drop.innerHTML = "";
+drop.innerHTML = "";
 
-    courses.slice(0, 10).forEach(c => {
-      const row  = document.createElement("div");
-      row.className = "course-row";
+courses.slice(0, 10).forEach(c => {
+ const row = document.createElement("div");
+ row.className = "course-row";
 
-      const name = document.createElement("span");
-      name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
+ const name = document.createElement("span");
+ name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
 
-      name.onclick = async () => {
-        status.textContent = "Loading course data...";
-        drop.classList.add("hidden");
-        input.value = c.club_name;
-        await loadAPICourse(c.id, c.club_name);
-      };
+ name.onclick = async () => {
+ status.textContent = "Loading course data...";
+ drop.classList.add("hidden");
+ input.value = c.club_name;
+ await loadAPICourse(c.id, c.club_name);
+ };
 
-      row.appendChild(name);
-      drop.appendChild(row);
-    });
+ row.appendChild(name);
+ drop.appendChild(row);
+});
+```
 
-  } catch(err) {
-    status.textContent = "Search failed — check connection or add manually";
-    drop.classList.add("hidden");
-    console.error("Golf API error:", err);
-  }
+} catch(err) {
+status.textContent = “Search failed — check connection or add manually”;
+drop.classList.add(“hidden”);
+console.error(“Golf API error:”, err);
+}
 };
 
 // Allow pressing Enter to search
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("courseSearch");
-  if(input){
-    input.addEventListener("keydown", e => {
-      if(e.key === "Enter") searchCoursesAPI();
-    });
-  }
+document.addEventListener(“DOMContentLoaded”, () => {
+const input = document.getElementById(“courseSearch”);
+if(input){
+input.addEventListener(“keydown”, e => {
+if(e.key === “Enter”) searchCoursesAPI();
+});
+}
 
-  // Betting course search — Enter key
-  const bInput = document.getElementById("bettingCourseSearch");
-  if(bInput){
-    bInput.addEventListener("keydown", e => {
-      if(e.key === "Enter") searchBettingCourse();
-    });
-  }
+// Betting course search — Enter key
+const bInput = document.getElementById(“bettingCourseSearch”);
+if(bInput){
+bInput.addEventListener(“keydown”, e => {
+if(e.key === “Enter”) searchBettingCourse();
+});
+}
 
-  // Dismiss betting dropdown on outside click
-  document.addEventListener("click", e => {
-    if(!e.target.closest("#bettingCourseSearch") &&
-       !e.target.closest("#bettingCourseDropdown") &&
-       !e.target.closest(".search-icon-btn")){
-      document.getElementById("bettingCourseDropdown")?.classList.add("hidden");
-    }
-  });
+// Dismiss betting dropdown on outside click
+document.addEventListener(“click”, e => {
+if(!e.target.closest(”#bettingCourseSearch”) &&
+!e.target.closest(”#bettingCourseDropdown”) &&
+!e.target.closest(”.search-icon-btn”)){
+document.getElementById(“bettingCourseDropdown”)?.classList.add(“hidden”);
+}
+});
 });
 
 async function loadAPICourse(courseId, clubName){
-  const status    = document.getElementById("apiCourseStatus");
-  const teeSelect = document.getElementById("teeSelect");
+const status = document.getElementById(“apiCourseStatus”);
+const teeSelect = document.getElementById(“teeSelect”);
 
-  try {
-    const data   = await callGolfProxy({ action: "course", id: courseId });
-    const course = data.course || data;
+try {
+const data = await callGolfProxy({ action: “course”, id: courseId });
+const course = data.course || data;
 
-    const tees = {};
+```
+const tees = {};
 
-    // API returns tees.male and tees.female arrays
-    const allTees = [
-      ...(course.tees?.male   || []).map(t => ({ ...t, gender: "M" })),
-      ...(course.tees?.female || []).map(t => ({ ...t, gender: "F" })),
-    ];
+// API returns tees.male and tees.female arrays
+const allTees = [
+ ...(course.tees?.male || []).map(t => ({ ...t, gender: "M" })),
+ ...(course.tees?.female || []).map(t => ({ ...t, gender: "F" })),
+];
 
-    allTees.forEach(tee => {
-      const holes    = tee.holes || [];
-      const pars     = holes.map(h => h.par      || 4);
-      const yardages = holes.map(h => h.yardage  || 0);
+allTees.forEach(tee => {
+ const holes = tee.holes || [];
+ const pars = holes.map(h => h.par || 4);
+ const yardages = holes.map(h => h.yardage || 0);
 
-      // Label tee with gender suffix if same name exists for both
-      const teeName = tee.tee_name +
-        (allTees.filter(t => t.tee_name === tee.tee_name).length > 1
-          ? ` (${tee.gender === "M" ? "Men" : "Women"})`
-          : "");
+ // Label tee with gender suffix if same name exists for both
+ const teeName = tee.tee_name +
+ (allTees.filter(t => t.tee_name === tee.tee_name).length > 1
+ ? ` (${tee.gender === "M" ? "Men" : "Women"})`
+ : "");
 
-      tees[teeName] = {
-        rating:   parseFloat(tee.course_rating) || 72,
-        slope:    parseInt(tee.slope_rating)    || 113,
-        pars,
-        yardages
-      };
-    });
+ tees[teeName] = {
+ rating: parseFloat(tee.course_rating) || 72,
+ slope: parseInt(tee.slope_rating) || 113,
+ pars,
+ yardages
+ };
+});
 
-    // Check if already saved — update tees if so
-    const existing = savedCourses.find(c =>
-      c.name.toLowerCase() === clubName.toLowerCase()
-    );
+// Check if already saved — update tees if so
+const existing = savedCourses.find(c =>
+ c.name.toLowerCase() === clubName.toLowerCase()
+);
 
-    if(existing){
-      existing.tees = tees;
-    } else {
-      savedCourses.push({
-        name:    clubName,
-        favorite: false,
-        fromAPI: true,
-        tees
-      });
-    }
-
-    localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
-
-    // Populate tee dropdown
-    teeSelect.innerHTML = "";
-    Object.keys(tees).forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t; opt.textContent = t;
-      teeSelect.appendChild(opt);
-    });
-
-    refreshCourseDropdown();
-
-    const teeCount = Object.keys(tees).length;
-    status.textContent = `✅ ${clubName} loaded — ${teeCount} tee box${teeCount !== 1 ? "es" : ""} found`;
-
-  } catch(err) {
-    status.textContent = "Failed to load course data — try adding manually";
-    console.error("Course load error:", err);
-  }
+if(existing){
+ existing.tees = tees;
+} else {
+ savedCourses.push({
+ name: clubName,
+ favorite: false,
+ fromAPI: true,
+ tees
+ });
 }
 
+localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+
+// Populate tee dropdown
+teeSelect.innerHTML = "";
+Object.keys(tees).forEach(t => {
+ const opt = document.createElement("option");
+ opt.value = t; opt.textContent = t;
+ teeSelect.appendChild(opt);
+});
+
+refreshCourseDropdown();
+
+const teeCount = Object.keys(tees).length;
+status.textContent = ` ${clubName} loaded — ${teeCount} tee box${teeCount !== 1 ? "es" : ""} found`;
+```
+
+} catch(err) {
+status.textContent = “Failed to load course data — try adding manually”;
+console.error(“Course load error:”, err);
+}
+}
 
 /* ================= BETTING COURSE SEARCH ================= */
 
 window.searchBettingCourse = async () => {
-  const input  = document.getElementById("bettingCourseSearch");
-  const status = document.getElementById("bettingCourseStatus");
-  const drop   = document.getElementById("bettingCourseDropdown");
-  const q      = input?.value?.trim();
-  if(!q || q.length < 2) return;
+const input = document.getElementById(“bettingCourseSearch”);
+const status = document.getElementById(“bettingCourseStatus”);
+const drop = document.getElementById(“bettingCourseDropdown”);
+const q = input?.value?.trim();
+if(!q || q.length < 2) return;
 
-  status.textContent = "Searching...";
-  drop.innerHTML = "";
-  drop.classList.remove("hidden");
+status.textContent = “Searching…”;
+drop.innerHTML = “”;
+drop.classList.remove(“hidden”);
 
-  try {
-    const localMatches = savedCourses.filter(c =>
-      c.name.toLowerCase().includes(q.toLowerCase())
-    );
-    const data    = await callGolfProxy({ action: "search", q });
-    const courses = data.courses || [];
-    drop.innerHTML = "";
+try {
+const localMatches = savedCourses.filter(c =>
+c.name.toLowerCase().includes(q.toLowerCase())
+);
+const data = await callGolfProxy({ action: “search”, q });
+const courses = data.courses || [];
+drop.innerHTML = “”;
 
-    localMatches.forEach(c => {
-      const row = document.createElement("div");
-      row.className = "course-row";
-      const name = document.createElement("span");
-      name.textContent = "⭐ " + c.name;
-      name.onclick = () => selectBettingCourse(c.name);
-      row.appendChild(name);
-      drop.appendChild(row);
-    });
+```
+localMatches.forEach(c => {
+ const row = document.createElement("div");
+ row.className = "course-row";
+ const name = document.createElement("span");
+ name.textContent = " " + c.name;
+ name.onclick = () => selectBettingCourse(c.name);
+ row.appendChild(name);
+ drop.appendChild(row);
+});
 
-    courses.slice(0, 8).forEach(c => {
-      const row = document.createElement("div");
-      row.className = "course-row";
-      const name = document.createElement("span");
-      name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
-      name.onclick = async () => {
-        status.textContent = "Loading...";
-        drop.classList.add("hidden");
-        input.value = c.club_name;
-        await loadBettingCourseFromAPI(c.id, c.club_name);
-      };
-      row.appendChild(name);
-      drop.appendChild(row);
-    });
+courses.slice(0, 8).forEach(c => {
+ const row = document.createElement("div");
+ row.className = "course-row";
+ const name = document.createElement("span");
+ name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
+ name.onclick = async () => {
+ status.textContent = "Loading...";
+ drop.classList.add("hidden");
+ input.value = c.club_name;
+ await loadBettingCourseFromAPI(c.id, c.club_name);
+ };
+ row.appendChild(name);
+ drop.appendChild(row);
+});
 
-    const total = localMatches.length + Math.min(courses.length, 8);
-    status.textContent = total > 0 ? `${total} courses found` : "No courses found";
-    if(!drop.children.length) drop.classList.add("hidden");
+const total = localMatches.length + Math.min(courses.length, 8);
+status.textContent = total > 0 ? `${total} courses found` : "No courses found";
+if(!drop.children.length) drop.classList.add("hidden");
+```
 
-  } catch(err) {
-    status.textContent = "Search failed";
-    console.error(err);
-  }
+} catch(err) {
+status.textContent = “Search failed”;
+console.error(err);
+}
 };
 
 async function loadBettingCourseFromAPI(courseId, clubName){
-  const status    = document.getElementById("bettingCourseStatus");
-  try {
-    const data   = await callGolfProxy({ action: "course", id: courseId });
-    const course = data.course || data;
-    const allTees = [
-      ...(course.tees?.male   || []).map(t => ({ ...t, gender:"M" })),
-      ...(course.tees?.female || []).map(t => ({ ...t, gender:"F" })),
-    ];
-    const tees = {};
-    allTees.forEach(tee => {
-      const name = tee.tee_name +
-        (allTees.filter(t => t.tee_name === tee.tee_name).length > 1
-          ? ` (${tee.gender === "M" ? "Men" : "Women"})` : "");
-      tees[name] = { pars: (tee.holes||[]).map(h => h.par||4) };
-    });
-    if(!savedCourses.find(c => c.name.toLowerCase() === clubName.toLowerCase())){
-      savedCourses.push({ name: clubName, favorite: false, fromAPI: true,
-        tees: Object.fromEntries(Object.entries(tees).map(([k,v]) => [k, { ...v, rating:72, slope:113, yardages:[] }]))
-      });
-      localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
-    }
-    populateBettingTees(clubName, tees);
-    status.textContent = "\u2705 " + clubName;
-  } catch(err) {
-    status.textContent = "Failed to load";
-  }
+const status = document.getElementById(“bettingCourseStatus”);
+try {
+const data = await callGolfProxy({ action: “course”, id: courseId });
+const course = data.course || data;
+const allTees = [
+…(course.tees?.male || []).map(t => ({ …t, gender:“M” })),
+…(course.tees?.female || []).map(t => ({ …t, gender:“F” })),
+];
+const tees = {};
+allTees.forEach(tee => {
+const name = tee.tee_name +
+(allTees.filter(t => t.tee_name === tee.tee_name).length > 1
+? ` (${tee.gender === "M" ? "Men" : "Women"})` : “”);
+tees[name] = { pars: (tee.holes||[]).map(h => h.par||4) };
+});
+if(!savedCourses.find(c => c.name.toLowerCase() === clubName.toLowerCase())){
+savedCourses.push({ name: clubName, favorite: false, fromAPI: true,
+tees: Object.fromEntries(Object.entries(tees).map(([k,v]) => [k, { …v, rating:72, slope:113, yardages:[] }]))
+});
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
+}
+populateBettingTees(clubName, tees);
+status.textContent = “\u2705 “ + clubName;
+} catch(err) {
+status.textContent = “Failed to load”;
+}
 }
 
 function selectBettingCourse(courseName){
-  const input     = document.getElementById("bettingCourseSearch");
-  const drop      = document.getElementById("bettingCourseDropdown");
-  const status    = document.getElementById("bettingCourseStatus");
-  input.value = courseName;
-  drop.classList.add("hidden");
-  const saved = savedCourses.find(c => c.name === courseName);
-  if(saved && saved.tees){
-    const teeMap = {};
-    Object.entries(saved.tees).forEach(([name, tee]) => {
-      teeMap[name] = { pars: tee.pars };
-    });
-    populateBettingTees(courseName, teeMap);
-    status.textContent = "\u2705 " + courseName;
-  }
+const input = document.getElementById(“bettingCourseSearch”);
+const drop = document.getElementById(“bettingCourseDropdown”);
+const status = document.getElementById(“bettingCourseStatus”);
+input.value = courseName;
+drop.classList.add(“hidden”);
+const saved = savedCourses.find(c => c.name === courseName);
+if(saved && saved.tees){
+const teeMap = {};
+Object.entries(saved.tees).forEach(([name, tee]) => {
+teeMap[name] = { pars: tee.pars };
+});
+populateBettingTees(courseName, teeMap);
+status.textContent = “\u2705 “ + courseName;
+}
 }
 
 function populateBettingTees(courseName, tees){
-  const teeRow    = document.getElementById("bettingTeeRow");
-  const teeSelect = document.getElementById("bettingTeeSelect");
-  teeSelect.innerHTML = "";
-  Object.keys(tees).forEach(t => {
-    const opt = document.createElement("option");
-    opt.value = t; opt.textContent = t;
-    teeSelect.appendChild(opt);
-  });
-  teeRow.classList.remove("hidden");
-  const firstTee = Object.keys(tees)[0];
-  bettingCourse = { name: courseName, fullPars: tees[firstTee].pars };
-  teeSelect.onchange = () => {
-    bettingCourse = { name: courseName, fullPars: tees[teeSelect.value]?.pars || [] };
-  };
+const teeRow = document.getElementById(“bettingTeeRow”);
+const teeSelect = document.getElementById(“bettingTeeSelect”);
+teeSelect.innerHTML = “”;
+Object.keys(tees).forEach(t => {
+const opt = document.createElement(“option”);
+opt.value = t; opt.textContent = t;
+teeSelect.appendChild(opt);
+});
+teeRow.classList.remove(“hidden”);
+const firstTee = Object.keys(tees)[0];
+bettingCourse = { name: courseName, fullPars: tees[firstTee].pars };
+teeSelect.onchange = () => {
+bettingCourse = { name: courseName, fullPars: tees[teeSelect.value]?.pars || [] };
+};
 }
 
 function clearBettingCourse(){
-  bettingCourse = null;
-  const input  = document.getElementById("bettingCourseSearch");
-  const drop   = document.getElementById("bettingCourseDropdown");
-  const status = document.getElementById("bettingCourseStatus");
-  const teeRow = document.getElementById("bettingTeeRow");
-  if(input)  input.value = "";
-  if(drop)   { drop.innerHTML = ""; drop.classList.add("hidden"); }
-  if(status) status.textContent = "";
-  if(teeRow) teeRow.classList.add("hidden");
+bettingCourse = null;
+const input = document.getElementById(“bettingCourseSearch”);
+const drop = document.getElementById(“bettingCourseDropdown”);
+const status = document.getElementById(“bettingCourseStatus”);
+const teeRow = document.getElementById(“bettingTeeRow”);
+if(input) input.value = “”;
+if(drop) { drop.innerHTML = “”; drop.classList.add(“hidden”); }
+if(status) status.textContent = “”;
+if(teeRow) teeRow.classList.add(“hidden”);
 }
 
 /* ================= COURSE STORAGE ================= */
 
-
-let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
+let savedCourses = JSON.parse(localStorage.getItem(“savedCourses”)) || [];
 
 function refreshCourseDropdown(){
 
-const dropdown = document.getElementById("courseDropdown");
-const search = document.getElementById("courseSearch");
+const dropdown = document.getElementById(“courseDropdown”);
+const search = document.getElementById(“courseSearch”);
 
 if(!dropdown || !search) return;
 
-dropdown.innerHTML = "";
+dropdown.innerHTML = “”;
 
 savedCourses.forEach(course=>{
 
-const row = document.createElement("div");
-row.className = "course-row";
+const row = document.createElement(“div”);
+row.className = “course-row”;
 
-const name = document.createElement("span");
+const name = document.createElement(“span”);
 
-name.textContent = (course.favorite ? "⭐ " : "") + course.name;
+name.textContent = (course.favorite ? “ “ : “”) + course.name;
 
 name.onclick = ()=>{
 search.value = course.name;
-dropdown.classList.add("hidden");
+dropdown.classList.add(“hidden”);
 
-const teeSelect = document.getElementById("teeSelect");
-teeSelect.innerHTML = "";
+const teeSelect = document.getElementById(“teeSelect”);
+teeSelect.innerHTML = “”;
 
 const tees = course.tees || { Default: { rating:72, slope:113, pars:course.pars } };
 
 Object.keys(tees).forEach(t=>{
-const opt = document.createElement("option");
+const opt = document.createElement(“option”);
 opt.value = t;
 opt.textContent = t;
 teeSelect.appendChild(opt);
 });
 };
 
-const del = document.createElement("span");
-del.textContent = "✕";
-del.className = "course-delete";
+const del = document.createElement(“span”);
+del.textContent = “✕”;
+del.className = “course-delete”;
 
 del.onclick = (e)=>{
 e.stopPropagation();
@@ -731,28 +737,28 @@ if(!confirm(`Delete ${course.name}?`)) return;
 
 savedCourses = savedCourses.filter(c=>c.name !== course.name);
 
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
-/* 🔥 CLEAR SELECTION IF THIS COURSE WAS SELECTED */
-const search = document.getElementById("courseSearch");
+/* CLEAR SELECTION IF THIS COURSE WAS SELECTED */
+const search = document.getElementById(“courseSearch”);
 
 if(search && search.value === course.name){
-search.value = "";
+search.value = “”;
 
-const teeSelect = document.getElementById("teeSelect");
+const teeSelect = document.getElementById(“teeSelect”);
 
 if(teeSelect){
 teeSelect.innerHTML = `<option value="Default">Default</option>`;
-teeSelect.value = "Default";
+teeSelect.value = “Default”;
 }
 }
 
 refreshCourseDropdown();
 };
 
-const star = document.createElement("span");
-star.textContent = "⭐";
-star.style.cursor = "pointer";
+const star = document.createElement(“span”);
+star.textContent = “ ”;
+star.style.cursor = “pointer”;
 
 star.onclick = (e)=>{
 
@@ -760,7 +766,7 @@ e.stopPropagation();
 
 course.favorite = !course.favorite;
 
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
 refreshCourseDropdown();
 
@@ -780,43 +786,43 @@ dropdown.appendChild(row);
 Course Structure:
 
 {
-name: "Pine Valley",
+name: “Pine Valley”,
 pars: [4,4,3,5,4,4,3,4,5, 4,5,3,4,4,5,3,4,4],
 }
 */
 
 window.saveCourse = () => {
 
-const name = document.getElementById("newCourseName").value.trim();
-if(!name) return alert("Enter course name");
+const name = document.getElementById(“newCourseName”).value.trim();
+if(!name) return alert(“Enter course name”);
 
 if(savedCourses.some(c => c.name.toLowerCase() === name.toLowerCase())){
-return alert("Course already exists");
+return alert(“Course already exists”);
 }
 
 let pars = [];
 
 for(let i=1;i<=18;i++){
 const val = +document.getElementById(`par${i}`).value;
-if(!val) return alert("Enter all 18 pars");
+if(!val) return alert(“Enter all 18 pars”);
 pars.push(val);
 }
 
-const teeName = document.getElementById("newTeeName").value.trim() || "Default";
+const teeName = document.getElementById(“newTeeName”).value.trim() || “Default”;
 
 savedCourses.push({
 name,
 favorite:false,
 tees: {
 [teeName]: {
-rating: +document.getElementById("newTeeRating").value || 72,
-slope: +document.getElementById("newTeeSlope").value || 113,
+rating: +document.getElementById(“newTeeRating”).value || 72,
+slope: +document.getElementById(“newTeeSlope”).value || 113,
 pars
 }
 }
 });
 
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
 closeCourseModal();
 
@@ -827,21 +833,21 @@ refreshCourseDropdown();
 
 function resetAddCourseModal(){
 
-const name = document.getElementById("newCourseName");
-if(name) name.value = "";
+const name = document.getElementById(“newCourseName”);
+if(name) name.value = “”;
 
-const tee = document.getElementById("newTeeName");
-if(tee) tee.value = "";
+const tee = document.getElementById(“newTeeName”);
+if(tee) tee.value = “”;
 
-const rating = document.getElementById("newTeeRating");
-if(rating) rating.value = "";
+const rating = document.getElementById(“newTeeRating”);
+if(rating) rating.value = “”;
 
-const slope = document.getElementById("newTeeSlope");
-if(slope) slope.value = "";
+const slope = document.getElementById(“newTeeSlope”);
+if(slope) slope.value = “”;
 
 for(let i=1;i<=18;i++){
 const par = document.getElementById(`par${i}`);
-if(par) par.value = "";
+if(par) par.value = “”;
 }
 
 }
@@ -849,26 +855,26 @@ if(par) par.value = "";
 /* ================= TEE MANAGER ================= */
 function openTeeManager(){
 
-document.body.classList.add("modal-open");
+document.body.classList.add(“modal-open”);
 
-const courseName = document.getElementById("courseSearch").value;
+const courseName = document.getElementById(“courseSearch”).value;
 
 const course = savedCourses.find(c => c.name === courseName);
 
 if(!course){
-alert("Select a course first");
+alert(“Select a course first”);
 return;
 }
 
-const teeList = document.getElementById("teeList");
-teeList.innerHTML = "";
+const teeList = document.getElementById(“teeList”);
+teeList.innerHTML = “”;
 
 Object.keys(course.tees).forEach(name=>{
 
 const tee = course.tees[name];
 
-const row = document.createElement("div");
-row.className = "tee-row";
+const row = document.createElement(“div”);
+row.className = “tee-row”;
 
 row.innerHTML = `
 
@@ -888,6 +894,7 @@ Slope
 class="tee-edit-slope"
 inputmode="numeric"
 onchange="editTee('${course.name}','${name}','slope',this.value)">
+
 </div>
 
 </div>
@@ -900,46 +907,46 @@ teeList.appendChild(row);
 
 });
 
-document.getElementById("teeManagerModal").classList.remove("hidden");
+document.getElementById(“teeManagerModal”).classList.remove(“hidden”);
 
 }
 
 function closeTeeManager(){
 
-document.body.classList.remove("modal-open");
+document.body.classList.remove(“modal-open”);
 
-document.getElementById("teeManagerModal").classList.add("hidden");
+document.getElementById(“teeManagerModal”).classList.add(“hidden”);
 
 /* clear add tee inputs */
 
-document.getElementById("teeNameInput").value = "";
-document.getElementById("teeRatingInput").value = "";
-document.getElementById("teeSlopeInput").value = "";
+document.getElementById(“teeNameInput”).value = “”;
+document.getElementById(“teeRatingInput”).value = “”;
+document.getElementById(“teeSlopeInput”).value = “”;
 
 }
 
 function addTeeToCourse(){
 
-const courseName = document.getElementById("courseSearch").value;
+const courseName = document.getElementById(“courseSearch”).value;
 
 const course = savedCourses.find(c => c.name === courseName);
 
 if(!course){
-alert("Select course first");
+alert(“Select course first”);
 return;
 }
 
-const name = document.getElementById("teeNameInput").value.trim();
-const rating = +document.getElementById("teeRatingInput").value || 72;
-const slope = +document.getElementById("teeSlopeInput").value || 113;
+const name = document.getElementById(“teeNameInput”).value.trim();
+const rating = +document.getElementById(“teeRatingInput”).value || 72;
+const slope = +document.getElementById(“teeSlopeInput”).value || 113;
 
 if(!name){
-alert("Enter tee name");
+alert(“Enter tee name”);
 return;
 }
 
 if(course.tees[name]){
-alert("Tee already exists");
+alert(“Tee already exists”);
 return;
 }
 
@@ -948,17 +955,17 @@ const basePars = Object.values(course.tees)[0].pars;
 course.tees[name] = {
 rating,
 slope,
-pars: [...basePars]
+pars: […basePars]
 };
 
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
 refreshCourseDropdown();
 openTeeManager();
 
-document.getElementById("teeNameInput").value = "";
-document.getElementById("teeRatingInput").value = "";
-document.getElementById("teeSlopeInput").value = "";
+document.getElementById(“teeNameInput”).value = “”;
+document.getElementById(“teeRatingInput”).value = “”;
+document.getElementById(“teeSlopeInput”).value = “”;
 
 }
 
@@ -969,7 +976,7 @@ const course = savedCourses.find(c => c.name === courseName);
 if(!course) return;
 
 if(Object.keys(course.tees).length <= 1){
-alert("Cannot delete the last tee");
+alert(“Cannot delete the last tee”);
 return;
 }
 
@@ -977,14 +984,14 @@ if(!confirm(`Delete ${teeName} tee?`)) return;
 
 delete course.tees[teeName];
 
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
 // Refresh the tee dropdown immediately
-const teeSelect = document.getElementById("teeSelect");
+const teeSelect = document.getElementById(“teeSelect”);
 if(teeSelect){
-teeSelect.innerHTML = "";
+teeSelect.innerHTML = “”;
 Object.keys(course.tees).forEach(t => {
-const opt = document.createElement("option");
+const opt = document.createElement(“option”);
 opt.value = t; opt.textContent = t;
 teeSelect.appendChild(opt);
 });
@@ -1001,15 +1008,15 @@ const course = savedCourses.find(c=>c.name===courseName);
 
 if(!course) return;
 
-if(field === "rating"){
+if(field === “rating”){
 course.tees[teeName].rating = +value;
 }
 
-if(field === "slope"){
+if(field === “slope”){
 course.tees[teeName].slope = +value;
 }
 
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
 refreshCourseDropdown();
 
@@ -1019,35 +1026,35 @@ refreshCourseDropdown();
 
 const PAYMENT_APPS = [
 {
-id:    "venmo",
-label: "Venmo",
-color: "#008CFF",
-icon:  "V",
-url:   (handle, amount, note) =>
+id: “venmo”,
+label: “Venmo”,
+color: “#008CFF”,
+icon: “V”,
+url: (handle, amount, note) =>
 `https://venmo.com/${encodeURIComponent(handle.replace(/^@/,""))}?txn=pay&amount=${amount}&note=${encodeURIComponent(note)}`
 },
 {
-id:    "cashapp",
-label: "Cash App",
-color: "#00D632",
-icon:  "$",
-url:   (handle, amount, note) =>
+id: “cashapp”,
+label: “Cash App”,
+color: “#00D632”,
+icon: “$”,
+url: (handle, amount, note) =>
 `cashapp://cash.app/${encodeURIComponent(handle)}?amount=${amount}&note=${encodeURIComponent(note)}`
 },
 {
-id:    "zelle",
-label: "Zelle",
-color: "#6D1ED4",
-icon:  "Z",
-url:   (handle, amount, note) =>
+id: “zelle”,
+label: “Zelle”,
+color: “#6D1ED4”,
+icon: “Z”,
+url: (handle, amount, note) =>
 `https://enroll.zellepay.com/qr-codes?data=${encodeURIComponent(JSON.stringify({name:handle,action:"payment"}))}`
 },
 {
-id:    "paypal",
-label: "PayPal",
-color: "#003087",
-icon:  "P",
-url:   (handle, amount, note) =>
+id: “paypal”,
+label: “PayPal”,
+color: “#003087”,
+icon: “P”,
+url: (handle, amount, note) =>
 `https://www.paypal.com/paypalme/${encodeURIComponent(handle)}/${amount}`
 }
 ];
@@ -1068,47 +1075,47 @@ savedPlayers.push(p);
 }
 if(!p.payments) p.payments = {};
 p.payments[appId] = handle;
-localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+localStorage.setItem(“savedPlayers”, JSON.stringify(savedPlayers));
 }
 
 // Internal: open the in-app handle input instead of prompt()
 function askForHandle(playerName, appLabel, onConfirm){
-const modal    = document.getElementById("handleInputModal");
-const title    = document.getElementById("handleInputTitle");
-const subtitle = document.getElementById("handleInputSubtitle");
-const field    = document.getElementById("handleInputField");
-const confirm  = document.getElementById("handleInputConfirm");
+const modal = document.getElementById(“handleInputModal”);
+const title = document.getElementById(“handleInputTitle”);
+const subtitle = document.getElementById(“handleInputSubtitle”);
+const field = document.getElementById(“handleInputField”);
+const confirm = document.getElementById(“handleInputConfirm”);
 
-title.textContent    = appLabel + " Handle";
+title.textContent = appLabel + “ Handle”;
 subtitle.textContent = `Enter ${playerName}'s ${appLabel} username`;
-field.value          = "";
-modal.classList.remove("hidden");
+field.value = “”;
+modal.classList.remove(“hidden”);
 setTimeout(() => field.focus(), 100);
 
 confirm.onclick = () => {
 const val = field.value.trim();
 if(!val) return;
-modal.classList.add("hidden");
+modal.classList.add(“hidden”);
 onConfirm(val);
 };
 
 field.onkeydown = (e) => {
-if(e.key === "Enter") confirm.onclick();
+if(e.key === “Enter”) confirm.onclick();
 };
 }
 
 window.closeHandleModal = () => {
-document.getElementById("handleInputModal")?.classList.add("hidden");
+document.getElementById(“handleInputModal”)?.classList.add(“hidden”);
 };
 
 window.openSettleModal = () => {
 // Hide leaderboard modal so settle modal appears on top cleanly
-const lbModal = document.getElementById("leaderboardModal");
-if(lbModal) lbModal.classList.add("hidden");
+const lbModal = document.getElementById(“leaderboardModal”);
+if(lbModal) lbModal.classList.add(“hidden”);
 
-const list = document.getElementById("settleList");
+const list = document.getElementById(“settleList”);
 if(!list) return;
-list.innerHTML = "";
+list.innerHTML = “”;
 
 // Build debts: each person with negative ledger owes those with positive
 const debts = [];
@@ -1129,10 +1136,11 @@ list.innerHTML = `<p style="text-align:center;opacity:.6;padding:20px 0;">No deb
 } else {
 debts.forEach(debt => {
 const handles = getPaymentHandles(debt.to);
-const card    = document.createElement("div");
-card.className = "settle-card";
+const card = document.createElement(“div”);
+card.className = “settle-card”;
 
 card.innerHTML = `
+
 <div class="settle-card-header">
 <div>
 <div style="font-weight:700;font-size:15px;">${debt.from} <span style="opacity:.5;">→</span> ${debt.to}</div>
@@ -1142,13 +1150,13 @@ card.innerHTML = `
 </div>
 `;
 
-const btnRow = document.createElement("div");
-btnRow.className = "settle-btn-row";
+const btnRow = document.createElement(“div”);
+btnRow.className = “settle-btn-row”;
 
 PAYMENT_APPS.forEach(app => {
-const savedHandle = handles[app.id] || "";
-const btn = document.createElement("button");
-btn.className = "settle-app-btn";
+const savedHandle = handles[app.id] || “”;
+const btn = document.createElement(“button”);
+btn.className = “settle-app-btn”;
 btn.style.cssText = `background:${app.color};max-width:none;padding:10px 6px;flex:1;font-size:11px;font-weight:700;margin-top:0;line-height:1.4;border-radius:10px;`;
 btn.innerHTML = `<div style="font-size:18px;">${app.icon}</div><div>${app.label}</div>`;
 if(savedHandle){
@@ -1159,16 +1167,16 @@ btn.onclick = () => {
 const launch = (handle) => {
 savePaymentHandle(debt.to, app.id, handle);
 const note = `Tee Box Bets${currentGame ? " - " + (currentGame.charAt(0).toUpperCase()+currentGame.slice(1)) : ""}`;
-const url  = app.url(handle, debt.amount, note);
-window.open(url, "_blank");
+const url = app.url(handle, debt.amount, note);
+window.open(url, “_blank”);
 };
 if(savedHandle){
 launch(savedHandle);
 } else {
 askForHandle(debt.to, app.label, (handle) => {
 // Update the button label with saved handle
-const handleEl = document.createElement("div");
-handleEl.style.cssText = "font-size:9px;opacity:.8;";
+const handleEl = document.createElement(“div”);
+handleEl.style.cssText = “font-size:9px;opacity:.8;”;
 handleEl.textContent = handle;
 btn.appendChild(handleEl);
 launch(handle);
@@ -1183,105 +1191,106 @@ list.appendChild(card);
 });
 }
 
-document.getElementById("settleModal").classList.remove("hidden");
+document.getElementById(“settleModal”).classList.remove(“hidden”);
 };
 
 window.closeSettleModal = () => {
-document.getElementById("settleModal")?.classList.add("hidden");
+document.getElementById(“settleModal”)?.classList.add(“hidden”);
 // Restore leaderboard modal
-const lbModal = document.getElementById("leaderboardModal");
-if(lbModal) lbModal.classList.remove("hidden");
+const lbModal = document.getElementById(“leaderboardModal”);
+if(lbModal) lbModal.classList.remove(“hidden”);
 };
 
 /* ================= SAVED PLAYERS & GROUPS ================= */
 
-let savedPlayers = JSON.parse(localStorage.getItem("savedPlayers")) || [];
-let savedGroups  = JSON.parse(localStorage.getItem("savedGroups"))  || [];
+let savedPlayers = JSON.parse(localStorage.getItem(“savedPlayers”)) || [];
+let savedGroups = JSON.parse(localStorage.getItem(“savedGroups”)) || [];
 
 // ── Save a player by name ────────────────────────────────────────────────────
 function savePlayer(name){
 if(!name || savedPlayers.find(p => p.name.toLowerCase() === name.toLowerCase())) return;
 savedPlayers.push({ name });
-localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+localStorage.setItem(“savedPlayers”, JSON.stringify(savedPlayers));
 }
 
 // ── Autocomplete on player inputs ───────────────────────────────────────────
 function attachPlayerAutocomplete(input){
 if(!input || input.dataset.acAttached) return;
-input.dataset.acAttached = "1";
+input.dataset.acAttached = “1”;
 
-const wrap = document.createElement("div");
-wrap.style.cssText = "position:relative;";
+const wrap = document.createElement(“div”);
+wrap.style.cssText = “position:relative;”;
 input.parentNode.insertBefore(wrap, input);
 wrap.appendChild(input);
 
-const drop = document.createElement("div");
-drop.className = "course-dropdown hidden";
-drop.style.cssText = "position:absolute;top:100%;left:0;right:0;z-index:200;";
+const drop = document.createElement(“div”);
+drop.className = “course-dropdown hidden”;
+drop.style.cssText = “position:absolute;top:100%;left:0;right:0;z-index:200;”;
 wrap.appendChild(drop);
 
-input.addEventListener("input", () => {
+input.addEventListener(“input”, () => {
 const q = input.value.trim().toLowerCase();
-if(!q){ drop.classList.add("hidden"); return; }
+if(!q){ drop.classList.add(“hidden”); return; }
 
 const matches = savedPlayers.filter(p =>
 p.name.toLowerCase().startsWith(q) &&
 p.name.toLowerCase() !== q
 ).slice(0, 5);
 
-if(!matches.length){ drop.classList.add("hidden"); return; }
+if(!matches.length){ drop.classList.add(“hidden”); return; }
 
-drop.innerHTML = "";
+drop.innerHTML = “”;
 matches.forEach(p => {
-const row = document.createElement("div");
-row.className = "course-row";
-const span = document.createElement("span");
+const row = document.createElement(“div”);
+row.className = “course-row”;
+const span = document.createElement(“span”);
 span.textContent = p.name;
 span.onclick = () => {
 input.value = p.name;
-drop.classList.add("hidden");
-input.dispatchEvent(new Event("change"));
+drop.classList.add(“hidden”);
+input.dispatchEvent(new Event(“change”));
 };
 row.appendChild(span);
 drop.appendChild(row);
 });
-drop.classList.remove("hidden");
+drop.classList.remove(“hidden”);
 });
 
-document.addEventListener("click", e => {
-if(!wrap.contains(e.target)) drop.classList.add("hidden");
+document.addEventListener(“click”, e => {
+if(!wrap.contains(e.target)) drop.classList.add(“hidden”);
 }, { capture: false });
 }
 
 // Called from buildPlayers to attach autocomplete to all name inputs
 function attachAllAutocomplete(){
-document.querySelectorAll("#teamAInputs input, #teamBInputs input").forEach(attachPlayerAutocomplete);
+document.querySelectorAll(”#teamAInputs input, #teamBInputs input”).forEach(attachPlayerAutocomplete);
 }
 
 // ── Groups Manager ───────────────────────────────────────────────────────────
 window.openGroupsManager = () => {
 renderGroupsList();
-document.getElementById("groupsModal").classList.remove("hidden");
+document.getElementById(“groupsModal”).classList.remove(“hidden”);
 };
 
 window.closeGroupsManager = () => {
-document.getElementById("groupsModal").classList.add("hidden");
+document.getElementById(“groupsModal”).classList.add(“hidden”);
 };
 
 function renderGroupsList(){
-const list = document.getElementById("groupsList");
-list.innerHTML = "";
+const list = document.getElementById(“groupsList”);
+list.innerHTML = “”;
 
 if(!savedGroups.length){
-list.innerHTML = `<p style="opacity:.6;text-align:center;padding:20px 0;">No groups saved yet.<br>Enter players during a bet and tap 💾 Save Group.</p>`;
+list.innerHTML = `<p style="opacity:.6;text-align:center;padding:20px 0;">No groups saved yet.<br>Enter players during a bet and tap Save Group.</p>`;
 return;
 }
 
 savedGroups.forEach((g, i) => {
-const card = document.createElement("div");
-card.className = "group-card";
+const card = document.createElement(“div”);
+card.className = “group-card”;
 
 card.innerHTML = `
+
 <div class="group-card-info">
 <div class="group-card-name">${g.name}</div>
 <div class="group-card-sub">
@@ -1291,7 +1300,7 @@ ${g.wager ? " · $" + g.wager : ""}
 </div>
 </div>
 <div class="group-card-actions">
-<button class="group-quick-btn" onclick="quickStartGroup(${i})">⚡ Start</button>
+<button class="group-quick-btn" onclick="quickStartGroup(${i})"> Start</button>
 <button class="group-del-btn" onclick="deleteGroup(${i})">✕</button>
 </div>
 `;
@@ -1304,26 +1313,27 @@ renderHomeGroups();
 }
 
 function renderHomeGroups(){
-const box = document.getElementById("homeGroups");
+const box = document.getElementById(“homeGroups”);
 if(!box) return;
-box.innerHTML = "";
+box.innerHTML = “”;
 
 if(!savedGroups.length) return;
 
-const label = document.createElement("div");
-label.style.cssText = "font-size:13px;opacity:.6;margin-bottom:8px;font-weight:600;";
-label.textContent = "Quick Start";
+const label = document.createElement(“div”);
+label.style.cssText = “font-size:13px;opacity:.6;margin-bottom:8px;font-weight:600;”;
+label.textContent = “Quick Start”;
 box.appendChild(label);
 
 savedGroups.forEach((g, i) => {
-const card = document.createElement("div");
-card.className = "group-card";
+const card = document.createElement(“div”);
+card.className = “group-card”;
 card.innerHTML = `
+
 <div class="group-card-info">
 <div class="group-card-name">${g.name}</div>
 <div class="group-card-sub">${g.players.join(", ")}${g.game ? " · " + g.game.charAt(0).toUpperCase() + g.game.slice(1) : ""}${g.wager ? " · $" + g.wager : ""}</div>
 </div>
-<button class="group-quick-btn" onclick="quickStartGroup(${i})">⚡ Start</button>
+<button class="group-quick-btn" onclick="quickStartGroup(${i})"> Start</button>
 `;
 box.appendChild(card);
 });
@@ -1332,7 +1342,7 @@ box.appendChild(card);
 window.deleteGroup = (i) => {
 if(!confirm(`Delete "${savedGroups[i].name}"?`)) return;
 savedGroups.splice(i, 1);
-localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
+localStorage.setItem(“savedGroups”, JSON.stringify(savedGroups));
 renderGroupsList();
 renderHomeGroups();
 };
@@ -1347,20 +1357,20 @@ closeGroupsManager();
 if(g.game){
 currentGame = g.game;
 } else {
-currentGame = "skins"; // sensible default
+currentGame = “skins”; // sensible default
 }
 
 // Set players
-players  = [...g.players];
-teams    = { A:[], B:[] };
-ledger   = {};
+players = […g.players];
+teams = { A:[], B:[] };
+ledger = {};
 
 // For FFA games put all in A, for team games split evenly
-if(g.players.length === 4 && currentGame !== "wolf" && currentGame !== "bingo" && currentGame !== "dots"){
+if(g.players.length === 4 && currentGame !== “wolf” && currentGame !== “bingo” && currentGame !== “dots”){
 teams.A = [g.players[0], g.players[1]];
 teams.B = [g.players[2], g.players[3]];
 } else {
-teams.A = [...g.players];
+teams.A = […g.players];
 }
 
 players.forEach(p => ledger[p] = 0);
@@ -1368,7 +1378,7 @@ players.forEach(p => ledger[p] = 0);
 // Pre-fill wager
 if(g.wager){
 baseWager = g.wager;
-document.getElementById("baseWager").value = g.wager;
+document.getElementById(“baseWager”).value = g.wager;
 }
 
 // Configure UI for this game (same as selectGame does)
@@ -1377,42 +1387,42 @@ selectGame(currentGame);
 // Skip ahead to settings after a tick
 setTimeout(() => {
 // Pre-fill player inputs
-const aInputs = document.querySelectorAll("#teamAInputs input");
-const bInputs = document.querySelectorAll("#teamBInputs input");
+const aInputs = document.querySelectorAll(”#teamAInputs input”);
+const bInputs = document.querySelectorAll(”#teamBInputs input”);
 teams.A.forEach((p,i) => { if(aInputs[i]) aInputs[i].value = p; });
 teams.B.forEach((p,i) => { if(bInputs[i]) bInputs[i].value = p; });
 
-show("step-settings");
+show(“step-settings”);
 }, 50);
 };
 
 // ── Save Group prompt ────────────────────────────────────────────────────────
 window.promptSaveGroup = () => {
 const names = [
-...Array.from(document.querySelectorAll("#teamAInputs input")).map(i => i.value.trim()),
-...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
+…Array.from(document.querySelectorAll(”#teamAInputs input”)).map(i => i.value.trim()),
+…Array.from(document.querySelectorAll(”#teamBInputs input”)).map(i => i.value.trim()),
 ].filter(Boolean);
 
 if(names.length < 2){
-alert("Enter at least 2 player names first.");
+alert(“Enter at least 2 player names first.”);
 return;
 }
 
-document.getElementById("saveGroupName").value = names.join(", ");
-document.getElementById("saveGroupGame").value = currentGame || "";
-document.getElementById("saveGroupWager").value = "";
+document.getElementById(“saveGroupName”).value = names.join(”, “);
+document.getElementById(“saveGroupGame”).value = currentGame || “”;
+document.getElementById(“saveGroupWager”).value = “”;
 
 // Build payment fields for each player
-const payFields = document.getElementById("saveGroupPaymentFields");
+const payFields = document.getElementById(“saveGroupPaymentFields”);
 if(payFields){
-payFields.innerHTML = "";
+payFields.innerHTML = “”;
 names.forEach(name => {
 const existing = savedPlayers.find(p => p.name.toLowerCase() === name.toLowerCase());
-const handles  = existing?.payments || {};
-const section  = document.createElement("div");
-section.style.cssText = "margin-bottom:14px;";
-section.innerHTML = `<div style="font-weight:700;font-size:13px;margin-bottom:6px;">${name}</div>
-${PAYMENT_APPS.map(app => `
+const handles = existing?.payments || {};
+const section = document.createElement(“div”);
+section.style.cssText = “margin-bottom:14px;”;
+section.innerHTML = `<div style="font-weight:700;font-size:13px;margin-bottom:6px;">${name}</div> ${PAYMENT_APPS.map(app => `
+
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
 <div style="width:64px;font-size:12px;opacity:.7;">${app.label}</div>
 <input id="pay_${name}_${app.id}" placeholder="@username"
@@ -1423,30 +1433,30 @@ payFields.appendChild(section);
 });
 }
 
-document.getElementById("saveGroupModal").classList.remove("hidden");
+document.getElementById(“saveGroupModal”).classList.remove(“hidden”);
 };
 
 window.closeSaveGroup = () => {
-document.getElementById("saveGroupModal").classList.add("hidden");
+document.getElementById(“saveGroupModal”).classList.add(“hidden”);
 };
 
 window.confirmSaveGroup = () => {
-const name   = document.getElementById("saveGroupName").value.trim();
-const game   = document.getElementById("saveGroupGame").value;
-const wager  = +document.getElementById("saveGroupWager").value || 0;
+const name = document.getElementById(“saveGroupName”).value.trim();
+const game = document.getElementById(“saveGroupGame”).value;
+const wager = +document.getElementById(“saveGroupWager”).value || 0;
 
-if(!name){ alert("Enter a group name"); return; }
+if(!name){ alert(“Enter a group name”); return; }
 
 // Check group limit
 if(savedGroups.length >= maxGroups()){
 closeSaveGroup();
-openPremiumScreen("pro");
+openPremiumScreen(“pro”);
 return;
 }
 
 const names = [
-...Array.from(document.querySelectorAll("#teamAInputs input")).map(i => i.value.trim()),
-...Array.from(document.querySelectorAll("#teamBInputs input")).map(i => i.value.trim()),
+…Array.from(document.querySelectorAll(”#teamAInputs input”)).map(i => i.value.trim()),
+…Array.from(document.querySelectorAll(”#teamBInputs input”)).map(i => i.value.trim()),
 ].filter(Boolean);
 
 // Save each player individually + their payment handles
@@ -1461,8 +1471,8 @@ savePaymentHandle(name, app.id, input.value.trim());
 });
 
 savedGroups.push({ name, players: names, game: game||null, wager: wager||null });
-localStorage.setItem("savedGroups", JSON.stringify(savedGroups));
-localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+localStorage.setItem(“savedGroups”, JSON.stringify(savedGroups));
+localStorage.setItem(“savedPlayers”, JSON.stringify(savedPlayers));
 
 closeSaveGroup();
 renderHomeGroups();
@@ -1471,34 +1481,34 @@ alert(`"${name}" saved!`);
 
 /* ================= HAPTIC ================= */
 function tapHaptic(){
-    if (navigator.vibrate){
-        navigator.vibrate(10);
-    }
+if (navigator.vibrate){
+navigator.vibrate(10);
+}
 }
 
 /* ================= AUTO DECIMAL ================= */
 function autoDecimal(el){
 
-el.addEventListener("beforeinput", (e)=>{
+el.addEventListener(“beforeinput”, (e)=>{
 // Prevent second decimal
-if(e.data === "." && el.value.includes(".")){
+if(e.data === “.” && el.value.includes(”.”)){
 e.preventDefault();
 }
 });
 
-el.addEventListener("input", ()=>{
+el.addEventListener(“input”, ()=>{
 
-let val = el.value.replace(/[^\d.]/g,"");
+let val = el.value.replace(/[^\d.]/g,””);
 
 // Auto insert decimal after 2 digits if none exists
-if(!val.includes(".") && val.length > 2){
-val = val.slice(0,2) + "." + val.slice(2);
+if(!val.includes(”.”) && val.length > 2){
+val = val.slice(0,2) + “.” + val.slice(2);
 }
 
 // Ensure only one decimal
-const parts = val.split(".");
+const parts = val.split(”.”);
 if(parts.length > 2){
-val = parts[0] + "." + parts[1];
+val = parts[0] + “.” + parts[1];
 }
 
 el.value = val;
@@ -1508,8 +1518,8 @@ el.value = val;
 }
 
 function numericOnly(el){
-el.addEventListener("input",()=>{
-el.value = el.value.replace(/\D/g,"");
+el.addEventListener(“input”,()=>{
+el.value = el.value.replace(/\D/g,””);
 });
 }
 
@@ -1576,7 +1586,7 @@ const newHdcp = calculateHandicapFromDiffs(diffs);
 if(newHdcp !== null){
 userProfile.currentHandicap = newHdcp;
 }else{
-    userProfile.currentHandicap = 0;
+userProfile.currentHandicap = 0;
 }
 }
 
@@ -1598,162 +1608,160 @@ userProfile.bettingStats.totalPlayed += 1;
 
 }
 
-
 /* ================= DOM ================= */
 
-const skinsBox = document.getElementById("skinsBox");
-const vegasBox = document.getElementById("vegasBox");
-const nassauBox = document.getElementById("nassauBox");
+const skinsBox = document.getElementById(“skinsBox”);
+const vegasBox = document.getElementById(“vegasBox”);
+const nassauBox = document.getElementById(“nassauBox”);
 
-const teamAInputs = document.getElementById("teamAInputs");
-const teamBInputs = document.getElementById("teamBInputs");
+const teamAInputs = document.getElementById(“teamAInputs”);
+const teamBInputs = document.getElementById(“teamBInputs”);
 
-const teamALabel = document.getElementById("teamALabel");
-const teamBLabel = document.getElementById("teamBLabel");
+const teamALabel = document.getElementById(“teamALabel”);
+const teamBLabel = document.getElementById(“teamBLabel”);
 
-const birdieToggle = document.getElementById("birdieToggle");
-const eagleToggle = document.getElementById("eagleToggle");
+const birdieToggle = document.getElementById(“birdieToggle”);
+const eagleToggle = document.getElementById(“eagleToggle”);
 
-const holeDisplay = document.getElementById("holeDisplay");
-const potDisplay = document.getElementById("potDisplay");
-const leaderboard = document.getElementById("leaderboard");
+const holeDisplay = document.getElementById(“holeDisplay”);
+const potDisplay = document.getElementById(“potDisplay”);
+const leaderboard = document.getElementById(“leaderboard”);
 
-const leaderboardModal = document.getElementById("leaderboardModal");
-const leaderboardModalList = document.getElementById("leaderboardModalList");
-const leaderboardFinishBtn = document.getElementById("leaderboardFinishBtn");
+const leaderboardModal = document.getElementById(“leaderboardModal”);
+const leaderboardModalList = document.getElementById(“leaderboardModalList”);
+const leaderboardFinishBtn = document.getElementById(“leaderboardFinishBtn”);
 
-const teamAPlayers = document.getElementById("teamAPlayers");
-const teamBPlayers = document.getElementById("teamBPlayers");
+const teamAPlayers = document.getElementById(“teamAPlayers”);
+const teamBPlayers = document.getElementById(“teamBPlayers”);
 
+const sideBetBtn = document.getElementById(“sideBetBtn”);
+const sideBetModal = document.getElementById(“sideBetModal”);
+const sideAmount = document.getElementById(“sideAmount”);
+const sideMode = document.getElementById(“sideMode”);
+const sideWinners = document.getElementById(“sideWinners”);
 
-const sideBetBtn = document.getElementById("sideBetBtn");
-const sideBetModal = document.getElementById("sideBetModal");
-const sideAmount = document.getElementById("sideAmount");
-const sideMode = document.getElementById("sideMode");
-const sideWinners = document.getElementById("sideWinners");
+const frontWager = document.getElementById(“frontWager”);
+const backWager = document.getElementById(“backWager”);
+const totalWager = document.getElementById(“totalWager”);
+const holeLimitSelect = document.getElementById(“holeLimit”);
 
-const frontWager = document.getElementById("frontWager");
-const backWager = document.getElementById("backWager");
-const totalWager = document.getElementById("totalWager");
-const holeLimitSelect = document.getElementById("holeLimit");
+const lockedNotice = document.getElementById(“lockedNotice”);
+const baseWagerWrapper = document.getElementById(“baseWagerWrapper”);
 
-const lockedNotice = document.getElementById("lockedNotice");
-const baseWagerWrapper = document.getElementById("baseWagerWrapper");
-
-const playStyleBox = document.getElementById("playStyle");
-const playerCountBox = document.getElementById("playerCount");
-const playStyleLabel = document.getElementById("playStyleLabel");
-const playerCountLabel = document.getElementById("playerCountLabel");
-
+const playStyleBox = document.getElementById(“playStyle”);
+const playerCountBox = document.getElementById(“playerCount”);
+const playStyleLabel = document.getElementById(“playStyleLabel”);
+const playerCountLabel = document.getElementById(“playerCountLabel”);
 
 /* ================= UI TOGGLES ================= */
 
 birdieToggle.onchange = () => {
- if (birdieToggle.checked) eagleToggle.checked = false;
+if (birdieToggle.checked) eagleToggle.checked = false;
 };
 
 eagleToggle.onchange = () => {
- if (eagleToggle.checked) birdieToggle.checked = false;
+if (eagleToggle.checked) birdieToggle.checked = false;
 };
 
 function applyBonus(){
 if(birdieToggle.checked){
-skinsGame.applyBonus("birdie");
+skinsGame.applyBonus(“birdie”);
 }
 if(eagleToggle.checked){
-skinsGame.applyBonus("eagle");
+skinsGame.applyBonus(“eagle”);
 }
 }
 
 function setPar(value, el){
 
-    tapHaptic();
+```
+tapHaptic();
+```
 
-document.getElementById("holePar").value = value;
+document.getElementById(“holePar”).value = value;
 
-document.querySelectorAll(".par-btn").forEach(b=>{
-b.classList.remove("active");
+document.querySelectorAll(”.par-btn”).forEach(b=>{
+b.classList.remove(“active”);
 });
 
-el.classList.add("active");
+el.classList.add(“active”);
 }
 
-["firToggle","girToggle"].forEach(id=>{
-
+[“firToggle”,“girToggle”].forEach(id=>{
 
 const btn = document.getElementById(id);
 
 btn.onclick = ()=>{
-    tapHaptic();
-btn.classList.toggle("active");
+tapHaptic();
+btn.classList.toggle(“active”);
 };
 });
 
 window.toggleManualRound = () => {
-document.getElementById("manualRoundBox")
-.classList.toggle("hidden");
+document.getElementById(“manualRoundBox”)
+.classList.toggle(“hidden”);
 };
 
 /* ================= NAV ================= */
 
 const headerMap = {
-"step-home": "Tee Box Bets",
+“step-home”: “Tee Box Bets”,
 
-"step-game": "Select Game",
-"rules-screen": "Game Rules",
+“step-game”: “Select Game”,
+“rules-screen”: “Game Rules”,
 
-"step-style": "Play Style",
-"step-teams": "Teams",
-"step-players": "Players",
-"step-settings": "Wager Settings",
-"step-dots": "Choose Dots",
+“step-style”: “Play Style”,
+“step-teams”: “Teams”,
+“step-players”: “Players”,
+“step-settings”: “Wager Settings”,
+“step-dots”: “Choose Dots”,
 
-"game-screen": "Live Game",
+“game-screen”: “Live Game”,
 
-"round-setup": "Round Setup",
-"round-play": "Round In Progress",
+“round-setup”: “Round Setup”,
+“round-play”: “Round In Progress”,
 
-"profile-screen": "Your Profile",
-"profile-setup": "Edit Profile"
+“profile-screen”: “Your Profile”,
+“profile-setup”: “Edit Profile”
 };
 
 function updateHeader(id){
-const title = document.getElementById("appTitle");
-title.classList.add("title-swap");
+const title = document.getElementById(“appTitle”);
+title.classList.add(“title-swap”);
 
 setTimeout(()=>{
 
 /* Live betting game */
-if(id === "game-screen"){
+if(id === “game-screen”){
 const gameName =
-currentGame === "skins" ? "Skins" :
-currentGame === "vegas" ? "Vegas" :
-currentGame === "nassau" ? "Nassau" :
-currentGame === "wolf" ? "Wolf" :
-currentGame === "baseball" ? "Baseball" :
-currentGame === "bingo" ? "Bingo Bango Bongo" :
-currentGame === "dots" ? "Dots" :
-currentGame === "nine" ? "9-Point" :
-currentGame === "sixes" ? "Sixes" :
-currentGame === "battle" ? "Net Battle" :
-"Game";
+currentGame === “skins” ? “Skins” :
+currentGame === “vegas” ? “Vegas” :
+currentGame === “nassau” ? “Nassau” :
+currentGame === “wolf” ? “Wolf” :
+currentGame === “baseball” ? “Baseball” :
+currentGame === “bingo” ? “Bingo Bango Bongo” :
+currentGame === “dots” ? “Dots” :
+currentGame === “nine” ? “9-Point” :
+currentGame === “sixes” ? “Sixes” :
+currentGame === “battle” ? “Net Battle” :
+“Game”;
 
 title.textContent = `${gameName} – Hole ${hole}`;
-title.classList.remove("title-swap");
+title.classList.remove(“title-swap”);
 return;
 }
 
 /* Round tracking */
-if(id === "round-play" && currentRound){
+if(id === “round-play” && currentRound){
 title.textContent =
 `Round – Hole ${currentRound.currentHole} of ${currentRound.holes}`;
-title.classList.remove("title-swap");
+title.classList.remove(“title-swap”);
 return;
 }
 
 /* Default */
-title.textContent = headerMap[id] || "Tee Box Bets";
-title.classList.remove("title-swap");
+title.textContent = headerMap[id] || “Tee Box Bets”;
+title.classList.remove(“title-swap”);
 
 },120);
 }
@@ -1763,10 +1771,10 @@ let screenHistory = [];
 function show(id){
 tapHaptic();
 
-const current = document.querySelector("section:not(.hidden)");
+const current = document.querySelector(“section:not(.hidden)”);
 
-/* 🔥 Reset round setup if leaving it */
-if(current && current.id === "round-setup" && id !== "round-setup"){
+/* Reset round setup if leaving it */
+if(current && current.id === “round-setup” && id !== “round-setup”){
 resetRoundSetup();
 }
 
@@ -1774,36 +1782,36 @@ if (current && current.id !== id) {
 screenHistory.push(current.id);
 }
 
-document.querySelectorAll("section").forEach(s =>
-s.classList.add("hidden")
+document.querySelectorAll(“section”).forEach(s =>
+s.classList.add(“hidden”)
 );
 
-document.getElementById(id).classList.remove("hidden");
+document.getElementById(id).classList.remove(“hidden”);
 
-// ✅ Side bet ONLY during live game
-if(id === "game-screen"){
-sideBetBtn.classList.remove("hidden");
+// Side bet ONLY during live game
+if(id === “game-screen”){
+sideBetBtn.classList.remove(“hidden”);
 }else{
-sideBetBtn.classList.add("hidden");
+sideBetBtn.classList.add(“hidden”);
 }
 
 // End Round pill only during round tracking
-const endRoundBtn = document.getElementById("endRoundBtn");
+const endRoundBtn = document.getElementById(“endRoundBtn”);
 if(endRoundBtn){
-if(id === "round-play"){
-endRoundBtn.classList.remove("hidden");
+if(id === “round-play”){
+endRoundBtn.classList.remove(“hidden”);
 }else{
-endRoundBtn.classList.add("hidden");
+endRoundBtn.classList.add(“hidden”);
 }
 }
 
 // End Round pill for betting game
-const endBetBtn = document.getElementById("endBetBtn");
+const endBetBtn = document.getElementById(“endBetBtn”);
 if(endBetBtn){
-if(id === "game-screen"){
-endBetBtn.classList.remove("hidden");
+if(id === “game-screen”){
+endBetBtn.classList.remove(“hidden”);
 }else{
-endBetBtn.classList.add("hidden");
+endBetBtn.classList.add(“hidden”);
 }
 }
 
@@ -1811,81 +1819,80 @@ updateHeader(id);
 syncBackButton();
 }
 
-
 function syncBackButton(){
-const btn = document.getElementById("navBack");
-const current = document.querySelector("section:not(.hidden)");
+const btn = document.getElementById(“navBack”);
+const current = document.querySelector(“section:not(.hidden)”);
 
 // Screens where back should be disabled
-const lockScreens = ["round-play", "game-screen"];
+const lockScreens = [“round-play”, “game-screen”];
 
 if (!current || lockScreens.includes(current.id)) {
-btn.style.display = "none";
+btn.style.display = “none”;
 return;
 }
 
-btn.style.display = screenHistory.length ? "flex" : "none";
+btn.style.display = screenHistory.length ? “flex” : “none”;
 }
 
 window.goBack = () => {
- tapHaptic();
+tapHaptic();
 
- if (!screenHistory.length) return;
+if (!screenHistory.length) return;
 
 const prev = screenHistory.pop();
 
 /* If leaving round setup, reset the fields */
-const current = document.querySelector("section:not(.hidden)");
+const current = document.querySelector(“section:not(.hidden)”);
 
-if(current && current.id === "round-setup"){
+if(current && current.id === “round-setup”){
 resetRoundSetup();
 }
 
-document.querySelectorAll("section").forEach(s =>
-s.classList.add("hidden")
+document.querySelectorAll(“section”).forEach(s =>
+s.classList.add(“hidden”)
 );
 
- document.getElementById(prev).classList.remove("hidden");
+document.getElementById(prev).classList.remove(“hidden”);
 
- syncBackButton();
- updateHeader(prev);
+syncBackButton();
+updateHeader(prev);
 };
 
 function resetRoundSetup(){
 
-const search = document.getElementById("courseSearch");
-if(search) search.value = "";
+const search = document.getElementById(“courseSearch”);
+if(search) search.value = “”;
 
 // Clear API search results
-const apiDrop   = document.getElementById("apiCourseDropdown");
-const apiStatus = document.getElementById("apiCourseStatus");
-if(apiDrop)   { apiDrop.innerHTML = ""; apiDrop.classList.add("hidden"); }
-if(apiStatus)   apiStatus.textContent = "";
+const apiDrop = document.getElementById(“apiCourseDropdown”);
+const apiStatus = document.getElementById(“apiCourseStatus”);
+if(apiDrop) { apiDrop.innerHTML = “”; apiDrop.classList.add(“hidden”); }
+if(apiStatus) apiStatus.textContent = “”;
 
-const teeSelect = document.getElementById("teeSelect");
+const teeSelect = document.getElementById(“teeSelect”);
 
 if(teeSelect){
 teeSelect.innerHTML = `<option value="Default">Default</option>`;
-teeSelect.value = "Default";
+teeSelect.value = “Default”;
 }
 
-const rating = document.getElementById("courseRating");
-if(rating) rating.value = "";
+const rating = document.getElementById(“courseRating”);
+if(rating) rating.value = “”;
 
-const slope = document.getElementById("courseSlope");
-if(slope) slope.value = "";
+const slope = document.getElementById(“courseSlope”);
+if(slope) slope.value = “”;
 
-const holes = document.getElementById("roundHoles");
-if(holes) holes.value = "9";
+const holes = document.getElementById(“roundHoles”);
+if(holes) holes.value = “9”;
 
-const nineType = document.getElementById("nineType");
-if(nineType) nineType.value = "front";
+const nineType = document.getElementById(“nineType”);
+if(nineType) nineType.value = “front”;
 
 }
 
 function goHomeClean(){
 
-userProfile = JSON.parse(localStorage.getItem("userProfile"));
+userProfile = JSON.parse(localStorage.getItem(“userProfile”));
 
 screenHistory = [];
 
@@ -1901,6 +1908,7 @@ historyStack = [];
 
 // Reset play style and player count dropdowns to defaults
 playStyleBox.innerHTML = `
+
 <option value="ffa">Free For All</option>
 <option value="teams">Teams</option>
 `;
@@ -1909,6 +1917,7 @@ playStyleBox.classList.remove("hidden");
 playStyleLabel.classList.remove("hidden");
 
 playerCountBox.innerHTML = `
+
 <option value="2">2</option>
 <option value="3">3</option>
 <option value="4">4</option>
@@ -1917,24 +1926,24 @@ playerCountBox.value = "4";
 playerCountBox.classList.remove("hidden");
 playerCountLabel.classList.remove("hidden");
 
-lockedNotice.classList.add("hidden");
+lockedNotice.classList.add(“hidden”);
 
 resetRoundSetup();
-document.getElementById("baseWager").value = "";
-document.getElementById("frontWager").value = "";
-document.getElementById("backWager").value = "";
-document.getElementById("totalWager").value = "";
+document.getElementById(“baseWager”).value = “”;
+document.getElementById(“frontWager”).value = “”;
+document.getElementById(“backWager”).value = “”;
+document.getElementById(“totalWager”).value = “”;
 
-document.querySelectorAll("section").forEach(s =>
-s.classList.add("hidden")
+document.querySelectorAll(“section”).forEach(s =>
+s.classList.add(“hidden”)
 );
 
-document.getElementById("step-home").classList.remove("hidden");
+document.getElementById(“step-home”).classList.remove(“hidden”);
 
 // Always hide floating action buttons on home
-document.getElementById("sideBetBtn")?.classList.add("hidden");
-document.getElementById("endRoundBtn")?.classList.add("hidden");
-document.getElementById("endBetBtn")?.classList.add("hidden");
+document.getElementById(“sideBetBtn”)?.classList.add(“hidden”);
+document.getElementById(“endRoundBtn”)?.classList.add(“hidden”);
+document.getElementById(“endBetBtn”)?.classList.add(“hidden”);
 
 // Clear betting course selection
 clearBettingCourse();
@@ -1948,46 +1957,46 @@ updateAdVisibility();
 // Update account bar
 updateAccountBar();
 
-updateHeader("step-home");
+updateHeader(“step-home”);
 syncBackButton();
 
 }
 
 window.toggleManualRound = () => {
-const box = document.getElementById("manualRoundBox");
-const btn = document.getElementById("manualToggleBtn");
+const box = document.getElementById(“manualRoundBox”);
+const btn = document.getElementById(“manualToggleBtn”);
 
-const open = box.classList.contains("hidden");
+const open = box.classList.contains(“hidden”);
 
-box.classList.toggle("hidden");
+box.classList.toggle(“hidden”);
 
 btn.textContent = open
-? "Cancel Previous Round"
-: "Add Previous Round";
+? “Cancel Previous Round”
+: “Add Previous Round”;
 };
 
 window.goHome = goHomeClean;
-window.goGameSelect = () => show("step-game");
+window.goGameSelect = () => show(“step-game”);
 
 window.showRules = () => {
-const order = ["skins","vegas","nassau","wolf","baseball","bingo","dots","nine","sixes","battle"];
-const box = document.getElementById("rulesContent");
+const order = [“skins”,“vegas”,“nassau”,“wolf”,“baseball”,“bingo”,“dots”,“nine”,“sixes”,“battle”];
+const box = document.getElementById(“rulesContent”);
 if(box){
 box.innerHTML = order.map(key => {
 const r = GAME_RULES[key];
-if(!r) return "";
+if(!r) return “”;
 return `<div class="rules-block"><h3>${r.icon || ""} ${r.title}</h3>${r.description}</div>`;
-}).join('<hr class="rules-divider">');
+}).join(’<hr class="rules-divider">’);
 }
-show("rules-screen");
+show(“rules-screen”);
 };
 
 window.openCourseModal = () =>{
-document.getElementById("courseModal").classList.remove("hidden");
+document.getElementById(“courseModal”).classList.remove(“hidden”);
 };
 
 window.closeCourseModal = () =>{
-document.getElementById("courseModal").classList.add("hidden");
+document.getElementById(“courseModal”).classList.add(“hidden”);
 resetAddCourseModal();
 };
 
@@ -1997,17 +2006,16 @@ GameRouter.start(game);
 
 /* ================= PROFILE CHECK ================= */
 
+document.addEventListener(“DOMContentLoaded”, () => {
 
-document.addEventListener("DOMContentLoaded", () => {
-
-const ratingInput = document.getElementById("courseRating");
-const slopeInput = document.getElementById("courseSlope");
-const manualRating = document.getElementById("manualRating");
-const manualSlope = document.getElementById("manualSlope");
-const newTeeRating = document.getElementById("newTeeRating");
-const newTeeSlope = document.getElementById("newTeeSlope");
-const teeRatingInput = document.getElementById("teeRatingInput");
-const teeSlopeInput = document.getElementById("teeSlopeInput");
+const ratingInput = document.getElementById(“courseRating”);
+const slopeInput = document.getElementById(“courseSlope”);
+const manualRating = document.getElementById(“manualRating”);
+const manualSlope = document.getElementById(“manualSlope”);
+const newTeeRating = document.getElementById(“newTeeRating”);
+const newTeeSlope = document.getElementById(“newTeeSlope”);
+const teeRatingInput = document.getElementById(“teeRatingInput”);
+const teeSlopeInput = document.getElementById(“teeSlopeInput”);
 
 if(ratingInput) autoDecimal(ratingInput);
 if(manualRating) autoDecimal(manualRating);
@@ -2020,23 +2028,23 @@ if(newTeeSlope) numericOnly(newTeeSlope);
 if(teeSlopeInput) numericOnly(teeSlopeInput);
 
 if(!userProfile){
-show("profile-setup");
+show(“profile-setup”);
 }
-sideBetBtn.classList.add("hidden");
+sideBetBtn.classList.add(“hidden”);
 
-document.getElementById("manualSaveBtn").onclick = addManualRound;
+document.getElementById(“manualSaveBtn”).onclick = addManualRound;
 
-const roundHoles = document.getElementById("roundHoles");
-const nineType = document.getElementById("nineType");
+const roundHoles = document.getElementById(“roundHoles”);
+const nineType = document.getElementById(“nineType”);
 
 if(roundHoles && nineType){
 
-roundHoles.addEventListener("change", ()=>{
+roundHoles.addEventListener(“change”, ()=>{
 
-if(roundHoles.value === "18"){
-nineType.classList.add("hidden");
+if(roundHoles.value === “18”){
+nineType.classList.add(“hidden”);
 }else{
-nineType.classList.remove("hidden");
+nineType.classList.remove(“hidden”);
 }
 
 });
@@ -2044,15 +2052,15 @@ nineType.classList.remove("hidden");
 }
 
 // Betting nine type show/hide
-const holeLimitEl     = document.getElementById("holeLimit");
-const bettingNineType = document.getElementById("bettingNineType");
+const holeLimitEl = document.getElementById(“holeLimit”);
+const bettingNineType = document.getElementById(“bettingNineType”);
 
 if(holeLimitEl && bettingNineType){
-holeLimitEl.addEventListener("change", ()=>{
-if(holeLimitEl.value === "18"){
-bettingNineType.classList.add("hidden");
+holeLimitEl.addEventListener(“change”, ()=>{
+if(holeLimitEl.value === “18”){
+bettingNineType.classList.add(“hidden”);
 } else {
-bettingNineType.classList.remove("hidden");
+bettingNineType.classList.remove(“hidden”);
 }
 });
 }
@@ -2061,21 +2069,22 @@ renderHomeGroups();
 updateAdVisibility();
 initSupabase();
 updateAccountBar();
+initRevenueCat();
 
-const courseSearchEl = document.getElementById("courseSearch");
-const dropdown = document.getElementById("courseDropdown");
+const courseSearchEl = document.getElementById(“courseSearch”);
+const dropdown = document.getElementById(“courseDropdown”);
 
 if(courseSearchEl && dropdown){
 
-courseSearchEl.addEventListener("focus", ()=>{
-dropdown.classList.remove("hidden");
+courseSearchEl.addEventListener(“focus”, ()=>{
+dropdown.classList.remove(“hidden”);
 });
 
-courseSearchEl.addEventListener("input", ()=>{
+courseSearchEl.addEventListener(“input”, ()=>{
 
 const term = courseSearchEl.value.trim().toLowerCase();
 
-dropdown.innerHTML = "";
+dropdown.innerHTML = “”;
 
 /* ===== SAVED COURSES ===== */
 
@@ -2083,20 +2092,20 @@ savedCourses
 .filter(c=>c.name.toLowerCase().includes(term))
 .forEach(course=>{
 
-const row = document.createElement("div");
-row.className = "course-row";
+const row = document.createElement(“div”);
+row.className = “course-row”;
 
-const name = document.createElement("span");
+const name = document.createElement(“span”);
 name.textContent = course.name;
 
 name.onclick = ()=>{
 courseSearchEl.value = course.name;
-dropdown.classList.add("hidden");
+dropdown.classList.add(“hidden”);
 };
 
-const del = document.createElement("span");
-del.textContent = "✕";
-del.className = "course-delete";
+const del = document.createElement(“span”);
+del.textContent = “✕”;
+del.className = “course-delete”;
 
 del.onclick = (e)=>{
 e.stopPropagation();
@@ -2104,23 +2113,23 @@ e.stopPropagation();
 if(!confirm(`Delete ${course.name}?`)) return;
 
 savedCourses = savedCourses.filter(c=>c.name !== course.name);
-localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+localStorage.setItem(“savedCourses”, JSON.stringify(savedCourses));
 
 if(courseSearchEl.value === course.name){
 
-courseSearchEl.value = "";
+courseSearchEl.value = “”;
 
-const teeSelect = document.getElementById("teeSelect");
+const teeSelect = document.getElementById(“teeSelect”);
 
 if(teeSelect){
 teeSelect.innerHTML = `<option value="Default">Default</option>`;
-teeSelect.value = "Default";
+teeSelect.value = “Default”;
 }
 
 }
 
 refreshCourseDropdown();
-search.dispatchEvent(new Event("input"));
+search.dispatchEvent(new Event(“input”));
 
 };
 
@@ -2131,16 +2140,14 @@ dropdown.appendChild(row);
 
 });
 
-
-
 });
 
-document.addEventListener("click",(e)=>{
-if(!e.target.closest(".course-select-wrapper")){
-dropdown.classList.add("hidden");
+document.addEventListener(“click”,(e)=>{
+if(!e.target.closest(”.course-select-wrapper”)){
+dropdown.classList.add(“hidden”);
 // Also hide API results dropdown
-const apiDrop = document.getElementById("apiCourseDropdown");
-if(apiDrop) apiDrop.classList.add("hidden");
+const apiDrop = document.getElementById(“apiCourseDropdown”);
+if(apiDrop) apiDrop.classList.add(“hidden”);
 }
 });
 
@@ -2152,7 +2159,7 @@ if(userProfile){
 
 /* DASH ROUNDS */
 
-const dashRounds = document.getElementById("dashRounds");
+const dashRounds = document.getElementById(“dashRounds”);
 if(dashRounds){
 const rounds = userProfile.rounds ? userProfile.rounds.length : 0;
 dashRounds.textContent = rounds;
@@ -2160,7 +2167,7 @@ dashRounds.textContent = rounds;
 
 /* DASH HANDICAP */
 
-const dashHandicap = document.getElementById("dashHandicap");
+const dashHandicap = document.getElementById(“dashHandicap”);
 if(dashHandicap){
 const handicap = userProfile.currentHandicap || 0;
 dashHandicap.textContent = handicap.toFixed(1);
@@ -2168,7 +2175,7 @@ dashHandicap.textContent = handicap.toFixed(1);
 
 /* DASH BETTING */
 
-const dashBetting = document.getElementById("dashBetting");
+const dashBetting = document.getElementById(“dashBetting”);
 if(dashBetting){
 
 const totalWon = userProfile.bettingStats ? userProfile.bettingStats.totalWon : 0;
@@ -2177,7 +2184,7 @@ const totalLost = userProfile.bettingStats ? userProfile.bettingStats.totalLost 
 const net = totalWon - totalLost;
 
 dashBetting.textContent =
-(net >= 0 ? "+" : "") + "$" + net.toFixed(2);
+(net >= 0 ? “+” : “”) + “$” + net.toFixed(2);
 
 }
 
@@ -2185,13 +2192,13 @@ dashBetting.textContent =
 
 /* ===== SCORE INPUT STANDARD ===== */
 
-document.querySelectorAll(".score-input").forEach(input=>{
+document.querySelectorAll(”.score-input”).forEach(input=>{
 
-input.setAttribute("type","number");
-input.setAttribute("inputmode","numeric");
-input.setAttribute("pattern","[0-9]*");
+input.setAttribute(“type”,“number”);
+input.setAttribute(“inputmode”,“numeric”);
+input.setAttribute(“pattern”,”[0-9]*”);
 
-input.addEventListener("input",()=>{
+input.addEventListener(“input”,()=>{
 if(input.value.length>2){
 input.value=input.value.slice(0,2);
 }
@@ -2201,11 +2208,11 @@ input.value=input.value.slice(0,2);
 
 /* ===== PUTTS / PENALTIES AUTO-ADVANCE ===== */
 
-const holePutts     = document.getElementById("holePutts");
-const holePenalties = document.getElementById("holePenalties");
+const holePutts = document.getElementById(“holePutts”);
+const holePenalties = document.getElementById(“holePenalties”);
 
 if(holePutts){
-holePutts.addEventListener("input", () => {
+holePutts.addEventListener(“input”, () => {
 if(holePutts.value.length >= 1){
 holePenalties?.focus();
 }
@@ -2213,7 +2220,7 @@ holePenalties?.focus();
 }
 
 if(holePenalties){
-holePenalties.addEventListener("input", () => {
+holePenalties.addEventListener(“input”, () => {
 if(holePenalties.value.length >= 1){
 holePenalties.blur();
 }
@@ -2224,79 +2231,80 @@ holePenalties.blur();
 /* ================= GAME SELECT ================= */
 
 window.selectGame=game=>{
-document.getElementById("skinsBox").classList.add("hidden");
-document.getElementById("vegasBox").classList.add("hidden");
-document.getElementById("nassauBox").classList.add("hidden");
+document.getElementById(“skinsBox”).classList.add(“hidden”);
+document.getElementById(“vegasBox”).classList.add(“hidden”);
+document.getElementById(“nassauBox”).classList.add(“hidden”);
 currentGame=game;
 
-if(game === "wolf"){
+if(game === “wolf”){
 
-playStyle = "ffa";
+playStyle = “ffa”;
 
 /* FORCE DROPDOWN TO ONLY FFA */
 playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
-playStyleBox.value = "ffa";
+playStyleBox.value = “ffa”;
 
-playStyleBox.classList.remove("hidden");
-playStyleLabel.classList.remove("hidden");
+playStyleBox.classList.remove(“hidden”);
+playStyleLabel.classList.remove(“hidden”);
 
 /* PLAYER COUNT 3 OR 4 */
 playerCountBox.innerHTML = `
+
 <option value="3">3 Players</option>
 <option value="4" selected>4 Players</option>
 `;
 
-playerCountBox.classList.remove("hidden");
-playerCountLabel.classList.remove("hidden");
+playerCountBox.classList.remove(“hidden”);
+playerCountLabel.classList.remove(“hidden”);
 
 /* MESSAGE */
-lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "Wolf is Free For All only";
+lockedNotice.classList.remove(“hidden”);
+lockedNotice.textContent = “Wolf is Free For All only”;
 
 }
 
+if(game === “baseball”){
 
+playStyle = “teams”;
 
-if(game === "baseball"){
-
-playStyle = "teams";
-
-// ✅ ONLY TEAMS (NO FFA)
+// ONLY TEAMS (NO FFA)
 playStyleBox.innerHTML = `<option value="teams" selected>Teams</option>`;
-playStyleBox.value = "teams";
+playStyleBox.value = “teams”;
 
 // Hide playstyle completely
-playStyleBox.classList.add("hidden");
-playStyleLabel.classList.add("hidden");
+playStyleBox.classList.add(“hidden”);
+playStyleLabel.classList.add(“hidden”);
 
-// ✅ Allow 2 or 4 players
+// Allow 2 or 4 players
 playerCountBox.innerHTML = `
+
 <option value="2">2 Players (1v1)</option>
 <option value="4" selected>4 Players (2v2)</option>
 `;
 
-playerCountBox.classList.remove("hidden");
-playerCountLabel.classList.remove("hidden");
+playerCountBox.classList.remove(“hidden”);
+playerCountLabel.classList.remove(“hidden”);
 
-// ✅ FORCE TEAM NAMES
-teamAName = "Away";
-teamBName = "Home";
+// FORCE TEAM NAMES
+teamAName = “Away”;
+teamBName = “Home”;
 
-lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "Baseball is Home vs Away";
+lockedNotice.classList.remove(“hidden”);
+lockedNotice.textContent = “Baseball is Home vs Away”;
 
 }
 
-if(game === "bingo"){
+if(game === “bingo”){
 
-playStyle = "ffa";
+playStyle = “ffa”;
 
 playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
-playStyleBox.value = "ffa";
-playStyleBox.classList.add("hidden");
-playStyleLabel.classList.add("hidden");
+playStyleBox.value = “ffa”;
+playStyleBox.classList.add(“hidden”);
+playStyleLabel.classList.add(“hidden”);
 
 playerCountBox.innerHTML = `
+
 <option value="2">2 Players</option>
 <option value="3">3 Players</option>
 <option value="4" selected>4 Players</option>
@@ -2304,21 +2312,22 @@ playerCountBox.innerHTML = `
 playerCountBox.classList.remove("hidden");
 playerCountLabel.classList.remove("hidden");
 
-lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "Bingo Bango Bongo is Free For All";
+lockedNotice.classList.remove(“hidden”);
+lockedNotice.textContent = “Bingo Bango Bongo is Free For All”;
 
 }
 
-if(game === "dots"){
+if(game === “dots”){
 
-playStyle = "ffa";
+playStyle = “ffa”;
 
 playStyleBox.innerHTML = `<option value="ffa" selected>Free For All</option>`;
-playStyleBox.value = "ffa";
-playStyleBox.classList.add("hidden");
-playStyleLabel.classList.add("hidden");
+playStyleBox.value = “ffa”;
+playStyleBox.classList.add(“hidden”);
+playStyleLabel.classList.add(“hidden”);
 
 playerCountBox.innerHTML = `
+
 <option value="2">2 Players</option>
 <option value="3">3 Players</option>
 <option value="4" selected>4 Players</option>
@@ -2326,35 +2335,36 @@ playerCountBox.innerHTML = `
 playerCountBox.classList.remove("hidden");
 playerCountLabel.classList.remove("hidden");
 
-lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "Dots is Free For All";
+lockedNotice.classList.remove(“hidden”);
+lockedNotice.textContent = “Dots is Free For All”;
 
 }
 
-if(game === "nine"){
-playStyle = "ffa";
-playStyleBox.classList.add("hidden");
-playStyleLabel.classList.add("hidden");
+if(game === “nine”){
+playStyle = “ffa”;
+playStyleBox.classList.add(“hidden”);
+playStyleLabel.classList.add(“hidden”);
 playerCountBox.innerHTML = `<option value="3" selected>3 Players</option>`;
-playerCountBox.classList.add("hidden");
-playerCountLabel.classList.add("hidden");
-lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "9-Point is a 3-player game";
+playerCountBox.classList.add(“hidden”);
+playerCountLabel.classList.add(“hidden”);
+lockedNotice.classList.remove(“hidden”);
+lockedNotice.textContent = “9-Point is a 3-player game”;
 }
 
-if(game === "sixes"){
-playStyle = "teams";
+if(game === “sixes”){
+playStyle = “teams”;
 playerCount = 4;
-playStyleBox.classList.add("hidden");
-playStyleLabel.classList.add("hidden");
-playerCountBox.classList.add("hidden");
-playerCountLabel.classList.add("hidden");
-lockedNotice.classList.remove("hidden");
-lockedNotice.textContent = "Sixes must be played with 4 players";
+playStyleBox.classList.add(“hidden”);
+playStyleLabel.classList.add(“hidden”);
+playerCountBox.classList.add(“hidden”);
+playerCountLabel.classList.add(“hidden”);
+lockedNotice.classList.remove(“hidden”);
+lockedNotice.textContent = “Sixes must be played with 4 players”;
 }
 
-if(game === "battle"){
+if(game === “battle”){
 playStyleBox.innerHTML = `
+
 <option value="ffa">Free For All</option>
 <option value="teams">2v2 Teams</option>
 `;
@@ -2372,186 +2382,185 @@ lockedNotice.classList.remove("hidden");
 lockedNotice.textContent = "Net Battle — handicap strokes applied automatically";
 }
 
-if(game==="vegas" || game==="nassau"){
-lockedNotice.classList.remove("hidden");
+if(game===“vegas” || game===“nassau”){
+lockedNotice.classList.remove(“hidden”);
 
-playStyleBox.classList.add("hidden");
-playerCountBox.classList.add("hidden");
-playStyleLabel.classList.add("hidden");
-playerCountLabel.classList.add("hidden");
+playStyleBox.classList.add(“hidden”);
+playerCountBox.classList.add(“hidden”);
+playStyleLabel.classList.add(“hidden”);
+playerCountLabel.classList.add(“hidden”);
 
-playStyle="teams";
+playStyle=“teams”;
 playerCount=4;
-}else if(game !== "wolf" && game !== "baseball" && game !== "bingo" && game !== "dots" && game !== "nine" && game !== "sixes" && game !== "battle"){
-lockedNotice.classList.add("hidden");
+}else if(game !== “wolf” && game !== “baseball” && game !== “bingo” && game !== “dots” && game !== “nine” && game !== “sixes” && game !== “battle”){
+lockedNotice.classList.add(“hidden”);
 
-playStyleBox.classList.remove("hidden");
-playerCountBox.classList.remove("hidden");
-playStyleLabel.classList.remove("hidden");
-playerCountLabel.classList.remove("hidden");
+playStyleBox.classList.remove(“hidden”);
+playerCountBox.classList.remove(“hidden”);
+playStyleLabel.classList.remove(“hidden”);
+playerCountLabel.classList.remove(“hidden”);
 }
 
-if(game === "skins"){
-lockedNotice.classList.add("hidden");
+if(game === “skins”){
+lockedNotice.classList.add(“hidden”);
 
-playStyleBox.classList.remove("hidden");
-playerCountBox.classList.remove("hidden");
-playStyleLabel.classList.remove("hidden");
-playerCountLabel.classList.remove("hidden");
+playStyleBox.classList.remove(“hidden”);
+playerCountBox.classList.remove(“hidden”);
+playStyleLabel.classList.remove(“hidden”);
+playerCountLabel.classList.remove(“hidden”);
 }
 
-if(game==="nassau" || game==="baseball"){
+if(game===“nassau” || game===“baseball”){
 
-document.getElementById("nassauWagers").classList.toggle("hidden",game!=="nassau");
+document.getElementById(“nassauWagers”).classList.toggle(“hidden”,game!==“nassau”);
 
-holeLimitSelect.classList.add("hidden");
+holeLimitSelect.classList.add(“hidden”);
 
 }else{
 
-document.getElementById("nassauWagers").classList.add("hidden");
+document.getElementById(“nassauWagers”).classList.add(“hidden”);
 
-holeLimitSelect.classList.remove("hidden");
+holeLimitSelect.classList.remove(“hidden”);
 
 }
 
-if(game==="vegas"){
-document.getElementById("wagerLabel").textContent="Wager per point";
-baseWagerWrapper.classList.remove("hidden");
+if(game===“vegas”){
+document.getElementById(“wagerLabel”).textContent=“Wager per point”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
-else if(game==="baseball"){
-document.getElementById("wagerLabel").textContent="Wager per Run";
-baseWagerWrapper.classList.remove("hidden");
+else if(game===“baseball”){
+document.getElementById(“wagerLabel”).textContent=“Wager per Run”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
-else if(game==="nassau"){
-document.getElementById("wagerLabel").textContent="";
-baseWagerWrapper.classList.add("hidden");
+else if(game===“nassau”){
+document.getElementById(“wagerLabel”).textContent=””;
+baseWagerWrapper.classList.add(“hidden”);
 }
-else if(game==="bingo"){
-document.getElementById("wagerLabel").textContent="Wager per point";
-baseWagerWrapper.classList.remove("hidden");
+else if(game===“bingo”){
+document.getElementById(“wagerLabel”).textContent=“Wager per point”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
-else if(game==="dots"){
-document.getElementById("wagerLabel").textContent="Wager per dot";
-baseWagerWrapper.classList.remove("hidden");
+else if(game===“dots”){
+document.getElementById(“wagerLabel”).textContent=“Wager per dot”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
-else if(game==="nine"){
-document.getElementById("wagerLabel").textContent="Wager per point";
-baseWagerWrapper.classList.remove("hidden");
+else if(game===“nine”){
+document.getElementById(“wagerLabel”).textContent=“Wager per point”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
-else if(game==="sixes"){
-document.getElementById("wagerLabel").textContent="Wager per segment";
-baseWagerWrapper.classList.remove("hidden");
+else if(game===“sixes”){
+document.getElementById(“wagerLabel”).textContent=“Wager per segment”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
-else if(game==="battle"){
-document.getElementById("wagerLabel").textContent="Wager amount";
-baseWagerWrapper.classList.remove("hidden");
+else if(game===“battle”){
+document.getElementById(“wagerLabel”).textContent=“Wager amount”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
 else{
-document.getElementById("wagerLabel").textContent="Wager per player";
-baseWagerWrapper.classList.remove("hidden");
+document.getElementById(“wagerLabel”).textContent=“Wager per player”;
+baseWagerWrapper.classList.remove(“hidden”);
 }
 
 // Show battle payout row only for battle
-const battlePayoutRow = document.getElementById("battlePayoutRow");
+const battlePayoutRow = document.getElementById(“battlePayoutRow”);
 if(battlePayoutRow){
-battlePayoutRow.classList.toggle("hidden", game !== "battle");
+battlePayoutRow.classList.toggle(“hidden”, game !== “battle”);
 }
 
-if(game==="wolf"){
-playStyleBox.value="ffa";
+if(game===“wolf”){
+playStyleBox.value=“ffa”;
 }
 
 // Update course label in step-settings
-const courseLabel = document.getElementById("bettingCourseLabel");
+const courseLabel = document.getElementById(“bettingCourseLabel”);
 if(courseLabel){
-if(game === "dots"){
+if(game === “dots”){
 courseLabel.innerHTML = `Course <span style="color:#e74c3c;font-size:12px;">Required</span>`;
 } else {
 courseLabel.innerHTML = `Course <span style="opacity:.5;font-size:12px;">(optional)</span>`;
 }
 }
 
-show("step-style");
+show(“step-style”);
 };
 
 /* ================= SETUP ================= */
 
 window.nextTeams=()=>{
-if(currentGame === "baseball"){
-teamAName = "Away";
-teamBName = "Home";
+if(currentGame === “baseball”){
+teamAName = “Away”;
+teamBName = “Home”;
 buildPlayers();
 return;
 }
 
-if(currentGame === "wolf" || currentGame === "bingo" || currentGame === "dots" || currentGame === "nine"){
-playStyle = "ffa";
+if(currentGame === “wolf” || currentGame === “bingo” || currentGame === “dots” || currentGame === “nine”){
+playStyle = “ffa”;
 playerCount = parseInt(playerCountBox.value);
 buildPlayers();
 return;
 }
 
-if(currentGame === "battle"){
+if(currentGame === “battle”){
 playStyle = playStyleBox.value;
 playerCount = parseInt(playerCountBox.value);
-if(playStyle === "teams"){
+if(playStyle === “teams”){
 playerCount = 4;
-show("step-teams");
+show(“step-teams”);
 } else {
 buildPlayers();
 }
 return;
 }
 
-if(currentGame === "sixes"){
-playStyle = "teams";
+if(currentGame === “sixes”){
+playStyle = “teams”;
 playerCount = 4;
 buildPlayers();
 return;
 }
 
-if(currentGame==="vegas"||currentGame==="nassau"){
-show("step-teams");
+if(currentGame===“vegas”||currentGame===“nassau”){
+show(“step-teams”);
 return;
 }
 
 playStyle = playStyleBox.value;
 
-if(playStyle === "teams"){
+if(playStyle === “teams”){
 playerCount = 4;
 }else{
 playerCount = parseInt(playerCountBox.value);
 }
 
-
-playStyle==="teams"?show("step-teams"):buildPlayers();
+playStyle===“teams”?show(“step-teams”):buildPlayers();
 };
 
 window.nextPlayers=()=>{
-teamAName=document.getElementById("teamAName").value||"Team 1";
-teamBName=document.getElementById("teamBName").value||"Team 2";
+teamAName=document.getElementById(“teamAName”).value||“Team 1”;
+teamBName=document.getElementById(“teamBName”).value||“Team 2”;
 buildPlayers();
 };
 
 function buildPlayers(){
-teamAInputs.innerHTML="";
-teamBInputs.innerHTML="";
+teamAInputs.innerHTML=””;
+teamBInputs.innerHTML=””;
 
-if(currentGame === "baseball"){
-teamALabel.textContent = "Away";
-teamBLabel.textContent = "Home";
-} else if(currentGame === "sixes"){
+if(currentGame === “baseball”){
+teamALabel.textContent = “Away”;
+teamBLabel.textContent = “Home”;
+} else if(currentGame === “sixes”){
 // Sixes: 4 individual name inputs, no team split
-teamALabel.textContent = "Players (rotation handled automatically)";
-teamBLabel.textContent = "";
+teamALabel.textContent = “Players (rotation handled automatically)”;
+teamBLabel.textContent = “”;
 } else {
-teamALabel.textContent = playStyle==="teams" ? teamAName : "Players";
-teamBLabel.textContent = playStyle==="teams" ? teamBName : "";
+teamALabel.textContent = playStyle===“teams” ? teamAName : “Players”;
+teamBLabel.textContent = playStyle===“teams” ? teamBName : “”;
 }
 
-const userName = userProfile ? userProfile.name : "";
+const userName = userProfile ? userProfile.name : “”;
 
-if(playStyle==="teams" && currentGame !== "sixes"){
+if(playStyle===“teams” && currentGame !== “sixes”){
 
 // TEAM A
 teamAInputs.innerHTML += `<input value="${userName}">`; // Player 1 auto-fill
@@ -2563,14 +2572,14 @@ teamBInputs.innerHTML += `<input placeholder="Player 2 name">`;
 
 }else{
 
-teamAInputs.innerHTML = "";
-teamBInputs.innerHTML = "";
+teamAInputs.innerHTML = “”;
+teamBInputs.innerHTML = “”;
 
-const count = currentGame === "sixes" ? 4 : playerCount;
+const count = currentGame === “sixes” ? 4 : playerCount;
 
 for(let i=0;i<count;i++){
 
-const input = document.createElement("input");
+const input = document.createElement(“input”);
 
 input.placeholder = `Player ${i+1} name`;
 
@@ -2584,32 +2593,32 @@ teamAInputs.appendChild(input);
 
 }
 
-show("step-players");
+show(“step-players”);
 setTimeout(attachAllAutocomplete, 50);
 }
 
-
 window.nextSettings = () => {
-show("step-settings");
+show(“step-settings”);
 };
 
 window.setBattlePayout = (mode) => {
 battleGame.setPayoutMode(mode);
-document.getElementById("payoutFlat")?.classList.toggle("bingo-selected", mode === "flat");
-document.getElementById("payoutPerStroke")?.classList.toggle("bingo-selected", mode === "perstroke");
+document.getElementById(“payoutFlat”)?.classList.toggle(“bingo-selected”, mode === “flat”);
+document.getElementById(“payoutPerStroke”)?.classList.toggle(“bingo-selected”, mode === “perstroke”);
 };
 
 /* ================= NET BATTLE HANDICAP INPUT ================= */
 
 function buildHandicapInputs(){
-const list = document.getElementById("handicapInputList");
+const list = document.getElementById(“handicapInputList”);
 if(!list) return;
-list.innerHTML = "";
+list.innerHTML = “”;
 
 players.forEach(p => {
-const row = document.createElement("div");
-row.style.cssText = "display:flex;align-items:center;gap:12px;margin-bottom:12px;";
+const row = document.createElement(“div”);
+row.style.cssText = “display:flex;align-items:center;gap:12px;margin-bottom:12px;”;
 row.innerHTML = `
+
 <div style="flex:1;font-weight:600;font-size:14px;">${p}</div>
 <input id="hcp_${p}" type="number" inputmode="decimal" placeholder="Handicap"
 style="width:100px;text-align:center;">
@@ -2623,126 +2632,126 @@ const handicaps = {};
 let allEntered = true;
 
 players.forEach(p => {
-const el  = document.getElementById(`hcp_${p}`);
+const el = document.getElementById(`hcp_${p}`);
 const val = el?.value;
-if(val === "" || val === undefined){ allEntered = false; return; }
+if(val === “” || val === undefined){ allEntered = false; return; }
 handicaps[p] = parseFloat(val) || 0;
 });
 
 if(!allEntered){
-alert("Please enter a handicap for every player (use 0 if scratch)");
+alert(“Please enter a handicap for every player (use 0 if scratch)”);
 return;
 }
 
-if(GAME_UI["battle"]) GAME_UI["battle"]._handicapInputs = handicaps;
+if(GAME_UI[“battle”]) GAME_UI[“battle”]._handicapInputs = handicaps;
 
 // Determine 9 vs 18
-const isNineHole  = holeLimit <= 9;
-const halfForNine = document.getElementById("halfForNineToggle")?.checked || false;
+const isNineHole = holeLimit <= 9;
+const halfForNine = document.getElementById(“halfForNineToggle”)?.checked || false;
 
 // Set up engine
 battleGame.reset();
-battleGame.setTeamMode(playStyle === "teams");
+battleGame.setTeamMode(playStyle === “teams”);
 battleGame.setHalfForNine(halfForNine);
 battleGame.setPlayers(players, handicaps, isNineHole);
 
 // Course data
 const rating = bettingCourse?.rating || 72;
-const slope  = bettingCourse?.slope  || 113;
+const slope = bettingCourse?.slope || 113;
 battleGame.setCourseHandicaps(rating, slope);
 
 // Hole handicap difficulty rankings if available
 if(bettingCourse){
-const saved   = savedCourses.find(c => c.name === bettingCourse.name);
-const teeName = document.getElementById("bettingTeeSelect")?.value;
-const tee     = saved?.tees?.[teeName];
+const saved = savedCourses.find(c => c.name === bettingCourse.name);
+const teeName = document.getElementById(“bettingTeeSelect”)?.value;
+const tee = saved?.tees?.[teeName];
 if(tee?.holeHandicaps?.length){
 battleGame.setHoleHandicaps(tee.holeHandicaps);
 }
 }
 
-["skinsBox","vegasBox","nassauBox","wolfBox","baseballBox","bingoBox","dotsBox","nineBox","sixesBox2","battleBox"]
-.forEach(id => document.getElementById(id)?.classList.add("hidden"));
-document.getElementById("battleBox")?.classList.remove("hidden");
+[“skinsBox”,“vegasBox”,“nassauBox”,“wolfBox”,“baseballBox”,“bingoBox”,“dotsBox”,“nineBox”,“sixesBox2”,“battleBox”]
+.forEach(id => document.getElementById(id)?.classList.add(“hidden”));
+document.getElementById(“battleBox”)?.classList.remove(“hidden”);
 
-if(GAME_UI["battle"]?.build){
-GAME_UI["battle"].build({ players, teams, ledger, baseWager });
+if(GAME_UI[“battle”]?.build){
+GAME_UI[“battle”].build({ players, teams, ledger, baseWager });
 }
 
 teamAPlayers.textContent = `Players: ${players.join(", ")}`;
-teamBPlayers.textContent = "";
-document.getElementById("leaderboardWrapper").classList.add("hidden");
-document.getElementById("leaderboardHeader").classList.add("hidden");
+teamBPlayers.textContent = “”;
+document.getElementById(“leaderboardWrapper”).classList.add(“hidden”);
+document.getElementById(“leaderboardHeader”).classList.add(“hidden”);
 updateUI();
-show("game-screen");
+show(“game-screen”);
 };
 
 /* ================= DOT PICKER ================= */
 
 const DEFAULT_DOTS = [
-{ key:"birdie",    label:"Birdie",        value:1, single:false, on:true },
-{ key:"eagle",     label:"Eagle",         value:2, single:false, on:true },
-{ key:"gir",       label:"GIR",           value:1, single:false, on:true },
-{ key:"fir",       label:"FIR",           value:1, single:false, on:true },
-{ key:"oneputt",   label:"One Putt",      value:1, single:false, on:true },
-{ key:"holeout",   label:"Hole Out",      value:2, single:false, on:true },
-{ key:"sandsave",  label:"Sand Save",     value:1, single:false, on:true },
-{ key:"longdrive", label:"Long Drive",    value:1, single:true,  on:true },
-{ key:"longputt",  label:"Longest Putt",  value:1, single:true,  on:true },
-{ key:"ctp",       label:"CTP",           value:1, single:true,  on:true },
-{ key:"lowscore",  label:"Low Score",     value:1, single:true,  on:true },
+{ key:“birdie”, label:“Birdie”, value:1, single:false, on:true },
+{ key:“eagle”, label:“Eagle”, value:2, single:false, on:true },
+{ key:“gir”, label:“GIR”, value:1, single:false, on:true },
+{ key:“fir”, label:“FIR”, value:1, single:false, on:true },
+{ key:“oneputt”, label:“One Putt”, value:1, single:false, on:true },
+{ key:“holeout”, label:“Hole Out”, value:2, single:false, on:true },
+{ key:“sandsave”, label:“Sand Save”, value:1, single:false, on:true },
+{ key:“longdrive”, label:“Long Drive”, value:1, single:true, on:true },
+{ key:“longputt”, label:“Longest Putt”, value:1, single:true, on:true },
+{ key:“ctp”, label:“CTP”, value:1, single:true, on:true },
+{ key:“lowscore”, label:“Low Score”, value:1, single:true, on:true },
 ];
 
 let dotPickerState = [];
 
 function buildDotPicker(){
 const customs = dotPickerState.filter(d => d.custom);
-dotPickerState = DEFAULT_DOTS.map(d => ({ ...d })).concat(customs);
+dotPickerState = DEFAULT_DOTS.map(d => ({ …d })).concat(customs);
 renderDotPicker();
 }
 
 function renderDotPicker(){
-const list = document.getElementById("dotPickerList");
+const list = document.getElementById(“dotPickerList”);
 if(!list) return;
-list.innerHTML = "";
+list.innerHTML = “”;
 
 dotPickerState.forEach((dot, i) => {
-const row = document.createElement("div");
-row.style.cssText = "display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);";
+const row = document.createElement(“div”);
+row.style.cssText = “display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);”;
 
 // Pill toggle
-const toggleWrap = document.createElement("label");
-toggleWrap.style.cssText = "position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer;";
-const checkbox = document.createElement("input");
-checkbox.type    = "checkbox";
+const toggleWrap = document.createElement(“label”);
+toggleWrap.style.cssText = “position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer;”;
+const checkbox = document.createElement(“input”);
+checkbox.type = “checkbox”;
 checkbox.checked = dot.on;
-checkbox.style.cssText = "opacity:0;width:0;height:0;position:absolute;";
-checkbox.onchange = () => { dotPickerState[i].on = checkbox.checked; slider.style.background = checkbox.checked ? "#2ecc71" : "rgba(255,255,255,.2)"; knob.style.transform = checkbox.checked ? "translateX(20px)" : "translateX(2px)"; };
-const slider = document.createElement("div");
+checkbox.style.cssText = “opacity:0;width:0;height:0;position:absolute;”;
+checkbox.onchange = () => { dotPickerState[i].on = checkbox.checked; slider.style.background = checkbox.checked ? “#2ecc71” : “rgba(255,255,255,.2)”; knob.style.transform = checkbox.checked ? “translateX(20px)” : “translateX(2px)”; };
+const slider = document.createElement(“div”);
 slider.style.cssText = `position:absolute;inset:0;border-radius:24px;background:${dot.on?"#2ecc71":"rgba(255,255,255,.2)"};transition:background .2s;`;
-const knob = document.createElement("div");
+const knob = document.createElement(“div”);
 knob.style.cssText = `position:absolute;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;transform:${dot.on?"translateX(20px)":"translateX(2px)"};`;
 slider.appendChild(knob);
 toggleWrap.appendChild(checkbox);
 toggleWrap.appendChild(slider);
 
-const lbl = document.createElement("div");
-lbl.style.cssText = "flex:1;font-weight:600;font-size:14px;";
-lbl.textContent   = dot.label + (dot.single ? " ⚡" : "");
+const lbl = document.createElement(“div”);
+lbl.style.cssText = “flex:1;font-weight:600;font-size:14px;”;
+lbl.textContent = dot.label + (dot.single ? “ ” : “”);
 
-const val = document.createElement("div");
-val.style.cssText = "font-size:12px;opacity:.6;white-space:nowrap;";
-val.textContent   = dot.value + " dot" + (dot.value !== 1 ? "s" : "");
+const val = document.createElement(“div”);
+val.style.cssText = “font-size:12px;opacity:.6;white-space:nowrap;”;
+val.textContent = dot.value + “ dot” + (dot.value !== 1 ? “s” : “”);
 
 row.appendChild(toggleWrap);
 row.appendChild(lbl);
 row.appendChild(val);
 
 if(dot.custom){
-const del = document.createElement("button");
-del.textContent   = "✕";
-del.style.cssText = "padding:4px 10px;font-size:13px;background:rgba(200,50,50,.4);";
-del.onclick       = () => { dotPickerState.splice(i, 1); renderDotPicker(); };
+const del = document.createElement(“button”);
+del.textContent = “✕”;
+del.style.cssText = “padding:4px 10px;font-size:13px;background:rgba(200,50,50,.4);”;
+del.onclick = () => { dotPickerState.splice(i, 1); renderDotPicker(); };
 row.appendChild(del);
 }
 
@@ -2751,55 +2760,55 @@ list.appendChild(row);
 }
 
 window.addCustomDot = () => {
-const name  = document.getElementById("customDotName").value.trim();
-const value = parseFloat(document.getElementById("customDotValue").value);
-if(!name)           return alert("Enter a dot name");
-if(!value || value <= 0) return alert("Enter a valid dot value");
-dotPickerState.push({ key:"custom_"+Date.now(), label:name, value, single:false, on:true, custom:true });
-document.getElementById("customDotName").value  = "";
-document.getElementById("customDotValue").value = "";
+const name = document.getElementById(“customDotName”).value.trim();
+const value = parseFloat(document.getElementById(“customDotValue”).value);
+if(!name) return alert(“Enter a dot name”);
+if(!value || value <= 0) return alert(“Enter a valid dot value”);
+dotPickerState.push({ key:“custom_”+Date.now(), label:name, value, single:false, on:true, custom:true });
+document.getElementById(“customDotName”).value = “”;
+document.getElementById(“customDotValue”).value = “”;
 renderDotPicker();
 };
 
 window.startDotsRound = () => {
 const active = dotPickerState.filter(d => d.on);
-if(!active.length) return alert("Select at least one dot");
+if(!active.length) return alert(“Select at least one dot”);
 
 dotsGame.reset();
 dotsGame.initPlayers(players);
 dotsGame.setWager(baseWager);
 dotsGame.setActiveDots(active);
 
-holeLimit = +document.getElementById("holeLimit")?.value || 9;
+holeLimit = +document.getElementById(“holeLimit”)?.value || 9;
 
 // Hide all game boxes, show dots
-["skinsBox","vegasBox","nassauBox","wolfBox","baseballBox","bingoBox","dotsBox"]
+[“skinsBox”,“vegasBox”,“nassauBox”,“wolfBox”,“baseballBox”,“bingoBox”,“dotsBox”]
 .forEach(id => {
 const el = document.getElementById(id);
-if(el) el.classList.add("hidden");
+if(el) el.classList.add(“hidden”);
 });
-document.getElementById("dotsBox")?.classList.remove("hidden");
+document.getElementById(“dotsBox”)?.classList.remove(“hidden”);
 
-if(GAME_UI["dots"]?.build){
-GAME_UI["dots"].build({ players, teams, ledger, baseWager });
+if(GAME_UI[“dots”]?.build){
+GAME_UI[“dots”].build({ players, teams, ledger, baseWager });
 }
 
 teamAPlayers.textContent = `Players: ${players.join(", ")}`;
-teamBPlayers.textContent = "";
+teamBPlayers.textContent = “”;
 
-document.getElementById("leaderboardWrapper").classList.add("collapsed");
-document.getElementById("leaderboardWrapper").classList.add("hidden");
-document.getElementById("leaderboardHeader").classList.add("hidden");
+document.getElementById(“leaderboardWrapper”).classList.add(“collapsed”);
+document.getElementById(“leaderboardWrapper”).classList.add(“hidden”);
+document.getElementById(“leaderboardHeader”).classList.add(“hidden”);
 updateUI();
-show("game-screen");
+show(“game-screen”);
 };
 
 function saveState(){
 
 historyStack.push({
 hole,
-ledger: { ...ledger },
-players: [...players],
+ledger: { …ledger },
+players: […players],
 
 wolfIndex: GAME_ENGINES.wolf?.wolfIndex,
 
@@ -2818,21 +2827,21 @@ if(!historyStack.length) return;
 const prev = historyStack.pop();
 
 hole = prev.hole;
-ledger = { ...prev.ledger };
-players = [...prev.players];
+ledger = { …prev.ledger };
+players = […prev.players];
 
-// ✅ restore engine state (wolf rotation + partner/lone)
+// restore engine state (wolf rotation + partner/lone)
 if(prev.gameState && GAME_ENGINES[currentGame]?.setState){
 GAME_ENGINES[currentGame].setState(prev.gameState);
 }
 
-// 🔥 FORCE UI TO REBIND TO RESTORED STATE
+// FORCE UI TO REBIND TO RESTORED STATE
 if(GAME_UI[currentGame]){
 GAME_UI[currentGame].players = players;
 GAME_UI[currentGame].ledger = ledger;
 }
 
-// ✅ FORCE UI TO REBUILD CORRECTLY
+// FORCE UI TO REBUILD CORRECTLY
 if(GAME_UI[currentGame]?.onHoleChange){
 GAME_UI[currentGame].onHoleChange(hole);
 }
@@ -2841,25 +2850,23 @@ updateUI();
 
 };
 
-
-
 /* ================= START ROUND ================= */
 
 window.startRound=()=>{
 
 // Dots requires a course
-if(currentGame === "dots" && !bettingCourse){
-alert("Please select a course for Dots — it's needed for par-based dot rules.");
+if(currentGame === “dots” && !bettingCourse){
+alert(“Please select a course for Dots — it’s needed for par-based dot rules.”);
 return;
 }
 
 // Slice betting course pars based on hole selection
 if(bettingCourse && bettingCourse.fullPars){
-const holes    = +document.getElementById("holeLimit")?.value || 9;
-const nineType = document.getElementById("bettingNineType")?.value || "front";
+const holes = +document.getElementById(“holeLimit”)?.value || 9;
+const nineType = document.getElementById(“bettingNineType”)?.value || “front”;
 if(holes === 18){
 bettingCourse.pars = bettingCourse.fullPars.slice(0, 18);
-} else if(nineType === "back"){
+} else if(nineType === “back”){
 bettingCourse.pars = bettingCourse.fullPars.slice(9, 18);
 } else {
 bettingCourse.pars = bettingCourse.fullPars.slice(0, 9);
@@ -2868,16 +2875,16 @@ bettingCourse.pars = bettingCourse.fullPars.slice(0, 9);
 
 players=[]; teams={A:[],B:[]}; ledger={}; hole=1;
 historyStack=[];
-document.getElementById("birdieFlip").checked=false;
+document.getElementById(“birdieFlip”).checked=false;
 
-document.querySelectorAll("#teamAInputs input").forEach(i=>{
+document.querySelectorAll(”#teamAInputs input”).forEach(i=>{
 if(!i.value) return;
 players.push(i.value);
 ledger[i.value]=0;
 teams.A.push(i.value);
 });
 
-document.querySelectorAll("#teamBInputs input").forEach(i=>{
+document.querySelectorAll(”#teamBInputs input”).forEach(i=>{
 if(!i.value) return;
 players.push(i.value);
 ledger[i.value]=0;
@@ -2885,62 +2892,62 @@ teams.B.push(i.value);
 });
 
 // Dots: collect wager then go to dot picker
-if(currentGame === "dots"){
-baseWager = +document.getElementById("baseWager").value;
+if(currentGame === “dots”){
+baseWager = +document.getElementById(“baseWager”).value;
 buildDotPicker();
-show("dot-picker");
+show(“dot-picker”);
 return;
 }
 
 // Net Battle: go to handicap input screen
-if(currentGame === "battle"){
-baseWager = +document.getElementById("baseWager").value;
+if(currentGame === “battle”){
+baseWager = +document.getElementById(“baseWager”).value;
 buildHandicapInputs();
-show("handicap-input");
+show(“handicap-input”);
 return;
 }
 
-// ✅ BASEBALL ONLY TEAM NAMES
-if(currentGame === "baseball"){
-teamAName = "Away";
-teamBName = "Home";
+// BASEBALL ONLY TEAM NAMES
+if(currentGame === “baseball”){
+teamAName = “Away”;
+teamBName = “Home”;
 }
 
 /* Detect 1v1 automatically */
 
 if(teams.A.length === 1 && teams.B.length === 1){
-playStyle = "ffa";
+playStyle = “ffa”;
 }else{
-playStyle = "teams";
+playStyle = “teams”;
 }
 
-baseWager=+document.getElementById("baseWager").value;
+baseWager=+document.getElementById(“baseWager”).value;
 holeLimit =
-currentGame==="nassau" ? 18 :
-currentGame==="baseball" ? 18 :
+currentGame===“nassau” ? 18 :
+currentGame===“baseball” ? 18 :
 +holeLimitSelect.value;
 
 if(GAME_ENGINES[currentGame]?.reset){
 GAME_ENGINES[currentGame].reset(baseWager);
 }
 
-skinsBox.classList.toggle("hidden",currentGame!=="skins");
-vegasBox.classList.toggle("hidden",currentGame!=="vegas");
-nassauBox.classList.toggle("hidden",currentGame!=="nassau");
-const wolfBox = document.getElementById("wolfBox");
-if(wolfBox) wolfBox.classList.toggle("hidden", currentGame !== "wolf");
-const baseballBox = document.getElementById("baseballBox");
-if(baseballBox) baseballBox.classList.toggle("hidden", currentGame !== "baseball");
-const bingoBox = document.getElementById("bingoBox");
-if(bingoBox) bingoBox.classList.toggle("hidden", currentGame !== "bingo");
-const dotsBox = document.getElementById("dotsBox");
-if(dotsBox) dotsBox.classList.toggle("hidden", currentGame !== "dots");
-const nineBox = document.getElementById("nineBox");
-if(nineBox) nineBox.classList.toggle("hidden", currentGame !== "nine");
-const sixesBox2 = document.getElementById("sixesBox2");
-if(sixesBox2) sixesBox2.classList.toggle("hidden", currentGame !== "sixes");
-const battleBox = document.getElementById("battleBox");
-if(battleBox) battleBox.classList.toggle("hidden", currentGame !== "battle");
+skinsBox.classList.toggle(“hidden”,currentGame!==“skins”);
+vegasBox.classList.toggle(“hidden”,currentGame!==“vegas”);
+nassauBox.classList.toggle(“hidden”,currentGame!==“nassau”);
+const wolfBox = document.getElementById(“wolfBox”);
+if(wolfBox) wolfBox.classList.toggle(“hidden”, currentGame !== “wolf”);
+const baseballBox = document.getElementById(“baseballBox”);
+if(baseballBox) baseballBox.classList.toggle(“hidden”, currentGame !== “baseball”);
+const bingoBox = document.getElementById(“bingoBox”);
+if(bingoBox) bingoBox.classList.toggle(“hidden”, currentGame !== “bingo”);
+const dotsBox = document.getElementById(“dotsBox”);
+if(dotsBox) dotsBox.classList.toggle(“hidden”, currentGame !== “dots”);
+const nineBox = document.getElementById(“nineBox”);
+if(nineBox) nineBox.classList.toggle(“hidden”, currentGame !== “nine”);
+const sixesBox2 = document.getElementById(“sixesBox2”);
+if(sixesBox2) sixesBox2.classList.toggle(“hidden”, currentGame !== “sixes”);
+const battleBox = document.getElementById(“battleBox”);
+if(battleBox) battleBox.classList.toggle(“hidden”, currentGame !== “battle”);
 
 if(GAME_UI[currentGame]?.build){
 GAME_UI[currentGame].build({
@@ -2951,7 +2958,7 @@ baseWager
 });
 }
 
-// 🔥 FORCE UI TO REBUILD AFTER PLAYERS ARE SET
+// FORCE UI TO REBUILD AFTER PLAYERS ARE SET
 if(GAME_UI[currentGame]?.build){
 GAME_UI[currentGame].build({
 players,
@@ -2961,12 +2968,12 @@ baseWager
 });
 }
 
-// ✅ FORCE UPDATE AFTER BUILD
+// FORCE UPDATE AFTER BUILD
 if(GAME_UI[currentGame]?.update){
 GAME_UI[currentGame].update();
 }
 
-if(currentGame === "baseball"){
+if(currentGame === “baseball”){
 teamAPlayers.textContent = `Away: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent = `Home: ${teams.B.join(" & ")}`;
 }else{
@@ -2974,27 +2981,27 @@ teamAPlayers.textContent=`${teamAName}: ${teams.A.join(" & ")}`;
 teamBPlayers.textContent=`${teamBName}: ${teams.B.join(" & ")}`;
 }
 
-document.querySelectorAll("#game-screen input").forEach(i => {
-if(["a1","a2","b1","b2"].includes(i.id)) return;
-i.value = "";
+document.querySelectorAll(”#game-screen input”).forEach(i => {
+if([“a1”,“a2”,“b1”,“b2”].includes(i.id)) return;
+i.value = “”;
 });
 updateUI();
-document.getElementById("leaderboardWrapper").classList.add("collapsed");
-// Hide money leaderboard entirely for dots/bingo — it doesn't update mid-round
-if(currentGame === "bingo" || currentGame === "dots" || currentGame === "nine" || currentGame === "battle"){
-document.getElementById("leaderboardWrapper").classList.add("hidden");
-document.getElementById("leaderboardHeader").classList.add("hidden");
+document.getElementById(“leaderboardWrapper”).classList.add(“collapsed”);
+// Hide money leaderboard entirely for dots/bingo — it doesn’t update mid-round
+if(currentGame === “bingo” || currentGame === “dots” || currentGame === “nine” || currentGame === “battle”){
+document.getElementById(“leaderboardWrapper”).classList.add(“hidden”);
+document.getElementById(“leaderboardHeader”).classList.add(“hidden”);
 } else {
-document.getElementById("leaderboardWrapper").classList.remove("hidden");
-document.getElementById("leaderboardHeader").classList.remove("hidden");
+document.getElementById(“leaderboardWrapper”).classList.remove(“hidden”);
+document.getElementById(“leaderboardHeader”).classList.remove(“hidden”);
 }
-show("game-screen");
+show(“game-screen”);
 };
 /* ================= SIDE BET ================= */
 
 sideBetBtn.onclick=()=>{
-sideWinners.innerHTML="";
-sideBetModal.classList.remove("hidden");
+sideWinners.innerHTML=””;
+sideBetModal.classList.remove(“hidden”);
 };
 
 sideMode.onchange=buildSideButtons;
@@ -3004,37 +3011,37 @@ function buildSideButtons(){
 
 const amount=+sideAmount.value;
 if(!amount||amount<=0){
-sideWinners.innerHTML="<p>Enter wager first</p>";
+sideWinners.innerHTML=”<p>Enter wager first</p>”;
 return;
 }
 
-sideWinners.innerHTML="";
+sideWinners.innerHTML=””;
 sideBets.setAmount(amount);
 sideBets.setMode(sideMode.value);
 
-if(sideMode.value==="player"){
+if(sideMode.value===“player”){
 players.forEach(p=>{
-const btn=document.createElement("button");
+const btn=document.createElement(“button”);
 btn.textContent=p;
 btn.onclick=()=>{
 saveState();
 sideBets.applyPlayer(p,players,ledger);
-sideAmount.value="";
+sideAmount.value=””;
 updateUI();
-sideBetModal.classList.add("hidden");
+sideBetModal.classList.add(“hidden”);
 };
 sideWinners.appendChild(btn);
 });
 }else{
-["A","B"].forEach(t=>{
-const btn=document.createElement("button");
-btn.textContent=t==="A"?teamAName:teamBName;
+[“A”,“B”].forEach(t=>{
+const btn=document.createElement(“button”);
+btn.textContent=t===“A”?teamAName:teamBName;
 btn.onclick=()=>{
 saveState();
 sideBets.applyTeam(t,teams,ledger);
-sideAmount.value="";
+sideAmount.value=””;
 updateUI();
-sideBetModal.classList.add("hidden");
+sideBetModal.classList.add(“hidden”);
 };
 sideWinners.appendChild(btn);
 });
@@ -3046,18 +3053,19 @@ sideWinners.appendChild(btn);
 function nextHole(){
 if(hole>=holeLimit){
 
-const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
+const sorted = […players].sort((a,b)=>ledger[b]-ledger[a]);
 const topValue = ledger[sorted[0]];
 const winners = sorted.filter(p => ledger[p] === topValue && topValue > 0);
 
-leaderboardModalList.innerHTML = "";
+leaderboardModalList.innerHTML = “”;
 
 // Winner banner
 if(winners.length > 0){
-const banner = document.createElement("div");
-banner.className = "winner-banner";
+const banner = document.createElement(“div”);
+banner.className = “winner-banner”;
 banner.innerHTML = `
-<div class="winner-crown">🏆</div>
+
+<div class="winner-crown"> </div>
 <div class="winner-name">${winners.join(" & ")}</div>
 <div class="winner-sub">Winner${winners.length > 1 ? "s" : ""}!</div>
 `;
@@ -3072,28 +3080,26 @@ sorted.forEach((p, i) => {
 const value = ledger[p];
 const isWinner = winners.includes(p);
 
-const row = document.createElement("div");
-row.className = "results-row" + (isWinner ? " results-row-winner" : "");
+const row = document.createElement(“div”);
+row.className = “results-row” + (isWinner ? “ results-row-winner” : “”);
 row.style.animationDelay = `${i * 80}ms`;
 
-row.innerHTML = `
-<span>${isWinner ? "🏆 " : ""}${p}</span>
-<span>${value>=0?"+":""}$${value.toFixed(2)}</span>
-`;
+row.innerHTML = `<span>${isWinner ? " " : ""}${p}</span> <span>${value>=0?"+":""}$${value.toFixed(2)}</span>`;
 
 leaderboardModalList.appendChild(row);
 
 });
 
-// For battle: add a "View Net Scores" button
-if(currentGame === "battle"){
-const netBtn = document.createElement("button");
-netBtn.textContent = "View Net Scores";
-netBtn.style.cssText = "width:100%;margin-top:12px;background:rgba(255,255,255,.15);font-size:14px;";
+// For battle: add a “View Net Scores” button
+if(currentGame === “battle”){
+const netBtn = document.createElement(“button”);
+netBtn.textContent = “View Net Scores”;
+netBtn.style.cssText = “width:100%;margin-top:12px;background:rgba(255,255,255,.15);font-size:14px;”;
 netBtn.onclick = () => {
 const nets = battleGame.getNetScores();
-const ch   = battleGame.getCourseHandicaps();
-let html   = `<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.15);padding-top:14px;">
+const ch = battleGame.getCourseHandicaps();
+let html = `<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.15);padding-top:14px;">
+
 <div style="font-weight:700;margin-bottom:10px;font-size:14px;">Net Score Breakdown</div>`;
 [...players].sort((a,b)=>nets[a]-nets[b]).forEach(p => {
 html += `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.07);">
@@ -3111,23 +3117,23 @@ leaderboardModalList.appendChild(netBtn);
 
 // Add Settle Up button if any money changed hands — appended to modal-box not the list
 const hasDebts = Object.values(ledger).some(v => v < 0);
-const existingSettleBtn = document.getElementById("settleUpBtn");
+const existingSettleBtn = document.getElementById(“settleUpBtn”);
 if(existingSettleBtn) existingSettleBtn.remove();
 if(hasDebts){
-const settleBtn = document.createElement("button");
-settleBtn.id = "settleUpBtn";
-settleBtn.textContent = "💸 Settle Up";
-settleBtn.style.cssText = "background:linear-gradient(135deg,#1a4f8c,#3498db);margin-top:8px;margin-bottom:8px;";
+const settleBtn = document.createElement(“button”);
+settleBtn.id = “settleUpBtn”;
+settleBtn.textContent = “ Settle Up”;
+settleBtn.style.cssText = “background:linear-gradient(135deg,#1a4f8c,#3498db);margin-top:8px;margin-bottom:8px;”;
 settleBtn.onclick = (e) => {
 e.stopPropagation();
 openSettleModal();
 };
 // Insert before the Finish Round button
-const finishBtn = document.getElementById("leaderboardFinishBtn");
+const finishBtn = document.getElementById(“leaderboardFinishBtn”);
 finishBtn.parentNode.insertBefore(settleBtn, finishBtn);
 }
 
-leaderboardModal.classList.remove("hidden");
+leaderboardModal.classList.remove(“hidden”);
 return;
 }
 hole++;
@@ -3135,30 +3141,30 @@ if(GAME_UI[currentGame]?.onHoleChange){
 GAME_UI[currentGame].onHoleChange(hole);
 }
 // Dots and Bingo settle at end — money leaderboard stays hidden during round
-if(currentGame === "bingo" || currentGame === "dots" || currentGame === "nine" || currentGame === "battle"){
-document.getElementById("leaderboardWrapper").classList.add("hidden");
-document.getElementById("leaderboardHeader").classList.add("hidden");
+if(currentGame === “bingo” || currentGame === “dots” || currentGame === “nine” || currentGame === “battle”){
+document.getElementById(“leaderboardWrapper”).classList.add(“hidden”);
+document.getElementById(“leaderboardHeader”).classList.add(“hidden”);
 } else {
-document.getElementById("leaderboardWrapper").classList.remove("collapsed");
-document.getElementById("leaderboardWrapper").classList.remove("hidden");
-document.getElementById("leaderboardHeader").classList.remove("hidden");
+document.getElementById(“leaderboardWrapper”).classList.remove(“collapsed”);
+document.getElementById(“leaderboardWrapper”).classList.remove(“hidden”);
+document.getElementById(“leaderboardHeader”).classList.remove(“hidden”);
 }
 // Scroll game screen back to top
-document.getElementById("game-screen")?.scrollTo({ top: 0, behavior: "smooth" });
+document.getElementById(“game-screen”)?.scrollTo({ top: 0, behavior: “smooth” });
 updateUI();
 }
 
 function toggleLeaderboard(){
 
-const wrap = document.getElementById("leaderboardWrapper");
-const header = document.getElementById("leaderboardHeader");
+const wrap = document.getElementById(“leaderboardWrapper”);
+const header = document.getElementById(“leaderboardHeader”);
 
-wrap.classList.toggle("collapsed");
+wrap.classList.toggle(“collapsed”);
 
 header.textContent =
-wrap.classList.contains("collapsed")
-? "▲ Leaderboard"
-: "▼ Leaderboard";
+wrap.classList.contains(“collapsed”)
+? “▲ Leaderboard”
+: “▼ Leaderboard”;
 
 }
 
@@ -3166,118 +3172,115 @@ function updateUI(){
 holeDisplay.textContent=`Hole ${hole}`;
 
 // Show par for current hole if course is selected
-const parDisplay = document.getElementById("parDisplay");
+const parDisplay = document.getElementById(“parDisplay”);
 if(parDisplay){
 if(bettingCourse && bettingCourse.pars && bettingCourse.pars[hole-1]){
 parDisplay.textContent = `Par ${bettingCourse.pars[hole-1]}`;
 } else {
-parDisplay.textContent = "";
+parDisplay.textContent = “”;
 }
 }
 
-if(currentGame==="skins"){
+if(currentGame===“skins”){
 potDisplay.textContent=`$${skinsGame.currentPot()}/player`;
 }
 
-if(currentGame==="vegas"){
+if(currentGame===“vegas”){
 potDisplay.textContent=`$${baseWager}/point`;
 }
 
-if(currentGame==="baseball"){
+if(currentGame===“baseball”){
 potDisplay.textContent=`$${baseWager}/run`;
 }
 
-if(currentGame==="bingo"){
+if(currentGame===“bingo”){
 potDisplay.textContent=`$${baseWager}/point`;
 }
 
-if(currentGame==="dots"){
+if(currentGame===“dots”){
 potDisplay.textContent=`$${baseWager}/dot`;
 }
 
-if(currentGame==="nine"){
+if(currentGame===“nine”){
 potDisplay.textContent=`$${baseWager}/point`;
 }
 
-if(currentGame==="sixes"){
+if(currentGame===“sixes”){
 potDisplay.textContent=`$${baseWager}/segment`;
 }
 
-if(currentGame==="battle"){
+if(currentGame===“battle”){
 potDisplay.textContent=`$${baseWager} wager`;
 }
 
-if(currentGame==="dots"){
+if(currentGame===“dots”){
 potDisplay.textContent=`$${baseWager}/dot`;
 }
 
-if(currentGame==="nassau"){
+if(currentGame===“nassau”){
 const s=nassauGame.getStatus();
 potDisplay.textContent=`Front ${s.frontA}-${s.frontB} | Back ${s.backA}-${s.backB} | Total ${s.totalA}-${s.totalB}`;
 }
 
-if(currentGame==="baseball"){
+if(currentGame===“baseball”){
 
 const inning=Math.ceil(hole/2);
 const isTop=hole%2===1;
 
-const txt=(isTop?"Top":"Bottom")+" of "+inning;
+const txt=(isTop?“Top”:“Bottom”)+” of “+inning;
 
-const el=document.getElementById("baseballInning");
+const el=document.getElementById(“baseballInning”);
 if(el) el.textContent=txt;
 
 }
 
 /* ===== ENHANCED LEADERBOARD ===== */
 
-const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
+const sorted = […players].sort((a,b)=>ledger[b]-ledger[a]);
 
-leaderboard.innerHTML = "";
+leaderboard.innerHTML = “”;
 
 sorted.forEach((p,i)=>{
 
 const value = ledger[p];
-const row = document.createElement("div");
-row.style.transition = "transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease";
-row.style.transform = "translateY(20px)";
-row.style.opacity = "0";
+const row = document.createElement(“div”);
+row.style.transition = “transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease”;
+row.style.transform = “translateY(20px)”;
+row.style.opacity = “0”;
 
-row.style.display = "flex";
-row.style.background = "rgba(255,255,255,.008)";
-row.style.backdropFilter = "blur(6px)";
-row.style.border = "1px solid rgba(255,255,255,.12)";
-row.style.justifyContent = "space-between";
-row.style.padding = "8px 12px";
-row.style.marginBottom = "6px";
-row.style.borderRadius = "10px";
-row.style.fontWeight = "600";
+row.style.display = “flex”;
+row.style.background = “rgba(255,255,255,.008)”;
+row.style.backdropFilter = “blur(6px)”;
+row.style.border = “1px solid rgba(255,255,255,.12)”;
+row.style.justifyContent = “space-between”;
+row.style.padding = “8px 12px”;
+row.style.marginBottom = “6px”;
+row.style.borderRadius = “10px”;
+row.style.fontWeight = “600”;
 
 if(i === 0){
 
-row.style.background = "linear-gradient(90deg,#0f5132,#1f7a4f)";
-row.style.boxShadow = "0 0 12px rgba(46,204,113,.35)";
-row.style.transform = "scale(1.03)";
+row.style.background = “linear-gradient(90deg,#0f5132,#1f7a4f)”;
+row.style.boxShadow = “0 0 12px rgba(46,204,113,.35)”;
+row.style.transform = “scale(1.03)”;
 
 }
 
 if(value > 0){
-row.style.color = "#2ecc71";
+row.style.color = “#2ecc71”;
 }else if(value < 0){
-row.style.color = "#e74c3c";
+row.style.color = “#e74c3c”;
 }else{
-row.style.color = "#ffffff";
+row.style.color = “#ffffff”;
 }
 
-row.innerHTML = `
-<span>${p}</span>
-<span>${value>=0?"+":""}$${value.toFixed(2)}</span>
-`;
+row.innerHTML = `<span>${p}</span> <span>${value>=0?"+":""}$${value.toFixed(2)}</span>`;
 
 leaderboard.appendChild(row);
 
 requestAnimationFrame(()=>{
-row.style.transform = "translateY(0)";
-row.style.opacity  = "1";
+row.style.transform = “translateY(0)”;
+row.style.opacity = “1”;
 });
 
 });
@@ -3286,14 +3289,14 @@ if(GAME_UI[currentGame]?.update){
 GAME_UI[currentGame].update();
 }
 
-updateHeader("game-screen");
+updateHeader(“game-screen”);
 animateMoney();
 }
 
 /* ================= END ROUND ================= */
 
 window.endRoundNow = () =>{
-if(!confirm("End round? Progress will be lost.")) return;
+if(!confirm(“End round? Progress will be lost.”)) return;
 
 currentRound = null;
 historyStack = [];
@@ -3307,9 +3310,9 @@ trackOpponents();
 trackPvP();
 saveBettingRound();
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 
-leaderboardModal.classList.add("hidden");
+leaderboardModal.classList.add(“hidden”);
 
 autoSync();
 
@@ -3325,9 +3328,9 @@ let roundHistory = [];
 
 window.startRoundTracking = () => {
 
-const selectedCourseName = document.getElementById("courseSearch")?.value;
-const holesSelected = +document.getElementById("roundHoles").value;
-const nineType = document.getElementById("nineType")?.value; // front/back
+const selectedCourseName = document.getElementById(“courseSearch”)?.value;
+const holesSelected = +document.getElementById(“roundHoles”).value;
+const nineType = document.getElementById(“nineType”)?.value; // front/back
 
 let selectedCourse = savedCourses.find(c => c.name === selectedCourseName);
 
@@ -3339,23 +3342,23 @@ let slope = 113;
 
 if(selectedCourse){
 
- const teeName = document.getElementById("teeSelect")?.value || "Default";
- const tee = selectedCourse.tees?.[teeName];
+const teeName = document.getElementById(“teeSelect”)?.value || “Default”;
+const tee = selectedCourse.tees?.[teeName];
 
- if(tee){
- rating = tee.rating;
- slope = tee.slope;
+if(tee){
+rating = tee.rating;
+slope = tee.slope;
 
- if(holesSelected === 18){
- parArray     = tee.pars;
- yardageArray = tee.yardages || [];
- }else if(nineType === "back"){
- parArray     = tee.pars.slice(9,18);
- yardageArray = (tee.yardages || []).slice(9,18);
- holeOffset = 9;
- }else{
- parArray     = tee.pars.slice(0,9);
- yardageArray = (tee.yardages || []).slice(0,9);
+if(holesSelected === 18){
+parArray = tee.pars;
+yardageArray = tee.yardages || [];
+}else if(nineType === “back”){
+parArray = tee.pars.slice(9,18);
+yardageArray = (tee.yardages || []).slice(9,18);
+holeOffset = 9;
+}else{
+parArray = tee.pars.slice(0,9);
+yardageArray = (tee.yardages || []).slice(0,9);
 holeOffset = 0;
 }
 }
@@ -3365,7 +3368,7 @@ parArray = []; // manual mode
 }
 
 currentRound = {
-course: selectedCourseName || document.getElementById("courseName").value || "Unknown Course",
+course: selectedCourseName || document.getElementById(“courseName”).value || “Unknown Course”,
 rating,
 slope,
 holes: holesSelected,
@@ -3385,39 +3388,39 @@ holeOffset,
 
 roundHistory = [];
 updateRoundUI();
-show("round-play");
+show(“round-play”);
 };
 
 function updateRoundUI(){
 
 if(!currentRound) return;
 
-const parButtonContainer = document.getElementById("parButtonContainer");
+const parButtonContainer = document.getElementById(“parButtonContainer”);
 
 const actualHoleNumber =
 currentRound.currentHole + (currentRound.holeOffset || 0);
 
 if(currentRound.loadedPars && currentRound.loadedPars.length){
 
-parButtonContainer?.classList.add("hidden");
+parButtonContainer?.classList.add(“hidden”);
 
-const par  = currentRound.loadedPars[currentRound.currentHole - 1];
-const yds  = currentRound.loadedYardages?.[currentRound.currentHole - 1];
-const yardStr = yds ? ` – ${yds} yds` : "";
+const par = currentRound.loadedPars[currentRound.currentHole - 1];
+const yds = currentRound.loadedYardages?.[currentRound.currentHole - 1];
+const yardStr = yds ? ` – ${yds} yds` : “”;
 
-document.getElementById("roundHoleDisplay").textContent =
+document.getElementById(“roundHoleDisplay”).textContent =
 `Hole ${actualHoleNumber} (Par ${par}${yardStr})`;
 
 }else{
 
-parButtonContainer?.classList.remove("hidden");
+parButtonContainer?.classList.remove(“hidden”);
 
-document.getElementById("roundHoleDisplay").textContent =
+document.getElementById(“roundHoleDisplay”).textContent =
 `Hole ${actualHoleNumber} of ${currentRound.holes}`;
 
 }
 
-let totalParDisplay = "";
+let totalParDisplay = “”;
 
 if(currentRound.loadedPars && currentRound.loadedPars.length){
 
@@ -3428,12 +3431,12 @@ totalParDisplay = ` | Par ${totalPar}`;
 
 const totalPar =currentRound.loadedPars && currentRound.loadedPars.length
 ? currentRound.loadedPars.reduce((a,b)=>a+b,0)
-: currentRound.totalPar || "";
+: currentRound.totalPar || “”;
 
-document.getElementById("roundCourseMain").innerHTML =
+document.getElementById(“roundCourseMain”).innerHTML =
 `${currentRound.course}${totalPar ? ` <span style="opacity:.75;font-weight:600;"> — Par ${totalPar}</span>` : ""}`;
 
-document.getElementById("roundCourseSub").textContent =
+document.getElementById(“roundCourseSub”).textContent =
 `Rating ${currentRound.rating} • Slope ${currentRound.slope}`;
 
 const toPar = currentRound.totalStrokes - currentRound.totalPar;
@@ -3444,48 +3447,49 @@ const courseHandicap = Math.round(
 
 const net = currentRound.totalStrokes - courseHandicap;
 
-document.getElementById("roundLiveStats").textContent =
+document.getElementById(“roundLiveStats”).textContent =
 `Total ${currentRound.totalStrokes} | To Par ${toPar>=0?"+":""}${toPar} | Net ${net}`;
 
-updateHeader("round-play");
+updateHeader(“round-play”);
 }
 
 function setScore(val, el){
 
-    tapHaptic();
+```
+tapHaptic();
+```
 
-const input = document.getElementById("holeScore");
+const input = document.getElementById(“holeScore”);
 
 if(val === 8){
-input.classList.remove("hidden");
+input.classList.remove(“hidden”);
 input.focus();
-input.value = "";
+input.value = “”;
 return;
 }
 
 input.value = val;
 
 /* Remove active from all buttons */
-document.querySelectorAll("#scoreButtons button").forEach(btn=>{
-btn.classList.remove("active");
+document.querySelectorAll(”#scoreButtons button”).forEach(btn=>{
+btn.classList.remove(“active”);
 });
 
 /* Add active to selected */
-el.classList.add("active");
+el.classList.add(“active”);
 }
-
 
 window.submitHoleScore = () => {
 
 if(!currentRound) return;
 
-const score = +document.getElementById("holeScore").value;
+const score = +document.getElementById(“holeScore”).value;
 let par;
 
 if(currentRound.loadedPars && currentRound.loadedPars.length){
 par = currentRound.loadedPars[currentRound.currentHole - 1];
 }else{
-par = +document.getElementById("holePar").value;
+par = +document.getElementById(“holePar”).value;
 }
 if(!score) return;
 
@@ -3493,28 +3497,28 @@ roundHistory.push(JSON.parse(JSON.stringify(currentRound)));
 
 currentRound.scores.push(score);
 currentRound.pars.push(par);
-currentRound.putts.push(+document.getElementById("holePutts").value || 0);
-currentRound.penalties.push(+document.getElementById("holePenalties").value || 0);
+currentRound.putts.push(+document.getElementById(“holePutts”).value || 0);
+currentRound.penalties.push(+document.getElementById(“holePenalties”).value || 0);
 
 currentRound.gir.push(
-document.getElementById("girToggle").classList.contains("active")
+document.getElementById(“girToggle”).classList.contains(“active”)
 );
 
 currentRound.fir.push(
-document.getElementById("firToggle").classList.contains("active")
+document.getElementById(“firToggle”).classList.contains(“active”)
 );
 currentRound.totalStrokes += score;
 currentRound.totalPar += par;
 
-document.getElementById("holeScore").value = "";
-document.querySelectorAll("#scoreButtons button").forEach(btn=>{
-btn.classList.remove("active");
+document.getElementById(“holeScore”).value = “”;
+document.querySelectorAll(”#scoreButtons button”).forEach(btn=>{
+btn.classList.remove(“active”);
 });
-document.getElementById("holePutts").value = "";
-document.getElementById("holePenalties").value = "";
+document.getElementById(“holePutts”).value = “”;
+document.getElementById(“holePenalties”).value = “”;
 
-document.getElementById("firToggle").classList.remove("active");
-document.getElementById("girToggle").classList.remove("active");
+document.getElementById(“firToggle”).classList.remove(“active”);
+document.getElementById(“girToggle”).classList.remove(“active”);
 
 if(currentRound.currentHole >= currentRound.holes){
 finishTrackedRound();
@@ -3568,17 +3572,17 @@ fir: currentRound.fir
 
 updateHandicap();
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 
 autoSync();
 
 currentRound = null;
-alert("Round Saved!");
+alert(“Round Saved!”);
 goHomeClean();
 }
 
 window.cancelTrackedRound = () => {
-if(!confirm("End round without saving?")) return;
+if(!confirm(“End round without saving?”)) return;
 
 currentRound = null;
 roundHistory = [];
@@ -3590,6 +3594,7 @@ window.openScorecard = () => {
 if(!currentRound) return;
 
 let html = `
+
 <table style="width:100%;border-collapse:collapse;text-align:center">
 <tr style="border-bottom:1px solid rgba(255,255,255,.15);height:48px;line-height:44px;">
 <th>Hole</th>
@@ -3624,31 +3629,32 @@ backPar += par;
 backDiff += diff;
 }
 
-let scoreStyle = "color:#fff;font-weight:700;";
-let scoreWrapStart = "";
-let scoreWrapEnd = "";
+let scoreStyle = “color:#fff;font-weight:700;”;
+let scoreWrapStart = “”;
+let scoreWrapEnd = “”;
 
-/* 🟢 EAGLE OR BETTER — GOLD DOUBLE CIRCLE */
+/* EAGLE OR BETTER — GOLD DOUBLE CIRCLE */
 if(diff <= -2){
-scoreStyle = "color:#ffd700;font-weight:800;";
+scoreStyle = “color:#ffd700;font-weight:800;”;
 scoreWrapStart = `<span style="border:2px solid #ffd700;border-radius:50%;padding:4px 10px;box-shadow:0 0 0 2px #ffd700 inset;">`;
 scoreWrapEnd = `</span>`;
 }
 
-/* 🔴 BIRDIE — RED CIRCLE */
+/* BIRDIE — RED CIRCLE */
 else if(diff === -1){
-scoreStyle = "color:#ff4d4d;font-weight:800;";
+scoreStyle = “color:#ff4d4d;font-weight:800;”;
 scoreWrapStart = `<span style="border:2px solid #ff4d4d;border-radius:50%;padding:4px 10px;">`;
 scoreWrapEnd = `</span>`;
 }
 
-/* ⬛ BOGEY OR WORSE — BOX */
+/* BOGEY OR WORSE — BOX */
 else if(diff >= 1){
 scoreWrapStart = `<span style="border:2px solid #ffffff;padding:4px 10px;">`;
 scoreWrapEnd = `</span>`;
 }
 
 html += `
+
 <tr style="border-bottom:1px solid rgba(255,255,255,.15)">
 <td>${i + 1 + (currentRound.holeOffset || 0)}</td>
 <td>${par}</td>
@@ -3661,6 +3667,7 @@ ${scoreWrapStart}${score}${scoreWrapEnd}
 
 if(i === 8){
 html += `
+
 <tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.4)">
 <td>Front 9</td>
 <td>${frontPar}</td>
@@ -3674,6 +3681,7 @@ html += `
 
 if(currentRound.scores.length > 9){
 html += `
+
 <tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.4)">
 <td>Back 9</td>
 <td>${backPar}</td>
@@ -3693,14 +3701,14 @@ let firMade = 0;
 let firTotal = 0;
 
 for(let i=0;i<currentRound.fir.length;i++){
-    if(currentRound.pars[i] !== 3){
-        firTotal++;
-        if(currentRound.fir[i]) firMade++;
-    }
+if(currentRound.pars[i] !== 3){
+firTotal++;
+if(currentRound.fir[i]) firMade++;
+}
 }
 
-
 html += `
+
 </table>
 
 <div style="margin-top:16px;text-align:left;font-size:15px;line-height:1.6">
@@ -3719,25 +3727,25 @@ Penalty Strokes: ${totalPens}
 </div>
 `;
 
-document.getElementById("scorecardTable").innerHTML = html;
-document.getElementById("scorecardModal").classList.remove("hidden");
+document.getElementById(“scorecardTable”).innerHTML = html;
+document.getElementById(“scorecardModal”).classList.remove(“hidden”);
 };
 
 window.closeScorecard = () => {
-document.getElementById("scorecardModal").classList.add("hidden");
+document.getElementById(“scorecardModal”).classList.add(“hidden”);
 };
 
 window.addManualRound = () => {
 
-const date = document.getElementById("manualDate").value;
-const course = document.getElementById("manualCourse").value || "Manual Entry";
-const rating = +document.getElementById("manualRating").value || 72;
-const slope = +document.getElementById("manualSlope").value || 113;
-const strokes = +document.getElementById("manualStrokes").value;
-const holes = +document.getElementById("manualHoles").value;
+const date = document.getElementById(“manualDate”).value;
+const course = document.getElementById(“manualCourse”).value || “Manual Entry”;
+const rating = +document.getElementById(“manualRating”).value || 72;
+const slope = +document.getElementById(“manualSlope”).value || 113;
+const strokes = +document.getElementById(“manualStrokes”).value;
+const holes = +document.getElementById(“manualHoles”).value;
 
 if(!date || !strokes || !holes){
-alert("Fill all required fields");
+alert(“Fill all required fields”);
 return;
 }
 
@@ -3765,75 +3773,75 @@ differential
 
 updateHandicap();
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 renderProfile();
 
 // clear fields
 
 // Clear ALL fields
 [
-"manualDate",
-"manualCourse",
-"manualRating",
-"manualSlope",
-"manualStrokes"
+“manualDate”,
+“manualCourse”,
+“manualRating”,
+“manualSlope”,
+“manualStrokes”
 ].forEach(id=>{
 const el = document.getElementById(id);
-if(el) el.value = "";
+if(el) el.value = “”;
 });
 
 // Reset holes dropdown
-document.getElementById("manualHoles").value = "9";
+document.getElementById(“manualHoles”).value = “9”;
 
 // Close manual entry box
-const box = document.getElementById("manualRoundBox");
-const btn = document.getElementById("manualToggleBtn");
+const box = document.getElementById(“manualRoundBox”);
+const btn = document.getElementById(“manualToggleBtn”);
 
-box.classList.add("hidden");
-btn.textContent = "Add Previous Round";
+box.classList.add(“hidden”);
+btn.textContent = “Add Previous Round”;
 
 };
-
 
 /* ================= PREMIUM SYSTEM ================= */
 
 window.openPremiumScreen = (highlightTier) => {
-const modal = document.getElementById("premiumModal");
+const modal = document.getElementById(“premiumModal”);
 if(!modal) return;
 
 // Render tier cards
-const content = document.getElementById("premiumTierCards");
+const content = document.getElementById(“premiumTierCards”);
 if(content){
 
 const tiers = [
 {
-id: "starter",
-name: "Starter",
-price: "$2.99",
-period: "one-time",
-color: "#3498db",
-features: ["✓ No ads forever", "✓ All betting games", "✓ Up to 2 saved groups"]
+id: “starter”,
+name: “Starter”,
+price: “$2.99”,
+period: “one-time”,
+color: “#3498db”,
+features: [“✓ No ads forever”, “✓ All betting games”, “✓ Up to 2 saved groups”]
 },
 {
-id: "pro",
-name: "Pro",
-price: "$4.99",
-period: "/ month",
-color: "#2ecc71",
-badge: "Popular",
-features: ["✓ Everything in Starter", "✓ Advanced betting stats", "✓ Player vs player money", "✓ Handicap trend chart", "✓ Up to 5 saved groups"]
+id: “pro”,
+name: “Pro”,
+price: “$4.99”,
+period: “/ month”,
+color: “#2ecc71”,
+badge: “Popular”,
+features: [“✓ Everything in Starter”, “✓ Advanced betting stats”, “✓ Player vs player money”, “✓ Handicap trend chart”, “✓ Up to 5 saved groups”]
 },
 {
-id: "elite",
-name: "Elite",
-price: "$9.99",
-period: "/ month",
-color: "#f1c40f",
-features: ["✓ Everything in Pro", "✓ Full betting history", "✓ Unlimited saved groups"]
+id: “elite”,
+name: “Elite”,
+price: “$9.99”,
+period: “/ month”,
+color: “#f1c40f”,
+features: [“✓ Everything in Pro”, “✓ Full betting history”, “✓ Unlimited saved groups”]
 }
 ];
 
 content.innerHTML = tiers.map(t => `
+
 <div class="premium-card ${t.id === highlightTier ? "premium-card-highlight" : ""}" style="border-color:${t.color}40;">
 ${t.badge ? `<div class="premium-badge" style="background:${t.color};">${t.badge}</div>` : ""}
 <div class="premium-card-name" style="color:${t.color};">${t.name}</div>
@@ -3846,38 +3854,151 @@ ${userTier === t.id ? "✓ Current Plan" : "Get " + t.name}
 `).join("");
 }
 
-modal.classList.remove("hidden");
+modal.classList.remove(“hidden”);
 };
 
 window.closePremiumModal = () => {
-document.getElementById("premiumModal")?.classList.add("hidden");
+document.getElementById(“premiumModal”)?.classList.add(“hidden”);
 };
 
-// In production this calls RevenueCat — for now sets tier locally (dev mode)
-window.subscribeTier = (tier) => {
+const RC_API_KEY = “goog_wwwFMAhXkBmXNokISzbSWIHVceZ”;
+
+const PRODUCT_IDS = {
+starter: “starter_onetime”,
+pro_monthly: “pro_monthly”,
+pro_yearly: “pro_yearly”,
+elite_monthly: “elite_monthly”,
+elite_yearly: “elite_yearly”
+};
+
+// Check if running inside Capacitor (native app) vs browser
+function isNative(){
+return typeof window.Capacitor !== “undefined” && window.Capacitor.isNativePlatform();
+}
+
+function getRCPurchases(){
+if(isNative() && window.CapacitorPurchases){
+return window.CapacitorPurchases;
+}
+return null;
+}
+
+async function initRevenueCat(){
+if(!isNative()) return; // Only runs on device
+try {
+const RC = getRCPurchases();
+if(!RC) return;
+await RC.configure({ apiKey: RC_API_KEY });
+await refreshEntitlements();
+} catch(err){
+console.log(“RevenueCat init error:”, err.message);
+}
+}
+
+async function refreshEntitlements(){
+if(!isNative()) return;
+try {
+const RC = getRCPurchases();
+if(!RC) return;
+const { customerInfo } = await RC.getCustomerInfo();
+const active = customerInfo.entitlements.active;
+if(active[“elite”]) setTier(“elite”);
+else if(active[“pro”]) setTier(“pro”);
+else if(active[“starter”]) setTier(“starter”);
+else setTier(“free”);
+renderProfile();
+updateAccountBar();
+updateAdVisibility();
+} catch(err){
+console.log(“Entitlement refresh error:”, err.message);
+}
+}
+
+window.subscribeTier = async (tier) => {
+// Dev mode in browser
+if(!isNative()){
 setTier(tier);
 closePremiumModal();
 renderProfile();
-alert(`✅ Dev mode: Switched to ${tier} tier`);
+alert(“Dev mode: switched to “ + tier + “ tier”);
+return;
+}
+
+try {
+const RC = getRCPurchases();
+if(!RC){ alert(“Purchases not available”); return; }
+
+const { offerings } = await RC.getOfferings();
+const current = offerings.current;
+if(!current){ alert(“Products not available. Please try again.”); return; }
+
+let pkg = null;
+
+if(tier === “starter”){
+pkg = current.availablePackages.find(p =>
+p.product.identifier === PRODUCT_IDS.starter);
+} else {
+// Show monthly vs yearly choice
+const choice = await showTierPeriodChoice(
+tier === “pro” ? “Pro” : “Elite”,
+tier === “pro” ? “$4.99/mo” : “$9.99/mo”,
+tier === “pro” ? “$49.99/yr” : “$99.99/yr”
+);
+const idKey = tier + “_” + choice;
+pkg = current.availablePackages.find(p =>
+p.product.identifier === PRODUCT_IDS[idKey]);
+}
+
+if(!pkg){ alert(“Product not found. Please try again.”); return; }
+
+await RC.purchasePackage({ aPackage: pkg });
+await refreshEntitlements();
+closePremiumModal();
+alert(“Purchase successful! Welcome to “ +
+tier.charAt(0).toUpperCase() + tier.slice(1) + “!”);
+
+} catch(err){
+if(err.userCancelled) return;
+alert(“Purchase failed: “ + (err.message || “Please try again”));
+}
 };
+
+function showTierPeriodChoice(tierName, monthly, yearly){
+return new Promise((resolve) => {
+showConfirm({
+icon: “ ”,
+title: tierName + “ — Choose Plan”,
+message: “Monthly: “ + monthly + “\nYearly: “ + yearly + “ (save 17%)”,
+onYes: () => resolve(“yearly”),
+onNo: () => resolve(“monthly”)
+});
+setTimeout(() => {
+const yes = document.getElementById(“confirmModalYes”);
+const no = document.getElementById(“confirmModalNo”);
+if(yes) yes.textContent = “Yearly — Best Value”;
+if(no) no.textContent = “Monthly”;
+}, 10);
+});
+}
 
 // ── Advanced Betting Stats ───────────────────────────────────────────────────
 function buildAdvancedBettingStats(){
-if(!userProfile?.bettingStats) return "<p>No data yet</p>";
+if(!userProfile?.bettingStats) return “<p>No data yet</p>”;
 
-const stats  = userProfile.bettingStats;
+const stats = userProfile.bettingStats;
 const rounds = userProfile.rounds || [];
-const opps   = stats.opponents || {};
+const opps = stats.opponents || {};
 
-const net      = (stats.totalWon || 0) - (stats.totalLost || 0);
-const played   = stats.totalPlayed || 0;
-const winRate  = played ? Math.round((stats.totalWon > 0 ? 1 : 0) * 100) : 0;
-const avgPayout= played ? (net / played).toFixed(2) : "0.00";
+const net = (stats.totalWon || 0) - (stats.totalLost || 0);
+const played = stats.totalPlayed || 0;
+const winRate = played ? Math.round((stats.totalWon > 0 ? 1 : 0) * 100) : 0;
+const avgPayout= played ? (net / played).toFixed(2) : “0.00”;
 
 // Best opponent (most played)
 const topOpp = Object.entries(opps).sort((a,b)=>b[1]-a[1])[0];
 
 return `
+
 <div class="premium-stat-grid">
 <div class="premium-stat">
 <div class="premium-stat-val">${played}</div>
@@ -3905,12 +4026,13 @@ ${net>=0?"+":""}$${Math.abs(net).toFixed(2)}
 function buildPvPStats(){
 if(!userProfile?.bettingStats?.pvp) return `<p style="opacity:.6;text-align:center;padding:20px 0;">Play more rounds to see player vs player stats.</p>`;
 
-const pvp  = userProfile.bettingStats.pvp;
+const pvp = userProfile.bettingStats.pvp;
 const rows = Object.entries(pvp).sort((a,b) => b[1] - a[1]);
 
 if(!rows.length) return `<p style="opacity:.6;text-align:center;padding:20px 0;">No data yet.</p>`;
 
 return rows.map(([name, net]) => `
+
 <div class="pvp-row">
 <span>${name}</span>
 <span style="color:${net>=0?"#2ecc71":"#e74c3c"};font-weight:700;">
@@ -3926,12 +4048,12 @@ if(!userProfile?.bettingStats) return;
 if(!userProfile.bettingStats.pvp) userProfile.bettingStats.pvp = {};
 
 const myName = userProfile.name;
-const myNet  = ledger[myName] || 0;
+const myNet = ledger[myName] || 0;
 
 players.forEach(p => {
 if(p === myName) return;
 const theirNet = ledger[p] || 0;
-// From my perspective: if I'm +$10 and they're -$10 vs me
+// From my perspective: if I’m +$10 and they’re -$10 vs me
 const vsMe = -theirNet; // approximation for 2-player; works for pairwise
 if(!userProfile.bettingStats.pvp[p]) userProfile.bettingStats.pvp[p] = 0;
 // Net between me and this player = my ledger share attributed to them
@@ -3952,21 +4074,22 @@ if(rounds.length < 2){
 return `<p style="opacity:.6;text-align:center;padding:20px 0;">Track at least 2 rounds to see your trend.</p>`;
 }
 
-const diffs  = rounds.map(r => r.differential);
-const minVal = Math.min(...diffs);
-const maxVal = Math.max(...diffs);
-const range  = maxVal - minVal || 1;
+const diffs = rounds.map(r => r.differential);
+const minVal = Math.min(…diffs);
+const maxVal = Math.max(…diffs);
+const range = maxVal - minVal || 1;
 const W = 300, H = 120, pad = 16;
 
 const pts = diffs.map((d,i) => {
 const x = pad + (i / (diffs.length-1)) * (W - pad*2);
 const y = H - pad - ((d - minVal) / range) * (H - pad*2);
 return `${x},${y}`;
-}).join(" ");
+}).join(” “);
 
 const latest = diffs[diffs.length-1];
 
 return `
+
 <div style="text-align:center;margin-bottom:8px;font-size:13px;opacity:.7;">
 Last ${diffs.length} rounds · Current index: <strong>${latest}</strong>
 </div>
@@ -3988,12 +4111,13 @@ if(!history.length){
 return `<p style="opacity:.6;text-align:center;padding:20px 0;">No betting rounds recorded yet.</p>`;
 }
 
-return [...history].reverse().map((r,i) => {
-const d    = new Date(r.date);
+return […history].reverse().map((r,i) => {
+const d = new Date(r.date);
 const date = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
 const myNet= r.ledger?.[userProfile.name] || 0;
 
 return `
+
 <div class="bet-history-card" onclick="toggleBetHistoryDetail(${i})">
 <div style="display:flex;justify-content:space-between;align-items:center;">
 <div>
@@ -4017,7 +4141,7 @@ ${Object.entries(r.ledger||{}).map(([p,v])=>`
 }
 
 window.toggleBetHistoryDetail = (i) => {
-document.getElementById(`betDetail_${i}`)?.classList.toggle("hidden");
+document.getElementById(`betDetail_${i}`)?.classList.toggle(“hidden”);
 };
 
 // Save betting round to history when finished
@@ -4026,15 +4150,15 @@ if(!userProfile) return;
 if(!userProfile.bettingHistory) userProfile.bettingHistory = [];
 
 userProfile.bettingHistory.push({
-date:    new Date().toISOString(),
-game:    currentGame === "nine"  ? "9-Point" :
-         currentGame === "sixes" ? "Sixes" :
-         currentGame === "battle"? "Net Battle" :
-         currentGame === "bingo" ? "Bingo Bango Bongo" :
-         currentGame === "dots"  ? "Dots" :
-         currentGame ? currentGame.charAt(0).toUpperCase() + currentGame.slice(1) : "Game",
-players: [...players],
-ledger:  { ...ledger }
+date: new Date().toISOString(),
+game: currentGame === “nine” ? “9-Point” :
+currentGame === “sixes” ? “Sixes” :
+currentGame === “battle”? “Net Battle” :
+currentGame === “bingo” ? “Bingo Bango Bongo” :
+currentGame === “dots” ? “Dots” :
+currentGame ? currentGame.charAt(0).toUpperCase() + currentGame.slice(1) : “Game”,
+players: […players],
+ledger: { …ledger }
 });
 
 // Keep last 50 rounds
@@ -4047,26 +4171,26 @@ userProfile.bettingHistory = userProfile.bettingHistory.slice(-50);
 
 function showProfileTab(tabId){
 
-document.querySelectorAll(".profile-tab").forEach(btn=>{
-btn.classList.remove("active");
+document.querySelectorAll(”.profile-tab”).forEach(btn=>{
+btn.classList.remove(“active”);
 });
 
-document.querySelectorAll(".profile-tab-content").forEach(tab=>{
-tab.classList.add("hidden");
+document.querySelectorAll(”.profile-tab-content”).forEach(tab=>{
+tab.classList.add(“hidden”);
 });
 
-document.getElementById(tabId).classList.remove("hidden");
+document.getElementById(tabId).classList.remove(“hidden”);
 
 // Match button to tab by data or text
-document.querySelectorAll(".profile-tab").forEach(b=>{
+document.querySelectorAll(”.profile-tab”).forEach(b=>{
 const map = {
-summaryTab: "summary",
-roundsTab:  "rounds",
-bettingTab: "betting",
-premiumTab: "premium"
+summaryTab: “summary”,
+roundsTab: “rounds”,
+bettingTab: “betting”,
+premiumTab: “premium”
 };
-if(b.textContent.toLowerCase().includes(map[tabId]||"")){
-b.classList.add("active");
+if(b.textContent.toLowerCase().includes(map[tabId]||””)){
+b.classList.add(“active”);
 }
 });
 
@@ -4074,38 +4198,38 @@ b.classList.add("active");
 
 window.openProfile = () =>{
 renderProfile();
-show("profile-screen");
-showProfileTab("summaryTab");
+show(“profile-screen”);
+showProfileTab(“summaryTab”);
 };
 
 function renderProfile(){
 
 if(!userProfile) return;
 
-document.getElementById("profileNameDisplay").textContent = userProfile.name;
+document.getElementById(“profileNameDisplay”).textContent = userProfile.name;
 
 const handicap = userProfile.currentHandicap ?? 0;
-document.getElementById("profileHandicapDisplay").textContent = handicap.toFixed(1);
-document.getElementById("profileRounds").textContent = userProfile.rounds.length;
+document.getElementById(“profileHandicapDisplay”).textContent = handicap.toFixed(1);
+document.getElementById(“profileRounds”).textContent = userProfile.rounds.length;
 
 const avg = userProfile.rounds.length
 ? Math.round(userProfile.rounds.reduce((a,b)=>a+b.strokes,0) / userProfile.rounds.length)
-: "--";
+: “–”;
 
-document.getElementById("profileAvg").textContent = avg;
+document.getElementById(“profileAvg”).textContent = avg;
 
 const net =
 userProfile.bettingStats.totalWon - userProfile.bettingStats.totalLost;
 
-document.getElementById("betNet").textContent =
+document.getElementById(“betNet”).textContent =
 `${net>=0?"+":""}$${net.toFixed(2)}`;
 
-document.getElementById("betGames").textContent =
+document.getElementById(“betGames”).textContent =
 userProfile.bettingStats.totalPlayed;
 
-const oppBox = document.getElementById("opponentList");
+const oppBox = document.getElementById(“opponentList”);
 if(oppBox){
-oppBox.innerHTML = "";
+oppBox.innerHTML = “”;
 
 const opponents = userProfile.bettingStats.opponents || {};
 
@@ -4113,23 +4237,20 @@ const sortedOpps = Object.entries(opponents)
 .sort((a,b)=>b[1]-a[1]);
 
 if(!sortedOpps.length){
-oppBox.innerHTML = "<p>No opponents yet</p>";
+oppBox.innerHTML = “<p>No opponents yet</p>”;
 }else{
 sortedOpps.slice(0,5).forEach(([name,count])=>{
 
-const row = document.createElement("div");
+const row = document.createElement(“div”);
 
-row.style.display = "flex";
-row.style.justifyContent = "space-between";
-row.style.padding = "6px 10px";
-row.style.marginBottom = "6px";
-row.style.borderRadius = "10px";
-row.style.background = "rgba(255,255,255,.08)";
+row.style.display = “flex”;
+row.style.justifyContent = “space-between”;
+row.style.padding = “6px 10px”;
+row.style.marginBottom = “6px”;
+row.style.borderRadius = “10px”;
+row.style.background = “rgba(255,255,255,.08)”;
 
-row.innerHTML = `
-<span>${name}</span>
-<span>${count}</span>
-`;
+row.innerHTML = `<span>${name}</span> <span>${count}</span>`;
 
 oppBox.appendChild(row);
 
@@ -4137,17 +4258,16 @@ oppBox.appendChild(row);
 }
 }
 
-
 /* ===== PREMIUM ROUND HISTORY ===== */
 
-const container = document.getElementById("roundHistoryTable");
-container.innerHTML = "";
+const container = document.getElementById(“roundHistoryTable”);
+container.innerHTML = “”;
 
 if(!userProfile.rounds.length){
 container.innerHTML = `<div style="opacity:.6;padding:12px 0;">No rounds yet</div>`;
 }else{
 
-[...userProfile.rounds].reverse().forEach((r, index) =>{
+[…userProfile.rounds].reverse().forEach((r, index) =>{
 
 const d = new Date(r.date);
 const shortDate = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
@@ -4155,11 +4275,12 @@ const shortDate = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString()
 const par = r.holes === 9 ? 36 : 72;
 const diff = r.strokes - par;
 
-const card = document.createElement("div");
-card.className = "round-card";
+const card = document.createElement(“div”);
+card.className = “round-card”;
 card.onclick = () => openRoundDetails(index);
 
 card.innerHTML = `
+
 <div class="round-card-left">
 
 <div class="round-card-title">
@@ -4189,59 +4310,60 @@ container.appendChild(card);
 }
 
 // Premium sections
-const advancedBox = document.getElementById("advancedBettingStats");
+const advancedBox = document.getElementById(“advancedBettingStats”);
 if(advancedBox){
 if(hasProOrAbove()){
 advancedBox.innerHTML = buildAdvancedBettingStats();
 } else {
-advancedBox.innerHTML = premiumLockBanner("pro", "Advanced Betting Stats");
+advancedBox.innerHTML = premiumLockBanner(“pro”, “Advanced Betting Stats”);
 }
 }
 
-const pvpBox = document.getElementById("pvpStats");
+const pvpBox = document.getElementById(“pvpStats”);
 if(pvpBox){
 if(hasProOrAbove()){
 pvpBox.innerHTML = buildPvPStats();
 } else {
-pvpBox.innerHTML = premiumLockBanner("pro", "Player vs Player Money");
+pvpBox.innerHTML = premiumLockBanner(“pro”, “Player vs Player Money”);
 }
 }
 
-const chartBox = document.getElementById("handicapChart");
+const chartBox = document.getElementById(“handicapChart”);
 if(chartBox){
 if(hasProOrAbove()){
 chartBox.innerHTML = buildHandicapChart();
 } else {
-chartBox.innerHTML = premiumLockBanner("pro", "Handicap Trend Chart");
+chartBox.innerHTML = premiumLockBanner(“pro”, “Handicap Trend Chart”);
 }
 }
 
-const historyBox = document.getElementById("bettingHistoryList");
+const historyBox = document.getElementById(“bettingHistoryList”);
 if(historyBox){
 if(hasElite()){
 historyBox.innerHTML = buildBettingHistory();
 } else {
-historyBox.innerHTML = premiumLockBanner("elite", "Betting History");
+historyBox.innerHTML = premiumLockBanner(“elite”, “Betting History”);
 }
 }
 
 // Tier badge on profile
-const tierBadge = document.getElementById("tierBadge");
+const tierBadge = document.getElementById(“tierBadge”);
 if(tierBadge){
-const labels = { free:"Free", starter:"Starter ⚡", pro:"Pro 🏆", elite:"Elite 👑" };
-const colors = { free:"rgba(255,255,255,.2)", starter:"#3498db", pro:"#2ecc71", elite:"#f1c40f" };
-tierBadge.textContent = labels[userTier] || "Free";
+const labels = { free:“Free”, starter:“Starter ”, pro:“Pro ”, elite:“Elite ” };
+const colors = { free:“rgba(255,255,255,.2)”, starter:”#3498db”, pro:”#2ecc71”, elite:”#f1c40f” };
+tierBadge.textContent = labels[userTier] || “Free”;
 tierBadge.style.background = colors[userTier] || colors.free;
 }
 
 }
 
 function premiumLockBanner(tier, feature){
-const tierName = tier === "elite" ? "Elite" : "Pro";
-const price    = tier === "elite" ? "$9.99/mo" : "$4.99/mo";
+const tierName = tier === “elite” ? “Elite” : “Pro”;
+const price = tier === “elite” ? “$9.99/mo” : “$4.99/mo”;
 return `
+
 <div class="premium-lock-banner" onclick="openPremiumScreen('${tier}')">
-<div style="font-size:22px;">🔒</div>
+<div style="font-size:22px;"> </div>
 <div>
 <div style="font-weight:700;font-size:14px;">${feature}</div>
 <div style="font-size:12px;opacity:.7;">${tierName} feature · ${price} · Tap to unlock</div>
@@ -4251,20 +4373,21 @@ return `
 }
 
 function updateAdVisibility(){
-const adSlots = document.querySelectorAll(".ad-slot");
+const adSlots = document.querySelectorAll(”.ad-slot”);
 adSlots.forEach(slot => {
-slot.style.display = hasStarterOrAbove() ? "none" : "flex";
+slot.style.display = hasStarterOrAbove() ? “none” : “flex”;
 });
 }
 
 function openRoundDetails(index){
 
-const r = [...userProfile.rounds].reverse()[index];
+const r = […userProfile.rounds].reverse()[index];
 
 const d = new Date(r.date);
 const shortDate = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
 
 let html = `
+
 <div style="text-align:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.15);">
 <strong style="font-size:15px;">${shortDate}</strong><br>
 <span style="opacity:.85;">${r.course}</span>
@@ -4285,22 +4408,23 @@ const score = r.scores[i];
 const par = r.pars[i];
 const diff = score - par;
 
-let wrapStart="", wrapEnd="";
+let wrapStart=””, wrapEnd=””;
 
 if(diff <= -2){
 wrapStart=`<span style="border:2px solid gold;border-radius:50%;padding:4px 10px;">`;
-wrapEnd="</span>";
+wrapEnd=”</span>”;
 }
 else if(diff === -1){
 wrapStart=`<span style="border:2px solid red;border-radius:50%;padding:4px 10px;">`;
-wrapEnd="</span>";
+wrapEnd=”</span>”;
 }
 else if(diff >= 1){
 wrapStart=`<span style="border:2px solid white;padding:4px 10px;">`;
-wrapEnd="</span>";
+wrapEnd=”</span>”;
 }
 
 html += `
+
 <tr>
 <td>${i+1}</td>
 <td>${par}</td>
@@ -4310,7 +4434,7 @@ html += `
 <tr style="font-size:12px;color:#ccc">
 <td colspan="4">
 Putts ${r.putts[i]} | Pen ${r.penalties[i]} |
-GIR ${r.gir[i]?"✔":""} | FIR ${r.fir[i]?"✔":""}
+GIR ${r.gir[i]?" ":""} | FIR ${r.fir[i]?" ":""}
 </td>
 </tr>
 `;
@@ -4326,13 +4450,14 @@ let firMade = 0;
 let firTotal = 0;
 
 for(let i=0;i<r.fir.length;i++){
-    if(r.pars[i] !== 3){
-        firTotal++;
-        if(r.fir[i]) firMade++;
-    }
+if(r.pars[i] !== 3){
+firTotal++;
+if(r.fir[i]) firMade++;
+}
 }
 
 html += `
+
 </table>
 
 <div style="margin-top:18px;text-align:left;font-size:15px;line-height:1.7">
@@ -4341,7 +4466,7 @@ html += `
 
 Par: ${r.pars.reduce((a,b)=>a+b,0)}<br>
 Score: ${r.strokes}<br>
-+/-: ${r.toPar>=0?"+":""}${r.toPar}<br><br>
++/-: ${r.toPar>=0?”+”:””}${r.toPar}<br><br>
 
 GIR: ${girMade}/${girTotal} (${girTotal?Math.round(girMade/girTotal*100):0}%)<br>
 FIR: ${firMade}/${firTotal} (${firTotal?Math.round(firMade/firTotal*100):0}%)<br><br>
@@ -4352,8 +4477,8 @@ Penalty Strokes: ${totalPens}
 </div>
 `;
 
-document.getElementById("roundDetailContent").innerHTML = html;
-document.getElementById("roundDetailModal").classList.remove("hidden");
+document.getElementById(“roundDetailContent”).innerHTML = html;
+document.getElementById(“roundDetailModal”).classList.remove(“hidden”);
 }
 
 // DEV ONLY — tap tier badge 5x to open switcher
@@ -4362,8 +4487,8 @@ window.devTierTap = () => {
 tierTapCount++;
 if(tierTapCount >= 5){
 tierTapCount = 0;
-const t = prompt("Dev: Set tier (free/starter/pro/elite):", userTier);
-if(t && ["free","starter","pro","elite"].includes(t)){
+const t = prompt(“Dev: Set tier (free/starter/pro/elite):”, userTier);
+if(t && [“free”,“starter”,“pro”,“elite”].includes(t)){
 setTier(t);
 renderProfile();
 }
@@ -4372,20 +4497,20 @@ renderProfile();
 
 window.editProfile = () => {
 
-document.getElementById("profileName").value = userProfile.name;
-document.getElementById("profileHandicap").value = userProfile.currentHandicap;
-document.getElementById("profileSaveBtn").textContent = "Save Profile";
+document.getElementById(“profileName”).value = userProfile.name;
+document.getElementById(“profileHandicap”).value = userProfile.currentHandicap;
+document.getElementById(“profileSaveBtn”).textContent = “Save Profile”;
 
-show("profile-setup");
+show(“profile-setup”);
 
 };
 window.saveProfileChanges = () => {
 
-const name = document.getElementById("profileName").value.trim();
-const handicap = parseFloat(document.getElementById("profileHandicap").value) || 0;
+const name = document.getElementById(“profileName”).value.trim();
+const handicap = parseFloat(document.getElementById(“profileHandicap”).value) || 0;
 
 if(!name){
-alert("Please enter your name");
+alert(“Please enter your name”);
 return;
 }
 
@@ -4406,17 +4531,17 @@ userProfile.name = name;
 userProfile.currentHandicap = handicap;
 }
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 
 renderProfile();
-goHomeClean(); // 👈 THIS is the important part
+goHomeClean(); // THIS is the important part
 };
 
 function deleteRound(displayIndex){
 
 event.stopPropagation();
 
-const confirmed = confirm("Delete this round permanently?");
+const confirmed = confirm(“Delete this round permanently?”);
 if(!confirmed) return;
 
 const realIndex = userProfile.rounds.length - 1 - displayIndex;
@@ -4427,7 +4552,7 @@ userProfile.rounds.splice(realIndex,1);
 
 updateHandicap();
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 
 renderProfile();
 }
@@ -4435,34 +4560,34 @@ renderProfile();
 /* ================= RESET BETTING ================= */
 
 // Reusable Yes/No modal — replaces browser confirm() for important actions
-function showConfirm({ icon="", title, message, onYes, onNo }){
-document.getElementById("confirmModalIcon").textContent    = icon;
-document.getElementById("confirmModalTitle").textContent   = title;
-document.getElementById("confirmModalMessage").textContent = message;
-document.getElementById("confirmModal").classList.remove("hidden");
+function showConfirm({ icon=””, title, message, onYes, onNo }){
+document.getElementById(“confirmModalIcon”).textContent = icon;
+document.getElementById(“confirmModalTitle”).textContent = title;
+document.getElementById(“confirmModalMessage”).textContent = message;
+document.getElementById(“confirmModal”).classList.remove(“hidden”);
 
-document.getElementById("confirmModalYes").onclick = () => {
-document.getElementById("confirmModal").classList.add("hidden");
+document.getElementById(“confirmModalYes”).onclick = () => {
+document.getElementById(“confirmModal”).classList.add(“hidden”);
 if(onYes) onYes();
 };
-document.getElementById("confirmModalNo").onclick = () => {
-document.getElementById("confirmModal").classList.add("hidden");
+document.getElementById(“confirmModalNo”).onclick = () => {
+document.getElementById(“confirmModal”).classList.add(“hidden”);
 if(onNo) onNo();
 };
 }
 
-document.getElementById("resetBettingBtn").onclick = () => {
+document.getElementById(“resetBettingBtn”).onclick = () => {
 
 showConfirm({
-icon: "⚠️",
-title: "Reset Betting Stats?",
-message: "This will reset your total winnings, games played, and net money to $0. This cannot be undone.",
+icon: “ ”,
+title: “Reset Betting Stats?”,
+message: “This will reset your total winnings, games played, and net money to $0. This cannot be undone.”,
 onYes: () => {
 // Step 2 — ask about history and opponent data
 showConfirm({
-icon: "🗑️",
-title: "Delete Betting History?",
-message: "Do you also want to delete all betting history and opponent data?",
+icon: “ ”,
+title: “Delete Betting History?”,
+message: “Do you also want to delete all betting history and opponent data?”,
 onYes: () => {
 resetBettingStats(true);
 },
@@ -4488,26 +4613,26 @@ if(clearHistory){
 userProfile.bettingHistory = [];
 }
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 autoSync();
 renderProfile();
 
 showConfirm({
-icon: "✅",
-title: "Done",
+icon: “ ”,
+title: “Done”,
 message: clearHistory
-? "Betting stats, history, and opponent data cleared."
-: "Betting stats reset. History and opponent data kept.",
+? “Betting stats, history, and opponent data cleared.”
+: “Betting stats reset. History and opponent data kept.”,
 onYes: () => {},
 onNo: null
 });
 
-// Change Yes/No to just "OK" for the success message
+// Change Yes/No to just “OK” for the success message
 setTimeout(() => {
-const yesBtn = document.getElementById("confirmModalYes");
-const noBtn  = document.getElementById("confirmModalNo");
-if(yesBtn){ yesBtn.textContent = "OK"; yesBtn.style.background = "rgba(46,204,113,.8)"; }
-if(noBtn)  noBtn.style.display = "none";
+const yesBtn = document.getElementById(“confirmModalYes”);
+const noBtn = document.getElementById(“confirmModalNo”);
+if(yesBtn){ yesBtn.textContent = “OK”; yesBtn.style.background = “rgba(46,204,113,.8)”; }
+if(noBtn) noBtn.style.display = “none”;
 }, 10);
 }
 
@@ -4526,11 +4651,11 @@ userProfile.bettingStats.opponents[p] =
 (userProfile.bettingStats.opponents[p] || 0) + 1;
 });
 
-localStorage.setItem("userProfile", JSON.stringify(userProfile));
+localStorage.setItem(“userProfile”, JSON.stringify(userProfile));
 }
 
 function closeRoundDetail(){
-document.getElementById("roundDetailModal").classList.add("hidden");
+document.getElementById(“roundDetailModal”).classList.add(“hidden”);
 }
 
 /* ================= BASEBALL SCOREBOARD ================= */
@@ -4543,6 +4668,7 @@ const awayTotal = innings.reduce((a,inn) => a + (inn.away ?? 0), 0);
 const homeTotal = innings.reduce((a,inn) => a + (inn.home ?? 0), 0);
 
 let html = `
+
 <div class="mlb-scoreboard">
 
 <div class="mlb-row header">
@@ -4566,15 +4692,15 @@ ${innings.map(inn=>`<div>${inn.home !== null ? inn.home : ""}</div>`).join("")}
 </div>
 `;
 
-document.getElementById("baseballScoreboardTable").innerHTML = html;
-document.getElementById("baseballScoreboardModal").classList.remove("hidden");
+document.getElementById(“baseballScoreboardTable”).innerHTML = html;
+document.getElementById(“baseballScoreboardModal”).classList.remove(“hidden”);
 
 };
 
 window.closeBaseballScoreboard=()=>{
 
-document.getElementById("baseballScoreboardModal")
-.classList.add("hidden");
+document.getElementById(“baseballScoreboardModal”)
+.classList.add(“hidden”);
 
 };
 
@@ -4582,15 +4708,15 @@ document.getElementById("baseballScoreboardModal")
 
 function animateMoney(){
 
-const rows = document.querySelectorAll("#leaderboard div");
+const rows = document.querySelectorAll(”#leaderboard div”);
 
 rows.forEach(row=>{
 
-row.style.transform = "scale(1.05)";
-row.style.transition = "transform .2s ease";
+row.style.transform = “scale(1.05)”;
+row.style.transition = “transform .2s ease”;
 
 setTimeout(()=>{
-row.style.transform = "scale(1)";
+row.style.transform = “scale(1)”;
 },200);
 
 });
@@ -4601,22 +4727,22 @@ row.style.transform = "scale(1)";
 
 function spawnConfetti(){
 
-const colors = ["#2ecc71","#f1c40f","#e74c3c","#3498db","#9b59b6","#ffffff"];
-const container = document.getElementById("leaderboardModal");
+const colors = [”#2ecc71”,”#f1c40f”,”#e74c3c”,”#3498db”,”#9b59b6”,”#ffffff”];
+const container = document.getElementById(“leaderboardModal”);
 if(!container) return;
 
 for(let i = 0; i < 60; i++){
 
-const piece = document.createElement("div");
-piece.className = "confetti-piece";
+const piece = document.createElement(“div”);
+piece.className = “confetti-piece”;
 
-piece.style.left = Math.random() * 100 + "%";
+piece.style.left = Math.random() * 100 + “%”;
 piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-piece.style.animationDuration = (0.8 + Math.random() * 1.2) + "s";
-piece.style.animationDelay = (Math.random() * 0.6) + "s";
-piece.style.width = (6 + Math.random() * 6) + "px";
-piece.style.height = (6 + Math.random() * 6) + "px";
-piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+piece.style.animationDuration = (0.8 + Math.random() * 1.2) + “s”;
+piece.style.animationDelay = (Math.random() * 0.6) + “s”;
+piece.style.width = (6 + Math.random() * 6) + “px”;
+piece.style.height = (6 + Math.random() * 6) + “px”;
+piece.style.borderRadius = Math.random() > 0.5 ? “50%” : “2px”;
 
 container.appendChild(piece);
 
@@ -4629,13 +4755,13 @@ setTimeout(() => piece.remove(), 2500);
 
 /* ================= SCORE AUTO ADVANCE ================= */
 
-document.addEventListener("input",(e)=>{
+document.addEventListener(“input”,(e)=>{
 
-if(!e.target.classList.contains("score-input")) return;
+if(!e.target.classList.contains(“score-input”)) return;
 
 if(e.target.value.length>=1){
 
-const inputs=[...document.querySelectorAll(".score-input")];
+const inputs=[…document.querySelectorAll(”.score-input”)];
 
 const index=inputs.indexOf(e.target);
 
