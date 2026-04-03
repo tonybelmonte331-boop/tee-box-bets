@@ -906,7 +906,8 @@ Save Course
 <button id="endRoundBtn" class="hidden" onclick="cancelTrackedRound()">✕ End Round</button>
 <button id="endBetBtn"   class="hidden" onclick="endRoundNow()">✕ End Round</button>
 <!--CORE APP (MUST BE FIRST)-->
-<!-- cloudflare removed -->
+<script src="supabase.min.js"></script>
+<script src="app.js"></script>
 
 <!--GAME ENGINES-->
 <script src="games/skins/engine.js"></script>
@@ -947,7 +948,6 @@ Save Course
 <!--SHARED SYSTEMS-->
 <script src="games/sidebets.js"></script>
 <script src="router/gameRouter.js"></script>
-<script src="sb-client.js"></script>
-<script src="app.js"></script>
+
 </body>
 </html>
