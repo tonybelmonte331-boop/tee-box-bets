@@ -2062,6 +2062,7 @@ updateAdVisibility();
 initSupabase();
 updateAccountBar();
 initRevenueCat();
+initAdMob();
 
 const courseSearchEl = document.getElementById("courseSearch");
 const dropdown = document.getElementById("courseDropdown");
@@ -3885,6 +3886,63 @@ console.log("RevenueCat init error:", err.message);
 }
 }
 
+/* ================= ADMOB ================= */
+
+const ADMOB_APP_ID = "ca-app-pub-5909183878671719~3381757713";
+const ADMOB_BANNER_ID = "ca-app-pub-5909183878671719/9755594379";
+const ADMOB_TEST_BANNER_ID = "ca-app-pub-3940256099942544/6300978111"; // Google test ad
+
+let adMobBannerShowing = false;
+
+async function initAdMob(){
+    if(!isNative()) return;
+    try {
+        const { AdMob } = await import('@capacitor-community/admob');
+        await AdMob.initialize({
+            requestTrackingAuthorization: false,
+            testingDevices: [],
+            initializeForTesting: false
+        });
+        console.log("AdMob initialized");
+        showBannerAd();
+    } catch(err){
+        console.log("AdMob init error:", err.message);
+    }
+}
+
+async function showBannerAd(){
+    if(!isNative()) return;
+    if(hasStarterOrAbove()) return; // No ads for paid users
+    if(adMobBannerShowing) return;
+    try {
+        const { AdMob, BannerAdSize, BannerAdPosition } = await import('@capacitor-community/admob');
+        const options = {
+            adId: ADMOB_BANNER_ID,
+            adSize: BannerAdSize.BANNER,
+            position: BannerAdPosition.BOTTOM_CENTER,
+            margin: 0,
+            isTesting: false
+        };
+        await AdMob.showBanner(options);
+        adMobBannerShowing = true;
+    } catch(err){
+        console.log("AdMob banner error:", err.message);
+    }
+}
+
+async function hideBannerAd(){
+    if(!isNative() || !adMobBannerShowing) return;
+    try {
+        const { AdMob } = await import('@capacitor-community/admob');
+        await AdMob.hideBanner();
+        adMobBannerShowing = false;
+    } catch(err){
+        console.log("AdMob hide error:", err.message);
+    }
+}
+
+
+
 async function refreshEntitlements(){
 if(!isNative()) return;
 try {
@@ -4367,6 +4425,13 @@ const adSlots = document.querySelectorAll(".ad-slot");
 adSlots.forEach(slot => {
 slot.style.display = hasStarterOrAbove() ? "none" : "flex";
 });
+if(isNative()){
+if(hasStarterOrAbove()){
+hideBannerAd();
+} else {
+showBannerAd();
+}
+}
 }
 
 function openRoundDetails(index){
