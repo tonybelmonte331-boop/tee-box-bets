@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/tonybelmonte331-boop/tee-box-bets#readme",
   "dependencies": {
+    "@capacitor-community/admob": "^8.0.0",
+    "@capacitor/ios": "^8.3.0",
     "@revenuecat/purchases-capacitor": "^12.3.1"
   }
 }
