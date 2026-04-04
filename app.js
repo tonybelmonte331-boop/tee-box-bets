@@ -3044,6 +3044,10 @@ sideWinners.appendChild(btn);
 /* ================= FLOW ================= */
 
 function nextHole(){
+// Show interstitial after hole 9 in an 18-hole game (half time)
+if(hole === 9 && holeLimit === 18){
+showInterstitialAd();
+}
 if(hole>=holeLimit){
 
 const sorted = [...players].sort((a,b)=>ledger[b]-ledger[a]);
@@ -3065,6 +3069,8 @@ banner.innerHTML = `
 leaderboardModalList.appendChild(banner);
 }
 
+// Show interstitial ad at round end
+showInterstitialAd();
 // Confetti burst
 spawnConfetti();
 
@@ -3515,7 +3521,10 @@ if(currentRound.currentHole >= currentRound.holes){
 finishTrackedRound();
 return;
 }
-
+// Show interstitial after hole 9 in 18-hole tracked round
+if(currentRound.currentHole === 9 && currentRound.holes === 18){
+showInterstitialAd();
+}
 currentRound.currentHole++;
 updateRoundUI();
 };
@@ -3927,6 +3936,20 @@ async function showBannerAd(){
         adMobBannerShowing = true;
     } catch(err){
         console.log("AdMob banner error:", err.message);
+    }
+}
+
+
+async function showInterstitialAd(){
+    if(!isNative()) return;
+    if(hasStarterOrAbove()) return; // No ads for paid users
+    try {
+        const { AdMob } = await import('@capacitor-community/admob');
+        const options = { adId: "ca-app-pub-5909183878671719/8726312684" };
+        await AdMob.prepareInterstitial(options);
+        await AdMob.showInterstitial();
+    } catch(err){
+        console.log("AdMob interstitial error:", err.message);
     }
 }
 
