@@ -3808,7 +3808,6 @@ window.openPremiumScreen = (highlightTier) => {
 const modal = document.getElementById("premiumModal");
 if(!modal) return;
 
-// Render tier cards
 const content = document.getElementById("premiumTierCards");
 if(content){
 
@@ -3819,6 +3818,7 @@ name: "Starter",
 price: "$2.99",
 period: "one-time",
 color: "#3498db",
+yearly: null,
 features: ["✓ No ads forever", "✓ All betting games", "✓ Up to 2 saved groups"]
 },
 {
@@ -3826,6 +3826,8 @@ id: "pro",
 name: "Pro",
 price: "$4.99",
 period: "/ month",
+yearlyPrice: "$49.99",
+yearlyNote: "2 months free — best value!",
 color: "#2ecc71",
 badge: "Popular",
 features: ["✓ Everything in Starter", "✓ Advanced betting stats", "✓ Player vs player money", "✓ Handicap trend chart", "✓ Up to 5 saved groups"]
@@ -3835,21 +3837,34 @@ id: "elite",
 name: "Elite",
 price: "$9.99",
 period: "/ month",
+yearlyPrice: "$99.99",
+yearlyNote: "2 months free — best value!",
 color: "#f1c40f",
 features: ["✓ Everything in Pro", "✓ Full betting history", "✓ Unlimited saved groups"]
 }
 ];
 
 content.innerHTML = tiers.map(t => `
-
 <div class="premium-card ${t.id === highlightTier ? "premium-card-highlight" : ""}" style="border-color:${t.color}40;">
 ${t.badge ? `<div class="premium-badge" style="background:${t.color};">${t.badge}</div>` : ""}
 <div class="premium-card-name" style="color:${t.color};">${t.name}</div>
 <div class="premium-card-price">${t.price} <span class="premium-card-period">${t.period}</span></div>
+${t.yearlyPrice ? `
+<div style="margin:8px 0;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:10px;font-size:13px;">
+<div style="font-weight:700;color:${t.color};">🎉 ${t.yearlyNote}</div>
+<div style="opacity:.8;margin-top:2px;">${t.yearlyPrice}/year · Save $${((parseFloat(t.price)*12) - parseFloat(t.yearlyPrice)).toFixed(2)}</div>
+</div>` : ""}
 <div class="premium-card-features">${t.features.map(f=>`<div>${f}</div>`).join("")}</div>
-<button class="premium-subscribe-btn" style="background:${t.color};" onclick="subscribeTier('${t.id}')">
-${userTier === t.id ? "✓ Current Plan" : "Get " + t.name}
-</button>
+${userTier === t.id ? `
+<button class="premium-subscribe-btn" style="background:rgba(255,255,255,.2);cursor:default;">✓ Current Plan</button>
+` : t.yearlyPrice ? `
+<div style="display:flex;gap:8px;margin-top:10px;">
+<button class="premium-subscribe-btn" style="background:rgba(255,255,255,.15);flex:1;font-size:12px;" onclick="subscribeTierMonthly('${t.id}')">Monthly<br><span style="font-size:11px;opacity:.7;">${t.price}/mo</span></button>
+<button class="premium-subscribe-btn" style="background:${t.color};flex:1;font-size:12px;" onclick="subscribeTierYearly('${t.id}')">Yearly 🎉<br><span style="font-size:11px;opacity:.9;">${t.yearlyPrice}/yr</span></button>
+</div>
+` : `
+<button class="premium-subscribe-btn" style="background:${t.color};" onclick="subscribeTier('${t.id}')">Get ${t.name}</button>
+`}
 </div>
 `).join("");
 }
@@ -3857,11 +3872,16 @@ ${userTier === t.id ? "✓ Current Plan" : "Get " + t.name}
 modal.classList.remove("hidden");
 };
 
+window.subscribeTierMonthly = (tier) => subscribeTier(tier, 'monthly');
+window.subscribeTierYearly = (tier) => subscribeTier(tier, 'yearly');
+
 window.closePremiumModal = () => {
 document.getElementById("premiumModal")?.classList.add("hidden");
 };
 
-const RC_API_KEY = "goog_wwwFMAhXkBmXNokISzbSWIHVceZ";
+const RC_API_KEY_ANDROID = "goog_wwwFMAhXkBmXNokISzbSWIHVceZ";
+const RC_API_KEY_IOS = "appl_pqDVObCkfiMzstKhfJpSYurjPdp";
+const RC_API_KEY = window.Capacitor?.getPlatform() === "ios" ? RC_API_KEY_IOS : RC_API_KEY_ANDROID;
 
 const PRODUCT_IDS = {
 starter: "starter_onetime",
@@ -3908,12 +3928,12 @@ async function initAdMob(){
     try {
         const { AdMob } = await import('@capacitor-community/admob');
         await AdMob.initialize({
-            requestTrackingAuthorization: false,
+            requestTrackingAuthorization: true,
             testingDevices: [],
             initializeForTesting: false
         });
         console.log("AdMob initialized");
-        showBannerAd();
+        await showBannerAd();
     } catch(err){
         console.log("AdMob init error:", err.message);
     }
@@ -3985,7 +4005,7 @@ console.log("Entitlement refresh error:", err.message);
 }
 }
 
-window.subscribeTier = async (tier) => {
+window.subscribeTier = async (tier, period) => {
 // Dev mode in browser
 if(!isNative()){
 setTier(tier);
@@ -4009,8 +4029,8 @@ if(tier === "starter"){
 pkg = current.availablePackages.find(p =>
 p.product.identifier === PRODUCT_IDS.starter);
 } else {
-// Show monthly vs yearly choice
-const choice = await showTierPeriodChoice(
+// Use provided period or show choice modal
+const choice = period || await showTierPeriodChoice(
 tier === "pro" ? "Pro" : "Elite",
 tier === "pro" ? "$4.99/mo" : "$9.99/mo",
 tier === "pro" ? "$49.99/yr" : "$99.99/yr"
@@ -4120,17 +4140,17 @@ if(!userProfile.bettingStats.pvp) userProfile.bettingStats.pvp = {};
 
 const myName = userProfile.name;
 const myNet = ledger[myName] || 0;
+if(myNet === 0) return;
 
-players.forEach(p => {
-if(p === myName) return;
+// Find opponents who lost/won opposite to me
+const opponents = players.filter(x => x !== myName);
+const opponentsCount = opponents.length || 1;
+
+opponents.forEach(p => {
 const theirNet = ledger[p] || 0;
-// From my perspective: if I'm +$10 and they're -$10 vs me
-const vsMe = -theirNet; // approximation for 2-player; works for pairwise
 if(!userProfile.bettingStats.pvp[p]) userProfile.bettingStats.pvp[p] = 0;
-// Net between me and this player = my ledger share attributed to them
-// Simple approach: divide my net by number of opponents
-const opponents = players.filter(x => x !== myName).length || 1;
-userProfile.bettingStats.pvp[p] = +(userProfile.bettingStats.pvp[p] + myNet / opponents).toFixed(2);
+// Each opponent is attributed an equal share of my net
+userProfile.bettingStats.pvp[p] = +(userProfile.bettingStats.pvp[p] + myNet / opponentsCount).toFixed(2);
 });
 }
 
@@ -4562,15 +4582,7 @@ document.getElementById("roundDetailModal").classList.remove("hidden");
 // DEV ONLY -- tap tier badge 5x to open switcher
 let tierTapCount = 0;
 window.devTierTap = () => {
-tierTapCount++;
-if(tierTapCount >= 5){
-tierTapCount = 0;
-const t = prompt("Dev: Set tier (free/starter/pro/elite):", userTier);
-if(t && ["free","starter","pro","elite"].includes(t)){
-setTier(t);
-renderProfile();
-}
-}
+// Dev tier switcher disabled in production
 };
 
 window.editProfile = () => {

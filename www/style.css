@@ -62,7 +62,8 @@ position:fixed;
 top:0;
 left:0;
 right:0;
-height:60px;
+height:calc(60px + env(safe-area-inset-top));
+padding-top:env(safe-area-inset-top);
 background:linear-gradient(#083a2b,#06281d);
 display:flex;
 align-items:center;
@@ -81,7 +82,7 @@ pointer-events:none;
 
 #navBack{
 position:fixed;
-top:12px;
+top:calc(12px + env(safe-area-inset-top));
 left:12px;
 
 display:none;
@@ -117,8 +118,8 @@ background:rgba(255,255,255,.22);
 /* ================= LAYOUT ================= */
 
 main{
-padding-top:60px;
-height:calc(100dvh - 60px);
+padding-top:calc(60px + env(safe-area-inset-top));
+height:calc(100dvh - 60px - env(safe-area-inset-top));
 
 display:flex;
 flex-direction:column;
