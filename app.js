@@ -3852,14 +3852,14 @@ ${t.badge ? `<div class="premium-badge" style="background:${t.color};">${t.badge
 ${t.yearlyPrice ? `
 <div style="margin:8px 0;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:10px;font-size:13px;">
 <div style="font-weight:700;color:${t.color};">🎉 ${t.yearlyNote}</div>
-<div style="opacity:.8;margin-top:2px;">${t.yearlyPrice}/year · Save $${((parseFloat(t.price)*12) - parseFloat(t.yearlyPrice)).toFixed(2)}</div>
+<div style="opacity:.8;margin-top:2px;">${t.yearlyPrice}/year · Save $${((parseFloat(t.price.replace("$",""))*12) - parseFloat(t.yearlyPrice.replace("$",""))).toFixed(2)}</div>
 </div>` : ""}
 <div class="premium-card-features">${t.features.map(f=>`<div>${f}</div>`).join("")}</div>
 ${userTier === t.id ? `
 <button class="premium-subscribe-btn" style="background:rgba(255,255,255,.2);cursor:default;">✓ Current Plan</button>
 ` : t.yearlyPrice ? `
 <div style="display:flex;gap:8px;margin-top:10px;">
-<button class="premium-subscribe-btn" style="background:rgba(255,255,255,.15);flex:1;font-size:12px;" onclick="subscribeTierMonthly('${t.id}')">Monthly<br><span style="font-size:11px;opacity:.7;">${t.price}/mo</span></button>
+<button class="premium-subscribe-btn" style="background:${t.color};opacity:0.7;flex:1;font-size:12px;" onclick="subscribeTierMonthly('${t.id}')">Monthly<br><span style="font-size:11px;opacity:.9;">${t.price}/mo</span></button>
 <button class="premium-subscribe-btn" style="background:${t.color};flex:1;font-size:12px;" onclick="subscribeTierYearly('${t.id}')">Yearly 🎉<br><span style="font-size:11px;opacity:.9;">${t.yearlyPrice}/yr</span></button>
 </div>
 ` : `
@@ -3897,9 +3897,9 @@ return typeof window.Capacitor !== "undefined" && window.Capacitor.isNativePlatf
 }
 
 function getRCPurchases(){
-if(isNative() && window.CapacitorPurchases){
-return window.CapacitorPurchases;
-}
+if(!isNative()) return null;
+if(window.CapacitorPurchases) return window.CapacitorPurchases;
+if(window.Capacitor?.Plugins?.Purchases) return window.Capacitor.Plugins.Purchases;
 return null;
 }
 
