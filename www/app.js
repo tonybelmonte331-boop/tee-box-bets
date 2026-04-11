@@ -3830,7 +3830,7 @@ yearlyPrice: "$49.99",
 yearlyNote: "2 months free — best value!",
 color: "#2ecc71",
 badge: "Popular",
-features: ["✓ Everything in Starter", "✓ Advanced betting stats", "✓ Player vs player money", "✓ Handicap trend chart", "✓ Up to 5 saved groups"]
+features: ["✓ Everything in Starter", "✓ Advanced betting stats", "✓ Player vs player money", "✓ Handicap trend chart", "✓ Up to 5 saved groups", "✓ Monthly: $4.99/mo · Yearly: $49.99/yr"]
 },
 {
 id: "elite",
@@ -3840,7 +3840,7 @@ period: "/ month",
 yearlyPrice: "$99.99",
 yearlyNote: "2 months free — best value!",
 color: "#f1c40f",
-features: ["✓ Everything in Pro", "✓ Full betting history", "✓ Unlimited saved groups"]
+features: ["✓ Everything in Pro", "✓ Full betting history", "✓ Unlimited saved groups", "✓ Monthly: $9.99/mo · Yearly: $99.99/yr"]
 }
 ];
 
@@ -4582,7 +4582,16 @@ document.getElementById("roundDetailModal").classList.remove("hidden");
 // DEV ONLY -- tap tier badge 5x to open switcher
 let tierTapCount = 0;
 window.devTierTap = () => {
-// Dev tier switcher disabled in production
+tierTapCount++;
+if(tierTapCount >= 10){
+tierTapCount = 0;
+const t = prompt("Set tier (free/starter/pro/elite):", userTier);
+if(t && ["free","starter","pro","elite"].includes(t)){
+setTier(t);
+renderProfile();
+updateAdVisibility();
+}
+}
 };
 
 window.editProfile = () => {
