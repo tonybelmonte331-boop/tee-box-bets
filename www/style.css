@@ -405,13 +405,19 @@ z-index: 5200;
 
 #sideBetBtn{
 position:fixed;
-bottom:24px;
+bottom:80px;
 right:12px;
 width:auto;
 padding:8px 18px;
 border-radius:22px;
 font-size:14px;
+font-weight:600;
 z-index:1500;
+background:#2ecc71;
+color:#fff;
+border:none;
+box-shadow:0 2px 8px rgba(0,0,0,0.3);
+cursor:pointer;
 }
 
 /* ================ PREVENT LEADERBAORD CUTOFF =================== */

@@ -3917,9 +3917,19 @@ console.log("RevenueCat init error:", err.message);
 
 /* ================= ADMOB ================= */
 
-const ADMOB_APP_ID = "ca-app-pub-5909183878671719~3381757713";
-const ADMOB_BANNER_ID = "ca-app-pub-5909183878671719/9755594379";
-const ADMOB_TEST_BANNER_ID = "ca-app-pub-3940256099942544/6300978111"; // Google test ad
+// AdMob IDs — platform specific
+const ADMOB_APP_ID_ANDROID = "ca-app-pub-5909183878671719~3381757713";
+const ADMOB_APP_ID_IOS = "ca-app-pub-5909183878671719~3018548216";
+const ADMOB_BANNER_ID_ANDROID = "ca-app-pub-5909183878671719/9755594379";
+const ADMOB_BANNER_ID_IOS = "ca-app-pub-5909183878671719/3506395116";
+const ADMOB_INTERSTITIAL_ID_ANDROID = "ca-app-pub-5909183878671719/8726312684";
+const ADMOB_INTERSTITIAL_ID_IOS = "ca-app-pub-5909183878671719/7176057718";
+
+function isIOS(){
+    return typeof window.Capacitor !== "undefined" && window.Capacitor.getPlatform() === "ios";
+}
+const ADMOB_BANNER_ID = isIOS() ? ADMOB_BANNER_ID_IOS : ADMOB_BANNER_ID_ANDROID;
+const ADMOB_INTERSTITIAL_ID = isIOS() ? ADMOB_INTERSTITIAL_ID_IOS : ADMOB_INTERSTITIAL_ID_ANDROID;
 
 let adMobBannerShowing = false;
 
@@ -3965,7 +3975,7 @@ async function showInterstitialAd(){
     if(hasStarterOrAbove()) return; // No ads for paid users
     try {
         const { AdMob } = await import('@capacitor-community/admob');
-        const options = { adId: "ca-app-pub-5909183878671719/8726312684" };
+        const options = { adId: ADMOB_INTERSTITIAL_ID };
         await AdMob.prepareInterstitial(options);
         await AdMob.showInterstitial();
     } catch(err){
@@ -4142,14 +4152,22 @@ const myName = userProfile.name;
 const myNet = ledger[myName] || 0;
 if(myNet === 0) return;
 
-// Find opponents who lost/won opposite to me
-const opponents = players.filter(x => x !== myName);
+// Determine my team and the opposing team
+const myTeam = teams.A.includes(myName) ? teams.A : teams.B.includes(myName) ? teams.B : [];
+const otherTeam = myTeam === teams.A ? teams.B : myTeam === teams.B ? teams.A : [];
+
+// In team games, only track PvP against opponents (not teammates)
+// In FFA games, track against all other players
+const isTeamGame = myTeam.length > 1;
+const opponents = isTeamGame
+    ? otherTeam.filter(x => x !== myName)
+    : players.filter(x => x !== myName);
+
 const opponentsCount = opponents.length || 1;
 
 opponents.forEach(p => {
-const theirNet = ledger[p] || 0;
 if(!userProfile.bettingStats.pvp[p]) userProfile.bettingStats.pvp[p] = 0;
-// Each opponent is attributed an equal share of my net
+// Divide my net only among actual opponents
 userProfile.bettingStats.pvp[p] = +(userProfile.bettingStats.pvp[p] + myNet / opponentsCount).toFixed(2);
 });
 }
