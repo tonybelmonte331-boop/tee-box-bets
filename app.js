@@ -3898,8 +3898,10 @@ return typeof window.Capacitor !== "undefined" && window.Capacitor.isNativePlatf
 
 function getRCPurchases(){
 if(!isNative()) return null;
-if(window.CapacitorPurchases) return window.CapacitorPurchases;
+// Try all possible plugin registration locations
 if(window.Capacitor?.Plugins?.Purchases) return window.Capacitor.Plugins.Purchases;
+if(window.CapacitorPurchases) return window.CapacitorPurchases;
+if(window.Purchases) return window.Purchases;
 return null;
 }
 
@@ -3936,7 +3938,8 @@ let adMobBannerShowing = false;
 async function initAdMob(){
     if(!isNative()) return;
     try {
-        const { AdMob } = await import('@capacitor-community/admob');
+        const AdMob = window.Capacitor?.Plugins?.AdMob;
+        if(!AdMob){ console.log("AdMob plugin not found"); return; }
         await AdMob.initialize({
             requestTrackingAuthorization: true,
             testingDevices: [],
@@ -3954,11 +3957,12 @@ async function showBannerAd(){
     if(hasStarterOrAbove()) return; // No ads for paid users
     if(adMobBannerShowing) return;
     try {
-        const { AdMob, BannerAdSize, BannerAdPosition } = await import('@capacitor-community/admob');
+        const AdMob = window.Capacitor?.Plugins?.AdMob;
+        if(!AdMob) return;
         const options = {
             adId: ADMOB_BANNER_ID,
-            adSize: BannerAdSize.BANNER,
-            position: BannerAdPosition.BOTTOM_CENTER,
+            adSize: "BANNER",
+            position: "BOTTOM_CENTER",
             margin: 0,
             isTesting: false
         };
@@ -3974,7 +3978,8 @@ async function showInterstitialAd(){
     if(!isNative()) return;
     if(hasStarterOrAbove()) return; // No ads for paid users
     try {
-        const { AdMob } = await import('@capacitor-community/admob');
+        const AdMob = window.Capacitor?.Plugins?.AdMob;
+        if(!AdMob) return;
         const options = { adId: ADMOB_INTERSTITIAL_ID };
         await AdMob.prepareInterstitial(options);
         await AdMob.showInterstitial();
@@ -3986,7 +3991,8 @@ async function showInterstitialAd(){
 async function hideBannerAd(){
     if(!isNative() || !adMobBannerShowing) return;
     try {
-        const { AdMob } = await import('@capacitor-community/admob');
+        const AdMob = window.Capacitor?.Plugins?.AdMob;
+        if(!AdMob) return;
         await AdMob.hideBanner();
         adMobBannerShowing = false;
     } catch(err){
@@ -4029,9 +4035,13 @@ try {
 const RC = getRCPurchases();
 if(!RC){ alert("Purchases not available"); return; }
 
-const { offerings } = await RC.getOfferings();
-const current = offerings.current;
-if(!current){ alert("Products not available. Please try again."); return; }
+const result = await RC.getOfferings();
+const offerings = result?.offerings || result;
+const current = offerings?.current;
+if(!current){ 
+alert("Products are not available yet. This may take up to 24 hours after setup. Please try again later.");
+return; 
+}
 
 let pkg = null;
 
