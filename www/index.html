@@ -34,6 +34,7 @@
 <button onclick="openProfile()">Player Profile</button>
 
 <button onclick="openGroupsManager()">My Groups</button>
+<button onclick="openFriendsManager()">My Friends</button>
 
 </div>
 
@@ -74,6 +75,11 @@
 <div class="profile-card">
 <h3>Handicap Trend</h3>
 <div id="handicapChart"></div>
+</div>
+<div class="profile-card">
+<h3>My Payment Handles</h3>
+<p style="font-size:12px;opacity:.6;margin-bottom:12px;">Friends will see these when settling up</p>
+<div id="myPaymentHandles"></div>
 </div>
 </div>
 
@@ -188,6 +194,23 @@ Add Course Manually
 
 <hr style="margin:20px 0;opacity:.3">
 
+<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;">
+<label style="font-size:14px;font-weight:700;">Playing With (optional)</label>
+<p style="font-size:12px;opacity:.6;margin-bottom:10px;">Add up to 3 friends — just track their score</p>
+
+<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+<input id="roundFriendName1" placeholder="Friend 1 name" style="flex:1;" list="friendSuggestions">
+</div>
+<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+<input id="roundFriendName2" placeholder="Friend 2 name" style="flex:1;" list="friendSuggestions">
+</div>
+<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+<input id="roundFriendName3" placeholder="Friend 3 name" style="flex:1;" list="friendSuggestions">
+</div>
+
+<datalist id="friendSuggestions"></datalist>
+</div>
+
 <button onclick="startRoundTracking()">Start New Round</button>
 
 <hr style="margin:20px 0;opacity:.3">
@@ -277,6 +300,8 @@ Add Previous Round
 <input id="holeScore" type="number" inputmode="numeric" class="hidden">
 
 <h4 id="roundLiveStats"></h4>
+
+<div id="friendScoreInputs" style="margin-top:12px;"></div>
 
 <button onclick="undoRoundHole()">Undo</button>
 <button onclick="openScorecard()">Scorecard</button>
@@ -384,6 +409,11 @@ This game is played with two teams of 2
 <!-- ===== PLAYERS ===== -->
 
 <section id="step-players" class="hidden">
+
+<!-- Friends quick add -->
+<div id="friendChips" style="display:none;margin-bottom:12px;">
+<button onclick="openAddFriendToGame()" style="background:rgba(255,255,255,.1);font-size:13px;padding:8px 16px;border-radius:20px;width:auto;max-width:none;">👤 Add Friend</button>
+</div>
 
 <h4 id="teamALabel">Team 1</h4>
 <div id="teamAInputs"></div>
@@ -783,7 +813,7 @@ Subscriptions auto-renew unless cancelled 24hrs before renewal.<br>
 <div class="modal-box" onclick="event.stopPropagation()">
 <h3>Scorecard</h3>
 <div id="scorecardTable"></div>
-<button onclick="closeScorecard()">Close</button>
+<button id="scorecardSaveBtn" onclick="saveAndCloseScorecard()" class="hidden" style="background:linear-gradient(135deg,#1a7a4f,#2ecc71);margin-bottom:8px;">Save Round</button>
 </div>
 </div>
 
@@ -902,6 +932,62 @@ Save Course
 
 </div>
 
+</div>
+
+
+
+<!-- Add Friend to Game Modal -->
+<div id="addFriendToGameModal" class="modal hidden" onclick="closeAddFriendToGame()">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:380px;">
+<h3>Add Friend to Game</h3>
+<p style="font-size:13px;opacity:.6;margin-bottom:14px;">Tap a friend to add them to the next empty slot</p>
+<div id="addFriendToGameList"></div>
+<button onclick="closeAddFriendToGame()" style="background:rgba(255,255,255,.1);margin-top:8px;">Done</button>
+</div>
+</div>
+
+<!-- Friends Manager -->
+<div id="friendsModal" class="modal hidden" onclick="closeFriendsManager()">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>My Friends</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<span id="friendsCount" style="font-size:13px;opacity:.6;"></span>
+<button onclick="openAddFriend()" style="padding:8px 16px;font-size:13px;width:auto;max-width:none;">+ Add Friend</button>
+</div>
+
+<div id="addFriendForm" class="hidden" style="background:rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:14px;">
+<h4 id="friendFormTitle" style="margin-bottom:12px;">Add Friend</h4>
+<input type="hidden" id="friendEditIndex">
+<label>Name</label>
+<input id="friendNameInput" placeholder="Friend's name">
+<label style="margin-top:12px;">Payment Handles (optional)</label>
+<div id="friendPaymentFields">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+<div style="width:70px;font-size:13px;font-weight:600;">Venmo</div>
+<input id="friend_venmo" placeholder="@username" style="flex:1;font-size:13px;padding:8px 12px;">
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+<div style="width:70px;font-size:13px;font-weight:600;">Cash App</div>
+<input id="friend_cashapp" placeholder="$cashtag" style="flex:1;font-size:13px;padding:8px 12px;">
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+<div style="width:70px;font-size:13px;font-weight:600;">Zelle</div>
+<input id="friend_zelle" placeholder="Phone or email" style="flex:1;font-size:13px;padding:8px 12px;">
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+<div style="width:70px;font-size:13px;font-weight:600;">PayPal</div>
+<input id="friend_paypal" placeholder="@username" style="flex:1;font-size:13px;padding:8px 12px;">
+</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:14px;">
+<button onclick="saveFriend()" style="flex:1;">Save</button>
+<button onclick="cancelAddFriend()" class="cancel-btn" style="flex:1;">Cancel</button>
+</div>
+</div>
+
+<div id="friendsList"></div>
+<button style="margin-top:16px;" onclick="closeFriendsManager()">Close</button>
+</div>
 </div>
 
 </main>

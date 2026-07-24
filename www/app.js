@@ -1200,6 +1200,171 @@ if(lbModal) lbModal.classList.remove("hidden");
 let savedPlayers = JSON.parse(localStorage.getItem("savedPlayers")) || [];
 let savedGroups = JSON.parse(localStorage.getItem("savedGroups")) || [];
 
+
+/* ================= MY PAYMENT HANDLES ================= */
+
+function getMyPaymentHandles(){
+    return JSON.parse(localStorage.getItem("myPaymentHandles")) || {};
+}
+
+function saveMyPaymentHandle(appId, handle){
+    const handles = getMyPaymentHandles();
+    handles[appId] = handle;
+    localStorage.setItem("myPaymentHandles", JSON.stringify(handles));
+}
+
+function renderMyPaymentHandles(){
+    const container = document.getElementById("myPaymentHandles");
+    if(!container) return;
+    const handles = getMyPaymentHandles();
+    container.innerHTML = PAYMENT_APPS.map(app => `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+<div style="width:70px;font-size:13px;font-weight:600;">${app.label}</div>
+<input id="myHandle_${app.id}" placeholder="@username" value="${handles[app.id]||''}"
+style="flex:1;font-size:13px;padding:8px 12px;"
+onchange="saveMyPaymentHandle('${app.id}', this.value.trim())">
+</div>`).join("");
+}
+
+
+/* ================= FRIENDS SYSTEM ================= */
+
+let savedFriends = JSON.parse(localStorage.getItem("savedFriends")) || [];
+
+function maxFriends(){
+    if(hasElite()) return Infinity;
+    if(hasProOrAbove()) return 10;
+    return 5; // free and starter
+}
+
+function openFriendsManager(){
+    renderFriendsList();
+    document.getElementById("friendsModal").classList.remove("hidden");
+}
+
+window.openFriendsManager = openFriendsManager;
+
+window.closeFriendsManager = () => {
+    document.getElementById("friendsModal").classList.add("hidden");
+};
+
+function renderFriendsList(){
+    const list = document.getElementById("friendsList");
+    if(!list) return;
+    list.innerHTML = "";
+
+    const countEl = document.getElementById("friendsCount");
+    if(countEl){
+        const max = hasElite() ? "∞" : maxFriends();
+        countEl.textContent = `${savedFriends.length} / ${max} friends`;
+    }
+
+    if(!savedFriends.length){
+        list.innerHTML = `<p style="opacity:.6;text-align:center;padding:20px 0;">No friends added yet.<br>Add friends to track games and settle up faster.</p>`;
+        return;
+    }
+
+    savedFriends.forEach((f, i) => {
+        const card = document.createElement("div");
+        card.className = "group-card";
+        const handles = Object.entries(f.payments || {})
+            .filter(([k,v]) => v)
+            .map(([k,v]) => `${k}: ${v}`)
+            .join(" · ");
+
+        card.innerHTML = `
+<div class="group-card-info">
+<div class="group-card-name">${f.name}</div>
+<div class="group-card-sub" style="font-size:11px;opacity:.6;">${handles || "No payment handles"}</div>
+</div>
+<div class="group-card-actions">
+<button class="group-quick-btn" onclick="editFriend(${i})">Edit</button>
+<button class="group-del-btn" onclick="deleteFriend(${i})">✕</button>
+</div>
+`;
+        list.appendChild(card);
+    });
+}
+
+window.openAddFriend = () => {
+    if(savedFriends.length >= maxFriends()){
+        closeFriendsManager();
+        openPremiumScreen("pro");
+        return;
+    }
+    document.getElementById("friendFormTitle").textContent = "Add Friend";
+    document.getElementById("friendNameInput").value = "";
+    PAYMENT_APPS.forEach(app => {
+        const el = document.getElementById(`friend_${app.id}`);
+        if(el) el.value = "";
+    });
+    document.getElementById("friendEditIndex").value = "";
+    document.getElementById("addFriendForm").classList.remove("hidden");
+};
+
+window.editFriend = (i) => {
+    const f = savedFriends[i];
+    document.getElementById("friendFormTitle").textContent = "Edit Friend";
+    document.getElementById("friendNameInput").value = f.name;
+    PAYMENT_APPS.forEach(app => {
+        const el = document.getElementById(`friend_${app.id}`);
+        if(el) el.value = f.payments?.[app.id] || "";
+    });
+    document.getElementById("friendEditIndex").value = i;
+    document.getElementById("addFriendForm").classList.remove("hidden");
+};
+
+window.saveFriend = () => {
+    const name = document.getElementById("friendNameInput").value.trim();
+    if(!name){ alert("Enter a name"); return; }
+
+    const payments = {};
+    PAYMENT_APPS.forEach(app => {
+        const el = document.getElementById(`friend_${app.id}`);
+        if(el?.value?.trim()) payments[app.id] = el.value.trim();
+    });
+
+    const editIndex = document.getElementById("friendEditIndex").value;
+
+    if(editIndex !== ""){
+        savedFriends[parseInt(editIndex)] = { name, payments };
+    } else {
+        if(savedFriends.length >= maxFriends()){
+            openPremiumScreen("pro");
+            return;
+        }
+        savedFriends.push({ name, payments });
+    }
+
+    // Also update savedPlayers so payment handles work in settle up
+    let sp = savedPlayers.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if(!sp){ sp = { name }; savedPlayers.push(sp); }
+    sp.payments = { ...sp.payments, ...payments };
+    localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+
+    localStorage.setItem("savedFriends", JSON.stringify(savedFriends));
+    document.getElementById("addFriendForm").classList.add("hidden");
+    renderFriendsList();
+};
+
+window.cancelAddFriend = () => {
+    document.getElementById("addFriendForm").classList.add("hidden");
+};
+
+window.deleteFriend = (i) => {
+    if(!confirm(`Remove ${savedFriends[i].name} from friends?`)) return;
+    savedFriends.splice(i, 1);
+    localStorage.setItem("savedFriends", JSON.stringify(savedFriends));
+    renderFriendsList();
+};
+
+// Get friend names for autocomplete in player inputs
+function getFriendNames(){
+    return savedFriends.map(f => f.name);
+}
+
+
+
 // ── Save a player by name ────────────────────────────────────────────────────
 function savePlayer(name){
 if(!name || savedPlayers.find(p => p.name.toLowerCase() === name.toLowerCase())) return;
@@ -1226,10 +1391,15 @@ input.addEventListener("input", () => {
 const q = input.value.trim().toLowerCase();
 if(!q){ drop.classList.add("hidden"); return; }
 
-const matches = savedPlayers.filter(p =>
-p.name.toLowerCase().startsWith(q) &&
-p.name.toLowerCase() !== q
-).slice(0, 5);
+const friendNames = getFriendNames ? getFriendNames() : [];
+const allSuggestions = [...new Set([
+    ...friendNames,
+    ...savedPlayers.map(p => p.name)
+])];
+const matches = allSuggestions
+    .filter(name => name.toLowerCase().startsWith(q) && name.toLowerCase() !== q)
+    .slice(0, 5)
+    .map(name => ({ name }));
 
 if(!matches.length){ drop.classList.add("hidden"); return; }
 
@@ -1238,7 +1408,8 @@ matches.forEach(p => {
 const row = document.createElement("div");
 row.className = "course-row";
 const span = document.createElement("span");
-span.textContent = p.name;
+const isFriend = savedFriends && savedFriends.some(f => f.name === p.name);
+span.textContent = (isFriend ? "👤 " : "") + p.name;
 span.onclick = () => {
 input.value = p.name;
 drop.classList.add("hidden");
@@ -2064,6 +2235,19 @@ updateAccountBar();
 initRevenueCat();
 initAdMob();
 
+// Populate friend name suggestions for round setup
+function populateFriendSuggestions(){
+const dl = document.getElementById("friendSuggestions");
+if(!dl) return;
+dl.innerHTML = "";
+savedFriends.forEach(f => {
+const opt = document.createElement("option");
+opt.value = f.name;
+dl.appendChild(opt);
+});
+}
+populateFriendSuggestions();
+
 const courseSearchEl = document.getElementById("courseSearch");
 const dropdown = document.getElementById("courseDropdown");
 
@@ -2586,9 +2770,61 @@ teamAInputs.appendChild(input);
 
 }
 
+// Build friends quick-select chips
+buildFriendChips();
+
 show("step-players");
 setTimeout(attachAllAutocomplete, 50);
 }
+
+function buildFriendChips(){
+const container = document.getElementById("friendChips");
+if(!container) return;
+const myName = userProfile ? userProfile.name : "";
+const friends = savedFriends.filter(f => f.name !== myName);
+container.style.display = friends.length ? "block" : "none";
+}
+
+window.openAddFriendToGame = () => {
+const modal = document.getElementById("addFriendToGameModal");
+const list = document.getElementById("addFriendToGameList");
+if(!list) return;
+list.innerHTML = "";
+
+const myName = userProfile ? userProfile.name : "";
+const friends = savedFriends.filter(f => f.name !== myName);
+
+if(!friends.length){
+list.innerHTML = `<p style="opacity:.6;text-align:center;padding:20px 0;">No friends added yet. Add friends in My Friends.</p>`;
+} else {
+friends.forEach(f => {
+const btn = document.createElement("button");
+btn.textContent = f.name;
+btn.style.cssText = "width:100%;margin-bottom:8px;background:rgba(255,255,255,.1);text-align:left;padding:12px 16px;border-radius:12px;font-size:15px;";
+btn.onclick = () => {
+const allInputs = [
+...document.querySelectorAll("#teamAInputs input"),
+...document.querySelectorAll("#teamBInputs input")
+];
+const empty = allInputs.find(i => !i.value.trim());
+if(empty){
+empty.value = f.name;
+empty.dispatchEvent(new Event("change"));
+btn.style.background = "rgba(46,204,113,.3)";
+btn.style.border = "1px solid #2ecc71";
+} else {
+alert("All player slots are filled.");
+}
+};
+list.appendChild(btn);
+});
+}
+modal.classList.remove("hidden");
+};
+
+window.closeAddFriendToGame = () => {
+document.getElementById("addFriendToGameModal")?.classList.add("hidden");
+};
 
 window.nextSettings = () => {
 show("step-settings");
@@ -3366,6 +3602,15 @@ holeOffset = 0;
 parArray = []; // manual mode
 }
 
+// Collect friend scores from round setup
+const roundFriendsData = [];
+for(let i = 1; i <= 3; i++){
+const nameEl = document.getElementById(`roundFriendName${i}`);
+if(nameEl?.value?.trim()){
+roundFriendsData.push({ name: nameEl.value.trim(), scores: [], totalStrokes: 0 });
+}
+}
+
 currentRound = {
 course: selectedCourseName || document.getElementById("courseName").value || "Unknown Course",
 rating,
@@ -3383,6 +3628,7 @@ totalPar: 0,
 loadedPars: parArray,
 loadedYardages: yardageArray,
 holeOffset,
+friends: roundFriendsData,
 };
 
 roundHistory = [];
@@ -3390,9 +3636,29 @@ updateRoundUI();
 show("round-play");
 };
 
+
+function buildFriendScoreInputs(){
+const container = document.getElementById("friendScoreInputs");
+if(!container) return;
+container.innerHTML = "";
+if(!currentRound?.friends?.length) return;
+
+currentRound.friends.forEach((f, i) => {
+const row = document.createElement("div");
+row.style.cssText = "display:flex;align-items:center;gap:10px;margin-bottom:8px;";
+row.innerHTML = `
+<div style="flex:1;font-size:14px;font-weight:600;">${f.name}</div>
+<input id="friendHoleScore${i}" type="number" inputmode="numeric" placeholder="Score"
+style="width:80px;text-align:center;font-size:16px;padding:8px;">
+`;
+container.appendChild(row);
+});
+}
+
 function updateRoundUI(){
 
 if(!currentRound) return;
+buildFriendScoreInputs();
 
 const parButtonContainer = document.getElementById("parButtonContainer");
 
@@ -3507,6 +3773,17 @@ document.getElementById("firToggle").classList.contains("active")
 currentRound.totalStrokes += score;
 currentRound.totalPar += par;
 
+// Collect friend scores for this hole
+if(currentRound.friends?.length){
+currentRound.friends.forEach((f, i) => {
+const el = document.getElementById(`friendHoleScore${i}`);
+const val = +el?.value || 0;
+f.scores.push(val);
+f.totalStrokes += val;
+if(el) el.value = "";
+});
+}
+
 document.getElementById("holeScore").value = "";
 document.querySelectorAll("#scoreButtons button").forEach(btn=>{
 btn.classList.remove("active");
@@ -3552,6 +3829,16 @@ currentRound.rating,
 currentRound.slope
 );
 
+// Build friends summary
+const friendsSummary = (currentRound.friends || []).map(f => {
+const totalPar = currentRound.totalPar || (currentRound.holes === 9 ? 36 : 72);
+return {
+name: f.name,
+strokes: f.totalStrokes,
+toPar: f.totalStrokes - totalPar
+};
+});
+
 userProfile.rounds.push({
 date: new Date().toISOString(),
 course: currentRound.course,
@@ -3567,7 +3854,8 @@ pars: currentRound.pars,
 putts: currentRound.putts,
 penalties: currentRound.penalties,
 gir: currentRound.gir,
-fir: currentRound.fir
+fir: currentRound.fir,
+friends: friendsSummary
 });
 
 updateHandicap();
@@ -3576,9 +3864,14 @@ localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
 autoSync();
 
-currentRound = null;
-alert("Round Saved!");
-goHomeClean();
+// Show scorecard with save button instead of alert
+openScorecardFinished();
+}
+
+function openScorecardFinished(){
+// Use the existing openScorecard but mark it as finished mode
+window._roundJustFinished = true;
+openScorecard();
 }
 
 window.cancelTrackedRound = () => {
@@ -3601,6 +3894,8 @@ let html = `
 <th>Par</th>
 <th>Score</th>
 <th>+/-</th>
+<th style="font-size:11px;">GIR</th>
+<th style="font-size:11px;">FIR</th>
 </tr>
 `;
 
@@ -3653,6 +3948,10 @@ scoreWrapStart = `<span style="border:2px solid #ffffff;padding:4px 10px;">`;
 scoreWrapEnd = `</span>`;
 }
 
+const girHit = currentRound.gir[i];
+const firHit = currentRound.fir[i];
+const isFirHole = par > 3; // FIR only applies to par 4 and 5
+
 html += `
 
 <tr style="border-bottom:1px solid rgba(255,255,255,.15)">
@@ -3662,6 +3961,8 @@ html += `
 ${scoreWrapStart}${score}${scoreWrapEnd}
 </td>
 <td>${diff>=0?"+":""}${diff}</td>
+<td style="font-size:14px;">${girHit ? "✅" : "❌"}</td>
+<td style="font-size:14px;">${isFirHole ? (firHit ? "✅" : "❌") : "<span style='opacity:.3;font-size:10px;'>N/A</span>"}</td>
 </tr>
 `;
 
@@ -3673,6 +3974,8 @@ html += `
 <td>${frontPar}</td>
 <td>${frontScore}</td>
 <td>${frontDiff>=0?"+":""}${frontDiff}</td>
+<td></td>
+<td></td>
 </tr>
 `;
 }
@@ -3687,6 +3990,8 @@ html += `
 <td>${backPar}</td>
 <td>${backScore}</td>
 <td>${backDiff>=0?"+":""}${backDiff}</td>
+<td></td>
+<td></td>
 </tr>
 `;
 }
@@ -3722,17 +4027,51 @@ GIR: ${girMade}/${girTotal} (${Math.round(girMade/girTotal*100)}%)<br>
 FIR: ${firMade}/${firTotal} (${Math.round(firMade/firTotal*100)}%)<br><br>
 
 Putts: ${totalPutts}<br>
+Avg Putts/Hole: ${(totalPutts / currentRound.scores.length).toFixed(1)}<br>
 Penalty Strokes: ${totalPens}
 
 </div>
 `;
 
+// Add friends summary if present
+if(currentRound?.friends?.length){
+const totalPar = currentRound.totalPar || (currentRound.holes === 9 ? 36 : 72);
+html += `<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;">
+<strong style="font-size:14px;">Playing With</strong><br><br>`;
+currentRound.friends.forEach(f => {
+const tp = f.totalStrokes - totalPar;
+html += `<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;">
+<span>${f.name}</span>
+<span>${f.totalStrokes} (${tp >= 0 ? "+" : ""}${tp})</span>
+</div>`;
+});
+html += `</div>`;
+}
+
 document.getElementById("scorecardTable").innerHTML = html;
+
+// Show Save Round button if round just finished
+const saveBtn = document.getElementById("scorecardSaveBtn");
+if(saveBtn){
+if(window._roundJustFinished){
+saveBtn.classList.remove("hidden");
+} else {
+saveBtn.classList.add("hidden");
+}
+}
+
 document.getElementById("scorecardModal").classList.remove("hidden");
 };
 
 window.closeScorecard = () => {
 document.getElementById("scorecardModal").classList.add("hidden");
+};
+
+window.saveAndCloseScorecard = () => {
+window._roundJustFinished = false;
+currentRound = null;
+document.getElementById("scorecardModal").classList.add("hidden");
+goHomeClean();
 };
 
 window.addManualRound = () => {
@@ -4300,6 +4639,8 @@ tab.classList.add("hidden");
 
 document.getElementById(tabId).classList.remove("hidden");
 
+if(tabId === "summaryTab") renderMyPaymentHandles();
+
 // Match button to tab by data or text
 document.querySelectorAll(".profile-tab").forEach(b=>{
 const map = {
@@ -4494,7 +4835,9 @@ return `
 function updateAdVisibility(){
 const adSlots = document.querySelectorAll(".ad-slot");
 adSlots.forEach(slot => {
-slot.style.display = hasStarterOrAbove() ? "none" : "flex";
+// On native, always hide HTML ad slot — AdMob handles ads
+// On web, show/hide based on tier
+slot.style.display = (isNative() || hasStarterOrAbove()) ? "none" : "flex";
 });
 if(isNative()){
 if(hasStarterOrAbove()){
@@ -4549,6 +4892,10 @@ wrapStart=`<span style="border:2px solid white;padding:4px 10px;">`;
 wrapEnd="</span>";
 }
 
+const girHit = r.gir[i];
+const firHit = r.fir[i];
+const isFirHole = par > 3;
+
 html += `
 
 <tr>
@@ -4560,7 +4907,7 @@ html += `
 <tr style="font-size:12px;color:#ccc">
 <td colspan="4">
 Putts ${r.putts[i]} | Pen ${r.penalties[i]} |
-GIR ${r.gir[i]?" ":""} | FIR ${r.fir[i]?" ":""}
+GIR ${girHit ? "✅" : "❌"} | FIR ${isFirHole ? (firHit ? "✅" : "❌") : "N/A"}
 </td>
 </tr>
 `;
@@ -4598,10 +4945,26 @@ GIR: ${girMade}/${girTotal} (${girTotal?Math.round(girMade/girTotal*100):0}%)<br
 FIR: ${firMade}/${firTotal} (${firTotal?Math.round(firMade/firTotal*100):0}%)<br><br>
 
 Putts: ${totalPutts}<br>
+Avg Putts/Hole: ${r.putts.length ? (totalPutts / r.putts.length).toFixed(1) : "—"}<br>
 Penalty Strokes: ${totalPens}
 
 </div>
 `;
+
+// Add friends summary if saved
+if(r.friends?.length){
+const totalPar = r.pars?.reduce((a,b)=>a+b,0) || (r.holes === 9 ? 36 : 72);
+html += `<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;">
+<strong style="font-size:14px;">Played With</strong><br><br>`;
+r.friends.forEach(f => {
+const tp = f.toPar !== undefined ? f.toPar : f.strokes - totalPar;
+html += `<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;">
+<span>${f.name}</span>
+<span>${f.strokes} (${tp >= 0 ? "+" : ""}${tp})</span>
+</div>`;
+});
+html += `</div>`;
+}
 
 document.getElementById("roundDetailContent").innerHTML = html;
 document.getElementById("roundDetailModal").classList.remove("hidden");
