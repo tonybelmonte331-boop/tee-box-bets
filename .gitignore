@@ -1,0 +1,15 @@
+# Capacitor generated
+android/
+ios/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Environment
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
