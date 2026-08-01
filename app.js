@@ -2053,6 +2053,476 @@ if(nineType) nineType.value = "front";
 
 }
 
+
+/* ================= SCRAMBLE TRACKER ================= */
+
+let scrambleRound = null;
+let scrambleHistory = [];
+
+window.openScrambleTracker = () => {
+    // Reset form
+    document.getElementById("scramblePlayerCount").value = "4";
+    buildScramblePlayerInputs();
+    document.getElementById("scrambleCourseSearch").value = "";
+    document.getElementById("scrambleCourseStatus").textContent = "";
+    document.getElementById("scrambleHoles").value = "18";
+    show("scramble-setup");
+};
+
+window.buildScramblePlayerInputs = () => {
+    const count = +document.getElementById("scramblePlayerCount").value;
+    const container = document.getElementById("scramblePlayerInputs");
+    container.innerHTML = "";
+    for(let i = 0; i < count; i++){
+        const inp = document.createElement("input");
+        inp.placeholder = `Player ${i+1} name`;
+        inp.id = `scramblePlayer${i}`;
+        if(i === 0 && userProfile?.name) inp.value = userProfile.name;
+        container.appendChild(inp);
+    }
+};
+
+window.startScrambleRound = () => {
+    const count = +document.getElementById("scramblePlayerCount").value;
+    const players = [];
+    for(let i = 0; i < count; i++){
+        const val = document.getElementById(`scramblePlayer${i}`)?.value.trim();
+        if(!val){ alert("Enter all player names"); return; }
+        players.push(val);
+    }
+
+    const holes = +document.getElementById("scrambleHoles").value;
+    const startingHole = +document.getElementById("scrambleStartingHole").value;
+    const courseName = document.getElementById("scrambleCourseSearch").value.trim() || "Unknown Course";
+    
+    // Get course pars
+    const saved = savedCourses.find(c => c.name === courseName);
+    const teeName = document.getElementById("scrambleTeeSelect")?.value || "Default";
+    const tee = saved?.tees?.[teeName];
+    const nineType = document.getElementById("scrambleNineType")?.value || "front";
+    
+    let fullParArray = [];
+    let fullYardageArray = [];
+    
+    if(tee){
+        if(holes === 18){
+            fullParArray = tee.pars || [];
+            fullYardageArray = tee.yardages || [];
+        } else if(nineType === "back"){
+            fullParArray = (tee.pars || []).slice(9,18);
+            fullYardageArray = (tee.yardages || []).slice(9,18);
+        } else {
+            fullParArray = (tee.pars || []).slice(0,9);
+            fullYardageArray = (tee.yardages || []).slice(0,9);
+        }
+    }
+
+    // Build shotgun order — starting from startingHole, wrapping around
+    const totalHoles = holes === 18 ? 18 : 9;
+    const shotgunOrder = []; // array of actual hole numbers in play order
+    for(let i = 0; i < totalHoles; i++){
+        const holeNum = ((startingHole - 1 + i) % totalHoles) + 1;
+        shotgunOrder.push(holeNum);
+    }
+
+    // Build par/yardage arrays in shotgun order
+    const parArray = shotgunOrder.map(h => fullParArray[h-1] || 4);
+    const yardageArray = shotgunOrder.map(h => fullYardageArray[h-1] || 0);
+
+    scrambleRound = {
+        course: courseName,
+        holes: totalHoles,
+        players,
+        currentHole: 1,
+        startingHole,
+        shotgunOrder,
+        parArray,
+        yardageArray,
+        scores: [],
+        holeData: [],
+        totalStrokes: 0,
+        totalPar: 0
+    };
+
+    scrambleHistory = [];
+    updateScrambleUI();
+    show("scramble-play");
+};
+
+function updateScrambleUI(){
+    if(!scrambleRound) return;
+    const h = scrambleRound.currentHole;
+    const actualHole = scrambleRound.shotgunOrder 
+        ? scrambleRound.shotgunOrder[h-1] 
+        : h + (scrambleRound.holeOffset || 0);
+    const par = scrambleRound.parArray[h-1] || 4;
+    const yds = scrambleRound.yardageArray[h-1];
+
+    document.getElementById("scrambleHoleDisplay").textContent =
+        `Hole ${actualHole} — Par ${par}${yds ? ` — ${yds} yds` : ""}`;
+
+    // Build tee shot buttons
+    const teeContainer = document.getElementById("scrambleTeeShotBtns");
+    teeContainer.innerHTML = "";
+    scrambleRound.players.forEach(p => {
+        const btn = document.createElement("button");
+        btn.textContent = p;
+        btn.className = "scramble-player-btn";
+        btn.onclick = () => {
+            teeContainer.querySelectorAll("button").forEach(b => b.classList.remove("scramble-selected"));
+            btn.classList.add("scramble-selected");
+            btn.dataset.selected = "true";
+        };
+        teeContainer.appendChild(btn);
+    });
+
+    // Build approach counters
+    const approachContainer = document.getElementById("scrambleApproachBtns");
+    approachContainer.innerHTML = "";
+    scrambleRound.players.forEach(p => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.06);border-radius:12px;";
+        row.innerHTML = `
+<span style="font-weight:600;font-size:14px;">${p}</span>
+<div style="display:flex;align-items:center;gap:12px;">
+<button onclick="this.parentNode.querySelector('.scramble-count').textContent=Math.max(0,+this.parentNode.querySelector('.scramble-count').textContent-1)" style="width:32px;height:32px;padding:0;font-size:18px;border-radius:50%;background:rgba(255,255,255,.15);margin:0;max-width:none;">−</button>
+<span class="scramble-count" data-player="${p}" style="font-size:18px;font-weight:700;min-width:24px;text-align:center;">0</span>
+<button onclick="this.parentNode.querySelector('.scramble-count').textContent=+this.parentNode.querySelector('.scramble-count').textContent+1" style="width:32px;height:32px;padding:0;font-size:18px;border-radius:50%;background:rgba(46,204,113,.4);margin:0;max-width:none;">+</button>
+</div>`;
+        approachContainer.appendChild(row);
+    });
+
+    // Build putt counters
+    const puttContainer = document.getElementById("scramblePuttBtns");
+    puttContainer.innerHTML = "";
+    scrambleRound.players.forEach(p => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.06);border-radius:12px;";
+        row.innerHTML = `
+<span style="font-weight:600;font-size:14px;">${p}</span>
+<div style="display:flex;align-items:center;gap:12px;">
+<button onclick="this.parentNode.querySelector('.scramble-count').textContent=Math.max(0,+this.parentNode.querySelector('.scramble-count').textContent-1)" style="width:32px;height:32px;padding:0;font-size:18px;border-radius:50%;background:rgba(255,255,255,.15);margin:0;max-width:none;">−</button>
+<span class="scramble-count" data-player="${p}" style="font-size:18px;font-weight:700;min-width:24px;text-align:center;">0</span>
+<button onclick="this.parentNode.querySelector('.scramble-count').textContent=+this.parentNode.querySelector('.scramble-count').textContent+1" style="width:32px;height:32px;padding:0;font-size:18px;border-radius:50%;background:rgba(46,204,113,.4);margin:0;max-width:none;">+</button>
+</div>`;
+        puttContainer.appendChild(row);
+    });
+
+    // Clear score
+    document.getElementById("scrambleScore").value = "";
+    document.querySelectorAll("#scrambleScoreButtons button").forEach(b => b.classList.remove("active"));
+
+    // Live stats
+    const toPar = scrambleRound.totalStrokes - scrambleRound.totalPar;
+    document.getElementById("scrambleLiveStats").textContent =
+        scrambleRound.scores.length
+        ? `Total ${scrambleRound.totalStrokes} | To Par ${toPar >= 0 ? "+" : ""}${toPar}`
+        : "";
+}
+
+window.setScrambleScore = (val, el) => {
+    tapHaptic();
+    document.getElementById("scrambleScore").value = val;
+    document.querySelectorAll("#scrambleScoreButtons button").forEach(b => b.classList.remove("active"));
+    el.classList.add("active");
+};
+
+window.submitScrambleHole = () => {
+    if(!scrambleRound) return;
+    const score = +document.getElementById("scrambleScore").value;
+    if(!score){ alert("Enter score for this hole"); return; }
+
+    const par = scrambleRound.parArray[scrambleRound.currentHole-1] || 4;
+
+    // Get tee shot
+    const teeBtn = document.querySelector("#scrambleTeeShotBtns button.scramble-selected");
+    const teeShot = teeBtn ? teeBtn.textContent : null;
+
+    // Get approach shots from counters
+    const approach = [];
+    document.querySelectorAll("#scrambleApproachBtns .scramble-count").forEach(el => {
+        const count = +el.textContent;
+        const player = el.dataset.player;
+        for(let i = 0; i < count; i++) approach.push(player);
+    });
+
+    // Get putts from counters
+    const putts = [];
+    document.querySelectorAll("#scramblePuttBtns .scramble-count").forEach(el => {
+        const count = +el.textContent;
+        const player = el.dataset.player;
+        for(let i = 0; i < count; i++) putts.push(player);
+    });
+
+    scrambleHistory.push(JSON.parse(JSON.stringify(scrambleRound)));
+    scrambleRound.scores.push(score);
+    scrambleRound.holeData.push({ score, par, teeShot, approach, putts });
+    scrambleRound.totalStrokes += score;
+    scrambleRound.totalPar += par;
+
+    if(scrambleRound.currentHole >= scrambleRound.holes){
+        finishScrambleRound();
+        return;
+    }
+
+    if(scrambleRound.currentHole === 9 && scrambleRound.holes === 18){
+        showInterstitialAd();
+    }
+
+    scrambleRound.currentHole++;
+    updateScrambleUI();
+};
+
+window.undoScrambleHole = () => {
+    if(!scrambleHistory.length) return;
+    scrambleRound = scrambleHistory.pop();
+    updateScrambleUI();
+};
+
+function finishScrambleRound(){
+    // Build contribution stats
+    const contributions = {};
+    scrambleRound.players.forEach(p => {
+        contributions[p] = { tee: 0, approach: 0, putts: 0 };
+    });
+
+    scrambleRound.holeData.forEach(h => {
+        if(h.teeShot && contributions[h.teeShot] !== undefined){
+            contributions[h.teeShot].tee++;
+        }
+        h.approach.forEach(p => {
+            if(contributions[p] !== undefined) contributions[p].approach++;
+        });
+        h.putts.forEach(p => {
+            if(contributions[p] !== undefined) contributions[p].putts++;
+        });
+    });
+
+    const toPar = scrambleRound.totalStrokes - scrambleRound.totalPar;
+
+    // Save to profile
+    if(!userProfile.scrambles) userProfile.scrambles = [];
+    userProfile.scrambles.push({
+        date: new Date().toISOString(),
+        course: scrambleRound.course,
+        holes: scrambleRound.holes,
+        players: [...scrambleRound.players],
+        totalStrokes: scrambleRound.totalStrokes,
+        totalPar: scrambleRound.totalPar,
+        toPar,
+        contributions,
+        holeData: [...scrambleRound.holeData]
+    });
+    if(userProfile.scrambles.length > 20) userProfile.scrambles = userProfile.scrambles.slice(-20);
+    localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+    // Show results
+    showScrambleResults(contributions, toPar);
+}
+
+function showScrambleResults(contributions, toPar){
+    let html = `
+<div style="text-align:center;margin-bottom:16px;">
+<div style="font-size:48px;font-weight:900;color:${toPar < 0 ? "#2ecc71" : toPar === 0 ? "#fff" : "#e74c3c"}">
+${toPar > 0 ? "+" : ""}${toPar}
+</div>
+<div style="font-size:18px;font-weight:700;">${scrambleRound.totalStrokes} strokes</div>
+<div style="opacity:.6;font-size:13px;">${scrambleRound.course}</div>
+</div>
+
+<div style="margin-bottom:16px;">
+<h4 style="margin-bottom:10px;">Shot Contributions</h4>
+${scrambleRound.players.map(p => `
+<div style="background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+<div style="font-weight:700;font-size:15px;margin-bottom:6px;">${p}</div>
+<div style="display:flex;gap:16px;font-size:13px;opacity:.8;">
+<span>🏌️ Tee: ${contributions[p].tee}</span>
+<span>⛳ Approach: ${contributions[p].approach}</span>
+<span>🎯 Putts: ${contributions[p].putts}</span>
+</div>
+</div>`).join("")}
+</div>
+
+<div>
+<h4 style="margin-bottom:10px;">Scorecard</h4>
+<table style="width:100%;border-collapse:collapse;text-align:center;font-size:13px;">
+<tr style="border-bottom:1px solid rgba(255,255,255,.15);">
+<th>Hole</th><th>Par</th><th>Score</th><th>+/-</th>
+</tr>
+${scrambleRound.holeData.map((h, i) => {
+    const diff = h.score - h.par;
+    let style = "";
+    if(diff <= -2) style = "color:#ffd700;font-weight:800;";
+    else if(diff === -1) style = "color:#2ecc71;font-weight:800;";
+    else if(diff >= 1) style = "color:#e74c3c;";
+    const actualHole = scrambleRound.shotgunOrder ? scrambleRound.shotgunOrder[i] : i + 1;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,.08);">
+<td>${actualHole}</td>
+<td>${h.par}</td>
+<td style="${style}">${h.score}</td>
+<td>${diff >= 0 ? "+" : ""}${diff}</td>
+</tr>`;
+}).join("")}
+</table>
+</div>
+`;
+
+    document.getElementById("scrambleResultsContent").innerHTML = html;
+    document.getElementById("scrambleResultsModal").classList.remove("hidden");
+}
+
+window.closeScrambleResults = () => {
+    document.getElementById("scrambleResultsModal").classList.add("hidden");
+    scrambleRound = null;
+    goHomeClean();
+};
+
+window.openScrambleHistory = () => {
+    const container = document.getElementById("scrambleHistoryList");
+    container.innerHTML = "";
+    const scrambles = [...(userProfile.scrambles || [])].reverse();
+    if(!scrambles.length){
+        container.innerHTML = `<p style="opacity:.6;text-align:center;padding:20px 0;">No scrambles recorded yet.</p>`;
+    } else {
+        scrambles.forEach((s, i) => {
+            const d = new Date(s.date);
+            const date = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
+            const card = document.createElement("div");
+            card.className = "round-card";
+            card.style.cursor = "pointer";
+            card.innerHTML = `
+<div class="round-card-left">
+<div class="round-card-title">${date} — ${s.course}</div>
+<div class="round-card-sub">${s.players.join(", ")} · ${s.totalStrokes} (${s.toPar >= 0 ? "+" : ""}${s.toPar})</div>
+</div>`;
+            card.onclick = () => showPastScramble(i);
+            container.appendChild(card);
+        });
+    }
+    document.getElementById("scrambleHistoryModal").classList.remove("hidden");
+};
+
+function showPastScramble(index){
+    const s = [...(userProfile.scrambles || [])].reverse()[index];
+    if(!s) return;
+
+    scrambleRound = {
+        course: s.course,
+        holes: s.holes,
+        players: s.players,
+        holeData: s.holeData,
+        totalStrokes: s.totalStrokes,
+        totalPar: s.totalPar,
+        holeOffset: 0,
+        shotgunOrder: s.holeData.map((_, i) => i + 1),
+        parArray: s.holeData.map(h => h.par),
+        yardageArray: []
+    };
+
+    // Close history modal first
+    document.getElementById("scrambleHistoryModal").classList.add("hidden");
+    showScrambleResults(s.contributions, s.toPar);
+}
+
+window.closeScrambleHistory = () => {
+    document.getElementById("scrambleHistoryModal").classList.add("hidden");
+};
+
+// Course search for scramble
+window.searchScrambleCourse = async () => {
+    const input = document.getElementById("scrambleCourseSearch");
+    const status = document.getElementById("scrambleCourseStatus");
+    const drop = document.getElementById("scrambleCourseDropdown");
+    const q = input?.value?.trim();
+    if(!q || q.length < 2) return;
+    status.textContent = "Searching...";
+    drop.innerHTML = "";
+    drop.classList.remove("hidden");
+    try {
+        const localMatches = savedCourses.filter(c => c.name.toLowerCase().includes(q.toLowerCase()));
+        const data = await callGolfProxy({ action: "search", q });
+        const courses = data.courses || [];
+        drop.innerHTML = "";
+        localMatches.forEach(c => {
+            const row = document.createElement("div");
+            row.className = "course-row";
+            const name = document.createElement("span");
+            name.textContent = "⭐ " + c.name;
+            name.onclick = () => selectScrambleCourse(c.name);
+            row.appendChild(name);
+            drop.appendChild(row);
+        });
+        courses.slice(0, 8).forEach(c => {
+            const row = document.createElement("div");
+            row.className = "course-row";
+            const name = document.createElement("span");
+            name.textContent = `${c.club_name} — ${c.location?.city || ""}, ${c.location?.state || ""}`.trim().replace(/,\s*$/, "");
+            name.onclick = async () => {
+                status.textContent = "Loading...";
+                drop.classList.add("hidden");
+                input.value = c.club_name;
+                await loadScrambleCourseFromAPI(c.id, c.club_name);
+            };
+            row.appendChild(name);
+            drop.appendChild(row);
+        });
+        if(!drop.children.length) drop.classList.add("hidden");
+    } catch(err) {
+        status.textContent = "Search failed";
+    }
+};
+
+async function loadScrambleCourseFromAPI(courseId, clubName){
+    const status = document.getElementById("scrambleCourseStatus");
+    try {
+        const data = await callGolfProxy({ action: "course", id: courseId });
+        const course = data.course || data;
+        const allTees = [
+            ...(course.tees?.male || []).map(t => ({ ...t, gender:"M" })),
+            ...(course.tees?.female || []).map(t => ({ ...t, gender:"F" })),
+        ];
+        const tees = {};
+        allTees.forEach(tee => {
+            const name = tee.tee_name + (allTees.filter(t => t.tee_name === tee.tee_name).length > 1 ? ` (${tee.gender === "M" ? "Men" : "Women"})` : "");
+            tees[name] = {
+                rating: parseFloat(tee.course_rating) || 72,
+                slope: parseInt(tee.slope_rating) || 113,
+                pars: (tee.holes||[]).map(h => h.par||4),
+                yardages: (tee.holes||[]).map(h => h.yardage||0)
+            };
+        });
+        if(!savedCourses.find(c => c.name.toLowerCase() === clubName.toLowerCase())){
+            savedCourses.push({ name: clubName, favorite: false, fromAPI: true, tees });
+            localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+        }
+        populateScrambleTees(clubName, tees);
+        status.textContent = "✅ " + clubName;
+    } catch(err) {
+        status.textContent = "Failed to load course";
+    }
+}
+
+function selectScrambleCourse(courseName){
+    document.getElementById("scrambleCourseSearch").value = courseName;
+    document.getElementById("scrambleCourseDropdown").classList.add("hidden");
+    const saved = savedCourses.find(c => c.name === courseName);
+    if(saved?.tees) populateScrambleTees(courseName, saved.tees);
+    document.getElementById("scrambleCourseStatus").textContent = "✅ " + courseName;
+}
+
+function populateScrambleTees(courseName, tees){
+    const teeRow = document.getElementById("scrambleTeeRow");
+    const teeSelect = document.getElementById("scrambleTeeSelect");
+    teeSelect.innerHTML = "";
+    Object.keys(tees).forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t; opt.textContent = t;
+        teeSelect.appendChild(opt);
+    });
+    teeRow.classList.remove("hidden");
+}
+
+
 function goHomeClean(){
 
 userProfile = JSON.parse(localStorage.getItem("userProfile"));

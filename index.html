@@ -35,6 +35,7 @@
 
 <button onclick="openGroupsManager()">My Groups</button>
 <button onclick="openFriendsManager()">My Friends</button>
+<button onclick="openScrambleTracker()">🏌️ Scramble</button>
 
 </div>
 
@@ -88,6 +89,10 @@
 <div class="profile-card">
 <h3>Round History</h3>
 <div id="roundHistoryTable"></div>
+</div>
+<div class="profile-card">
+<h3>🏌️ Scramble History</h3>
+<button onclick="openScrambleHistory()" style="font-size:13px;padding:8px 16px;width:auto;max-width:none;">View Scrambles</button>
 </div>
 </div>
 
@@ -307,6 +312,97 @@ Add Previous Round
 <button onclick="openScorecard()">Scorecard</button>
 <button onclick="submitHoleScore()">Next Hole</button>
 
+</section>
+
+
+<!-- ===== SCRAMBLE SETUP ===== -->
+<section id="scramble-setup" class="hidden">
+<h3>Scramble Tracker</h3>
+
+<div class="round-setup-card">
+<label>Search Course</label>
+<div class="course-select-wrapper">
+<div class="course-search-row">
+<input id="scrambleCourseSearch" placeholder="Type course name..." autocomplete="off">
+<button class="search-icon-btn" onclick="searchScrambleCourse()">🔍</button>
+</div>
+<div id="scrambleCourseDropdown" class="course-dropdown hidden"></div>
+</div>
+<div id="scrambleCourseStatus" style="font-size:12px;opacity:.6;margin-top:4px;min-height:16px;"></div>
+<div id="scrambleTeeRow" class="hidden" style="margin-top:10px;">
+<label>Tee Box</label>
+<select id="scrambleTeeSelect"></select>
+</div>
+</div>
+
+<label>Holes</label>
+<select id="scrambleHoles" onchange="document.getElementById('scrambleNineType').classList.toggle('hidden', this.value==='18')">
+<option value="9">9 Holes</option>
+<option value="18" selected>18 Holes</option>
+</select>
+
+<select id="scrambleNineType" class="hidden">
+<option value="front">Front 9</option>
+<option value="back">Back 9</option>
+</select>
+
+<label>Starting Hole <span style="opacity:.5;font-size:12px;">(Shotgun start)</span></label>
+<select id="scrambleStartingHole">
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
+</select>
+
+<label>Number of Players</label>
+<select id="scramblePlayerCount" onchange="buildScramblePlayerInputs()">
+<option value="2">2 Players</option>
+<option value="3">3 Players</option>
+<option value="4" selected>4 Players</option>
+</select>
+
+<div id="scramblePlayerInputs"></div>
+
+<button onclick="startScrambleRound()" style="margin-top:16px;">Start Scramble</button>
+</section>
+
+<!-- ===== SCRAMBLE PLAY ===== -->
+<section id="scramble-play" class="hidden">
+<h3 id="scrambleHoleDisplay"></h3>
+<h4 id="scrambleLiveStats" style="opacity:.7;font-size:14px;"></h4>
+
+<div class="round-setup-card" style="margin-bottom:12px;">
+<label style="font-weight:700;margin-bottom:8px;display:block;">🏌️ Tee Shot</label>
+<p style="font-size:12px;opacity:.6;margin-bottom:8px;">Select whose tee shot was used</p>
+<div id="scrambleTeeShotBtns" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+</div>
+
+<div class="round-setup-card" style="margin-bottom:12px;">
+<label style="font-weight:700;margin-bottom:8px;display:block;">⛳ Approach & Fairway</label>
+<p style="font-size:12px;opacity:.6;margin-bottom:8px;">Tap + to add shots per player</p>
+<div id="scrambleApproachBtns" style="display:flex;flex-direction:column;gap:8px;"></div>
+</div>
+
+<div class="round-setup-card" style="margin-bottom:12px;">
+<label style="font-weight:700;margin-bottom:8px;display:block;">🎯 Putting</label>
+<p style="font-size:12px;opacity:.6;margin-bottom:8px;">Tap + to add putts per player</p>
+<div id="scramblePuttBtns" style="display:flex;flex-direction:column;gap:8px;"></div>
+</div>
+
+<div class="round-setup-card" style="margin-bottom:12px;">
+<label style="font-weight:700;margin-bottom:8px;display:block;">Score</label>
+<div id="scrambleScoreButtons" class="score-buttons">
+<button onclick="setScrambleScore(1,this)">1</button>
+<button onclick="setScrambleScore(2,this)">2</button>
+<button onclick="setScrambleScore(3,this)">3</button>
+<button onclick="setScrambleScore(4,this)">4</button>
+<button onclick="setScrambleScore(5,this)">5</button>
+<button onclick="setScrambleScore(6,this)">6</button>
+<button onclick="setScrambleScore(7,this)">7</button>
+<button onclick="setScrambleScore(8,this)">8+</button>
+</div>
+<input id="scrambleScore" type="number" inputmode="numeric" class="hidden">
+</div>
+
+<button onclick="undoScrambleHole()" style="background:rgba(255,255,255,.1);">Undo</button>
+<button onclick="submitScrambleHole()">Next Hole</button>
 </section>
 
 <!-- ===== GAME SELECT ===== -->
@@ -935,6 +1031,25 @@ Save Course
 </div>
 
 
+
+
+<!-- Scramble Results Modal -->
+<div id="scrambleResultsModal" class="modal hidden">
+<div class="modal-box" onclick="event.stopPropagation()" style="max-width:460px;">
+<h3 style="text-align:center;">🏌️ Scramble Results</h3>
+<div id="scrambleResultsContent"></div>
+<button onclick="closeScrambleResults()" style="background:linear-gradient(135deg,#1a7a4f,#2ecc71);margin-top:16px;">Done</button>
+</div>
+</div>
+
+<!-- Scramble History Modal -->
+<div id="scrambleHistoryModal" class="modal hidden" onclick="closeScrambleHistory()">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>Scramble History</h3>
+<div id="scrambleHistoryList"></div>
+<button onclick="closeScrambleHistory()" style="background:rgba(255,255,255,.1);margin-top:8px;">Close</button>
+</div>
+</div>
 
 <!-- Add Friend to Game Modal -->
 <div id="addFriendToGameModal" class="modal hidden" onclick="closeAddFriendToGame()">

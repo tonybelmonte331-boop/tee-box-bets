@@ -1964,3 +1964,32 @@ margin-bottom: 10px;
 #authSignupExtra input {
 margin-bottom: 10px;
 }
+
+
+#scramble-setup,
+#scramble-play {
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+/* ===== SCRAMBLE TRACKER ===== */
+.scramble-player-btn {
+width: auto;
+max-width: none;
+padding: 10px 18px;
+border-radius: 20px;
+font-size: 14px;
+font-weight: 600;
+background: rgba(255,255,255,.12);
+border: 2px solid rgba(255,255,255,.2);
+color: #fff;
+cursor: pointer;
+margin: 0;
+transition: background .15s, border-color .15s;
+}
+
+.scramble-player-btn.scramble-selected {
+background: rgba(46,204,113,.35);
+border-color: #2ecc71;
+color: #2ecc71;
+}
